@@ -1,4 +1,6 @@
 // Circle-vs-AABB collision against city footprints plus world bounds; shared by all movers.
+// Footprints register lazily through a uniform spatial grid, so late-built props (garage,
+// neon signs) are indexed the same way as the city bake.
 import {obstacles} from './city.js';
 import {LAND,PITCH,PIER} from './config.js';
 // uniform grid: only test footprints in nearby cells
@@ -49,3 +51,5 @@ export function collideCircle(x,z,r){
 }
 export function blocked(x,z,r=0.5){return collideCircle(x,z,r).hit;}
 export const dist2=(ax,az,bx,bz)=>{const dx=ax-bx,dz=az-bz;return dx*dx+dz*dz;};
+// shortest signed angle from a to b, in (-PI,PI]: steering and turret aiming share it
+export function angleDelta(a,b){let d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return d;}

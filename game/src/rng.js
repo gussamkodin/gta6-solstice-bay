@@ -1,4 +1,5 @@
-// Seeded PRNG (mulberry32) so photo mode and traffic staging are reproducible.
+// Seeded PRNG (mulberry32) so photo mode, traffic staging and AI decisions are reproducible.
+// Every random choice that affects a staged frame goes through a seeded stream, never Math.random.
 export function makeRng(seed) {
   let a = seed >>> 0;
   const next = () => {
@@ -10,6 +11,7 @@ export function makeRng(seed) {
   next.range = (lo, hi) => lo + next() * (hi - lo);
   next.int = (lo, hi) => Math.floor(next.range(lo, hi + 1));
   next.pick = arr => arr[Math.floor(next() * arr.length)];
+  next.chance = p => next() < p;
   return next;
 }
 export const rng = makeRng(20261119);

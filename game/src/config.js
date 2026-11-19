@@ -1,4 +1,6 @@
-// World layout, palette and tuning constants for Solstice Bay.
+// World layout, neon-sunset palette and tuning constants for Solstice Bay.
+// The whole city is lit at last light: low warm sun west over the hills, teal ocean east,
+// pastel art-deco walls, glowing windows and signage, wet-look asphalt.
 export const BLOCKS = 8;            // city blocks per axis
 export const BLOCK = 56;            // block width (sidewalk to sidewalk)
 export const ROAD = 16;             // road width
@@ -16,11 +18,13 @@ export const roadAt = i => -HALF + ROAD / 2 + i * PITCH;
 export const blockAt = i => -HALF + ROAD + BLOCK / 2 + i * PITCH;
 
 export const PALETTE = {
-  skyTop: 0x2e6f9e, skyHorizon: 0xffd9a0, sun: 0xffe3b0,
-  fog: 0xf4c98f, asphalt: 0x3a3d44, sidewalk: 0xb9b0a2,
-  sand: 0xe8d5a3, grass: 0x7fae62, water: 0x1e7f96,
-  pastel: [0xf2b8c6, 0xf7d9a8, 0xa8d8d0, 0xf2a68c, 0xc9c2e8, 0xf5e6c8, 0x9fc6e8, 0xe8b7d0],
+  skyTop: 0x2c3a6e, skyMid: 0xd95f8a, skyHorizon: 0xffb469, sun: 0xffc07a,
+  fog: 0xf09a72, asphalt: 0x2c2f3a, sidewalk: 0xc0ab97,
+  sand: 0xeccf9b, grass: 0x74a05e, water: 0x14707f,
+  pastel: [0xf5a8c0, 0xf7cf96, 0x93d8cc, 0xf29a80, 0xbfaef0, 0xf5e0b8, 0x8fc0ea, 0xe8a8cc],
   portColors: [0xc0563e, 0x3e7fc0, 0xd8a03c, 0x4f9e6a, 0x8a8f98],
+  neonPink: 0xff4fa0, neonCyan: 0x3fe8e0, neonAmber: 0xffb347, neonViolet: 0xb46bff,
+  windowLit: 0xffca7a, windowCool: 0x9fd8e8,
 };
 
 export const DISTRICTS = [
@@ -57,3 +61,8 @@ export const WEAPONS = [
 export const HOSPITAL = { x: 108, z: -80 };
 export const PRECINCT = { x: -108, z: 80 };
 export const SPAWN = { x: 246, z: 10 };
+
+// nitro tuning: meter drains while held, regenerates over time (faster at Street Legend)
+export const NITRO = { drain: 34, regen: 9, regenPerk: 16, minSpeed: 4 };
+// safehouse garage on the Palmetto Row curb: save, repair, swap the stored ride
+export const GARAGE = { x: -36, z: 224, label: 'CORTEZ GARAGE' };

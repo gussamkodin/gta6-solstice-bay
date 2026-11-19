@@ -1,9 +1,10 @@
-// Third-person follow camera with mouse orbit, tuned separately for foot and car.
+// Third-person follow camera: mouse orbit, wall sweep, speed FOV kick and NOS rumble,
+// tuned separately for foot and car. Staged photos snap the camera so captures are exact.
 import {THREE} from './three.js';
 import {state} from './state.js';
 import {mouse} from './input.js';
 import {collideCircle} from './physics.js';
-export const cam={yaw:Math.PI,pitch:.32,dist:7.5,shake:0,fov:62};
+export const cam={yaw:Math.PI,pitch:.32,dist:7.5,shake:0,fov:62,snap:false};
 export function updateCamera(camera,dt){
  cam.yaw-=mouse.dx*.0026;cam.pitch=Math.max(-.15,Math.min(1.15,cam.pitch+mouse.dy*.0022));
  const inCar=state.inCar>=0;
@@ -31,10 +32,13 @@ export function updateCamera(camera,dt){
  const solved={x:cx,z:cz};
  const cy2=cy;
  cam.shake=Math.max(0,cam.shake-dt*3);
- const sx=(Math.random()-.5)*cam.shake,sy=(Math.random()-.5)*cam.shake;
- camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
+ // deterministic photos carry no shake jitter; NOS adds a low rumble while boosting
+ const shakeAmt=state.photo?0:cam.shake+(state.nosActive?.045:0);
+ const sx=(Math.random()-.5)*shakeAmt,sy=(Math.random()-.5)*shakeAmt;
+ if(cam.snap){camera.position.set(solved.x,cy2,solved.z);cam.snap=false;}
+ else camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
  camera.lookAt(target.x,1.5+(inCar?.6:0),target.z);
- const targetFov=62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0);
+ const targetFov=62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0)+(state.nosActive?6:0);
  cam.fov+=(targetFov-cam.fov)*Math.min(1,dt*4);
  camera.fov=cam.fov;camera.updateProjectionMatrix();
 }

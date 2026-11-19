@@ -1,9 +1,11 @@
 // World pickups: ammo, armor, cash and health placed around districts; respawn after a delay.
+// Ammo crates restock every unlocked weapon, and cash bundles roll from the seeded stream.
 import {world} from './world.js';
 import {state,notify} from './state.js';
 import {makePickup} from './effects.js';
 import {dist2} from './physics.js';
 import {sfxPickup} from './audio.js';
+import {rng} from './rng.js';
 const SPOTS=[
  {x:236,z:60,kind:'ammo',color:0xf2c12e},{x:120,z:-66,kind:'armor',color:0x69c3d6},
  {x:-60,z:150,kind:'cash',color:0xa9e3a2},{x:-200,z:-150,kind:'ammo',color:0xf2c12e},
@@ -21,10 +23,10 @@ export function updatePickups(dt){
   m.rotation.y+=dt*2.4;m.position.y=1.1+Math.sin(state.time*3+m.position.x)*.15;
   if(dist2(px,pz,m.position.x,m.position.z)<4){
    const kind=m.userData.spot.kind;
-   if(kind==='ammo'){state.ammo[1]+=24;if(state.unlockedWeapons[2])state.ammo[2]+=60;notify('+ AMMO');}
+   if(kind==='ammo'){state.ammo[1]+=24;if(state.unlockedWeapons[2])state.ammo[2]+=60;if(state.unlockedWeapons[3])state.ammo[3]+=8;notify('+ AMMO');}
    if(kind==='armor'){state.foot.armor=Math.min(100,state.foot.armor+50);notify('+ ARMOR');}
    if(kind==='health'){state.foot.health=Math.min(100,state.foot.health+50);notify('+ HEALTH');}
-   if(kind==='cash'){const amt=100+Math.floor(Math.random()*150);state.cash+=amt;notify('+ $'+amt);}
+   if(kind==='cash'){const amt=100+rng.int(0,149);state.cash+=amt;notify('+ $'+amt);}
    sfxPickup();m.visible=false;m.userData.respawn=45;
   }
  }

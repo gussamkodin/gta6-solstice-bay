@@ -1,4 +1,5 @@
-// Low-poly articulated characters: player avatar, pedestrians, drivers, police, gang members.
+// Low-poly articulated characters: player avatar, pedestrians, drivers, police, gang, crew.
+// A held sidearm (buildHuman({gun:true})) rides the right hand so aiming poses read at a glance.
 import {THREE} from './three.js';
 import {rng} from './rng.js';
 const SKIN=[0xd9a066,0xb07848,0x8a5a34,0xe8b88a,0x6a4426];
@@ -25,6 +26,8 @@ export function buildHuman(opts={}){
  part(legL,.18,.1,.3,m(0x22262a),0,-.7,.04);part(legR,.18,.1,.3,m(0x22262a),0,-.7,.04);
  g.add(legL,legR);
  if(opts.cap){part(g,.3,.08,.3,m(opts.cap),0,1.72,0);part(g,.3,.03,.14,m(opts.cap),0,1.68,.18);}
+ if(opts.gun){const gun=part(armR,.07,.09,.34,m(0x1a1d22),0,-.56,.14);gun.name='sidearm';}
+ if(opts.satchel)part(g,.2,.26,.12,m(0x5a4632),-.3,.95,0);
  g.userData={armL,armR,legL,legR,torso,head,phase:rng()*6};
  return g;
 }

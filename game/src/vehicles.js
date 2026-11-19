@@ -1,15 +1,18 @@
-// Stylized low-poly vehicles: sedan, sports, pickup, taxi, police cruiser. Built from primitives.
+// Stylized low-poly vehicles: sedan, sports, pickup, taxi, police cruiser — plus arcade
+// car physics with nitro boost. Every car carries hidden exhaust flame cones for NOS.
 import {THREE} from './three.js';
 import {CAR_TYPES} from './config.js';
 import {addBox} from './city.js';
 import {rng} from './rng.js';
-const bodyMats={},glassMat=new THREE.MeshStandardMaterial({color:0x223540,roughness:.2,metalness:.4});
+const bodyMats={},glassMat=new THREE.MeshStandardMaterial({color:0x1c2c3a,roughness:.12,metalness:.55});
 const wheelMat=new THREE.MeshStandardMaterial({color:0x14181c,roughness:.9});
 const hubMat=new THREE.MeshStandardMaterial({color:0x9aa4ac,roughness:.4,metalness:.6});
 const whiteMat=new THREE.MeshStandardMaterial({color:0xf2f2ee,roughness:.6});
-const tailMat=new THREE.MeshStandardMaterial({color:0xc22a1e,roughness:.5,emissive:0x661108});
-const headMat=new THREE.MeshStandardMaterial({color:0xfff2c8,roughness:.3,emissive:0x8a7a40});
-function paint(color){const key='c'+color;if(!bodyMats[key])bodyMats[key]=new THREE.MeshStandardMaterial({color,roughness:.35,metalness:.35});return bodyMats[key];}
+const tailMat=new THREE.MeshStandardMaterial({color:0xc22a1e,roughness:.5,emissive:0xaa1a0e,emissiveIntensity:.9});
+const headMat=new THREE.MeshStandardMaterial({color:0xfff2c8,roughness:.3,emissive:0xffe9a8,emissiveIntensity:1.1});
+const flameMat=new THREE.MeshBasicMaterial({color:0x66d9ff,transparent:true,opacity:.9});
+const flameCoreMat=new THREE.MeshBasicMaterial({color:0xfff6d8,transparent:true,opacity:.95});
+function paint(color){const key='c'+color;if(!bodyMats[key])bodyMats[key]=new THREE.MeshStandardMaterial({color,roughness:.28,metalness:.45});return bodyMats[key];}
 export function buildVehicle(type){
  const spec=CAR_TYPES[type],color=rng.pick(spec.colors),g=new THREE.Group(),body=paint(color);
  const {w,l,h}=spec;
@@ -43,20 +46,32 @@ export function buildVehicle(type){
   addBox(g,0,.58,l/2+.05,w*.5,.3,.1,whiteMat);
  }
  if(type==='taxi'){addBox(g,0,.35+h*1.02,0,.7,.2,.35,whiteMat);}
- g.userData={type,spec,color,wheels,lightbar};
+ // nitro exhaust flames: twin cones at the rear, shown only while boosting
+ const flames=new THREE.Group();
+ for(const s of [-1,1]){
+  const outer=new THREE.Mesh(new THREE.ConeGeometry(.16,.9,6),flameMat);
+  outer.rotation.x=-Math.PI/2;outer.position.set(s*w*.28,.42,-l/2-.45);flames.add(outer);
+  const core=new THREE.Mesh(new THREE.ConeGeometry(.08,.55,6),flameCoreMat);
+  core.rotation.x=-Math.PI/2;core.position.set(s*w*.28,.42,-l/2-.28);flames.add(core);
+ }
+ flames.visible=false;g.add(flames);
+ g.userData={type,spec,color,wheels,lightbar,flames};
  return g;
 }
 // simple arcade car physics: heading, speed, drift-ish lateral grip
 export function makeCar(type,x,z,heading=0){
  const mesh=buildVehicle(type);mesh.position.set(x,0,z);mesh.rotation.y=heading;
- return{mesh,type,spec:CAR_TYPES[type],x,z,heading,speed:0,steer:0,health:100,ai:null,driver:null,dead:false,vy:0};
+ return{mesh,type,spec:CAR_TYPES[type],x,z,heading,speed:0,steer:0,health:100,ai:null,driver:null,dead:false,vy:0,nos:false};
 }
 export function stepCar(car,dt,throttle,brake,steerInput){
  const s=car.spec;
- car.speed+=throttle*s.accel*dt;
+ // NOS: extra shove and a higher speed ceiling while the boost is held
+ const boost=car.nos&&car.speed>4;
+ car.speed+=throttle*s.accel*(boost?1.9:1)*dt;
+ if(boost)car.speed+=s.accel*1.1*dt;
  if(brake)car.speed-=Math.sign(car.speed)*s.accel*1.6*dt;
  car.speed-=car.speed*.35*dt; // drag
- car.speed=Math.max(-s.speed*.35,Math.min(s.speed,car.speed));
+ car.speed=Math.max(-s.speed*.35,Math.min(s.speed*(boost?1.45:1),car.speed));
  const steerMax=.55/(1+Math.abs(car.speed)*.045);
  car.steer+=(steerInput*steerMax-car.steer)*Math.min(1,dt*8);
  car.heading+=car.steer*car.speed*dt*.28;
@@ -66,4 +81,7 @@ export function stepCar(car,dt,throttle,brake,steerInput){
  // body roll and wheel spin
  car.mesh.rotation.z=car.steer*Math.min(1,Math.abs(car.speed)/12)*.12;
  for(const w of car.mesh.userData.wheels){w.rotation.x+=car.speed*dt*2.2;}
+ // flicker the exhaust flames while boosting so the burn reads as live fire
+ const flames=car.mesh.userData.flames;
+ if(flames){flames.visible=boost;if(boost){const f=Math.abs(Math.sin(car.x*3.1+car.z*2.7));flames.scale.setScalar(.8+f*.4);}}
 }

@@ -1,4 +1,5 @@
 // AI traffic on the road grid plus sidewalk pedestrians with panic/flee reactions.
+// Head-on avoidance and horn honks run off the seeded stream so traffic is reproducible.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state} from './state.js';
@@ -73,7 +74,7 @@ export function updateTraffic(dt){
    const dx=other.x-car.x,dz=other.z-car.z;
    const fx=Math.sin(car.heading),fz=-Math.cos(car.heading);
    const ahead=dx*fx+dz*fz,side=Math.abs(dx*fz-dz*fx);
-   if(ahead>0&&ahead<12&&side<2.4){target=Math.min(target,Math.max(0,other.speed-2));if(ahead<6&&Math.random()<dt*.5)sfxHorn();}
+   if(ahead>0&&ahead<12&&side<2.4){target=Math.min(target,Math.max(0,other.speed-2));if(ahead<6&&trafficRng()<dt*.5)sfxHorn();}
   }
   // slow for player on foot directly ahead
   const pdx=px-car.x,pdz=pz-car.z,fx=Math.sin(car.heading),fz=-Math.cos(car.heading);
