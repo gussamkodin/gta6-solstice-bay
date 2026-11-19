@@ -36,7 +36,7 @@ function fire(p,w){
   for(const ped of world.peds){
    if(ped.dead||ped.inCar)continue;
    if(dist2(p.x,p.z,ped.x,ped.z)<w.range*w.range){
-    const facing=Math.atan2(-(ped.x-p.x),ped.z-p.z);
+    const facing=Math.atan2(ped.x-p.x,ped.z-p.z);
     let diff=facing-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
     if(Math.abs(diff)<1.2){hurtPed(ped,w.dmg,p);hitAny=true;}
    }
@@ -47,13 +47,13 @@ function fire(p,w){
  state.ammo[state.weapon]--;
  state.gunfireT=.5;
  sfxGun(state.weapon);
- const mx=originX-Math.sin(aim.yaw)*.7,mz=originZ+Math.cos(aim.yaw)*.7;
+ const mx=originX+Math.sin(aim.yaw)*.7,mz=originZ+Math.cos(aim.yaw)*.7;
  muzzleFlash(mx,originY,mz);
  cam.shake=Math.min(.35,cam.shake+(state.weapon===3?.25:.07));
  reportCrime('shoot',p.x,p.z);
  for(let pellet=0;pellet<w.pellets;pellet++){
   const yaw=aim.yaw+rng.range(-w.spread,w.spread),pitch=aim.pitch+rng.range(-w.spread,w.spread);
-  const dx=-Math.sin(yaw)*Math.cos(pitch),dy=Math.sin(pitch),dz=Math.cos(yaw)*Math.cos(pitch);
+  const dx=Math.sin(yaw)*Math.cos(pitch),dy=Math.sin(pitch),dz=Math.cos(yaw)*Math.cos(pitch);
   // march the ray, checking peds and cars and walls
   let t=0,hitPoint=null;
   while(t<w.range){
@@ -108,18 +108,19 @@ function updateGang(dt){
  const px=state.foot.x,pz=state.foot.z;
  for(const g of world.peds){
   if(g.kind!=='gang'||g.dead)continue;
+  if(g.photoHold>0){g.photoHold-=dt;continue;}
   const dx=px-g.x,dz=pz-g.z,d=Math.hypot(dx,dz);
   if(d>90)continue;
-  g.heading=Math.atan2(-dx,dz);
+  g.heading=Math.atan2(dx,dz);
   let speed=d>12?4.4:0;
   g.fireT-=dt;
   if(d<30&&g.fireT<=0){
    g.fireT=rng.range(.9,1.8);
-   muzzleFlash(g.x-Math.sin(g.heading)*.5,1.35,g.z+Math.cos(g.heading)*.5);
+   muzzleFlash(g.x+Math.sin(g.heading)*.5,1.35,g.z+Math.cos(g.heading)*.5);
    tracer(g.x,1.35,g.z,px+rng.range(-1,1),1.2,pz+rng.range(-1,1));sfxGun(1);
    if(rng()<.3)damagePlayer(rng.range(4,8));
   }
-  g.x-=Math.sin(g.heading)*speed*dt;g.z+=Math.cos(g.heading)*speed*dt;
+  g.x+=Math.sin(g.heading)*speed*dt;g.z+=Math.cos(g.heading)*speed*dt;
   const s=collideCircle(g.x,g.z,.45);g.x=s.x;g.z=s.z;
   g.mesh.position.set(g.x,0,g.z);g.mesh.rotation.y=g.heading;
   animateHuman(g.mesh,speed,dt,true);

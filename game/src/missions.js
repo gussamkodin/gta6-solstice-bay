@@ -9,6 +9,8 @@ import {makeWaypoint} from './effects.js';
 import {sfxMission as fanfare} from './audio.js';
 let stage='travel',dialogueIdx=0,ambush=null,timer=0,convoy=[];
 export function initMissions(){makeWaypoint();startMission(0);}
+export function photoMission(i){startMission(i);}
+export function setPhotoObjective(title,text){state.missionTitle=title;state.objective=text;stage='photo';}
 export function startMission(i){
  state.mission=i;state.missionStep=0;
  const m=missions[i];
@@ -19,7 +21,7 @@ export function startMission(i){
  say('LENA VALE','New job: '+m.title+'. '+m.brief+'.',6);
 }
 export function updateMissions(dt){
- const m=missions[state.mission];if(!m)return;
+ const m=missions[state.mission];if(!m||stage==='photo')return;
  const px=state.foot.x,pz=state.foot.z;
  if(state.dialogueT>0){state.dialogueT-=dt;if(state.dialogueT<=0){state.dialogue='';}}
  if(stage==='travel'){

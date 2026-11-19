@@ -75,14 +75,16 @@ function frame(now){
  let dt=Math.min(.05,(now-last)/1000);last=now;
  if(state.mode==='play'){
   state.time+=dt;
-  updatePlayer(dt);
-  updateTraffic(dt);
-  updatePeds(dt);
-  updatePolice(dt);
-  updateCombat(dt);
-  updateMissions(dt);
-  updateActivities(dt);
-  updatePickups(dt);
+  if(!state.photoFreeze){
+   updatePlayer(dt);
+   updateTraffic(dt);
+   updatePeds(dt);
+   updatePolice(dt);
+   updateCombat(dt);
+   updateMissions(dt);
+   updateActivities(dt);
+   updatePickups(dt);
+  }
   updateEffects(dt);
   updateCamera(camera,dt);
   world.sky.update(dt,state.foot);

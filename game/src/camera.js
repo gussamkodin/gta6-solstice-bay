@@ -8,22 +8,31 @@ export function updateCamera(camera,dt){
  cam.yaw-=mouse.dx*.0026;cam.pitch=Math.max(-.15,Math.min(1.15,cam.pitch+mouse.dy*.0022));
  const inCar=state.inCar>=0;
  const target=state.foot;
- const wantDist=inCar?10.5:7.5,wantHeight=inCar?4.4:3.1;
+ const wantDist=state.photo?cam.dist:(inCar?10.5:7.5),wantHeight=inCar?4.4:3.1;
  cam.dist+=(wantDist-cam.dist)*Math.min(1,dt*3);
- // in car, camera drifts behind travel direction when moving fast
- if(inCar&&Math.abs(state.carSpeed||0)>6){
+ // in car, camera drifts behind travel direction when moving fast (not in staged photo mode)
+ if(inCar&&!state.photo&&Math.abs(state.carSpeed||0)>6){
   let behind=state.carHeading+Math.PI;
   let diff=behind-cam.yaw;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
   cam.yaw+=diff*Math.min(1,dt*1.4)*Math.min(1,Math.abs(state.carSpeed)/20);
  }
  const pitch=cam.pitch;
- const cx=target.x+Math.sin(cam.yaw)*Math.cos(pitch)*cam.dist;
- const cz=target.z+Math.cos(cam.yaw)*Math.cos(pitch)*cam.dist;
- const cy=wantHeight+Math.sin(pitch)*cam.dist;
- const solved=collideCircle(cx,cz,.6);
+ // sweep from the target outward and stop at the first wall, so the camera never
+ // lands inside a building (which would flip lookAt and point the view at the sky)
+ let frac=1;
+ for(let t=.25;t<=1.001;t+=.125){
+  const sxp=target.x+Math.sin(cam.yaw)*Math.cos(pitch)*cam.dist*t;
+  const szp=target.z+Math.cos(cam.yaw)*Math.cos(pitch)*cam.dist*t;
+  if(collideCircle(sxp,szp,.5).hit){frac=Math.max(.2,t-.15);break;}
+ }
+ const cx=target.x+Math.sin(cam.yaw)*Math.cos(pitch)*cam.dist*frac;
+ const cz=target.z+Math.cos(cam.yaw)*Math.cos(pitch)*cam.dist*frac;
+ const cy=Math.max(1.4,wantHeight+Math.sin(pitch)*cam.dist*frac);
+ const solved={x:cx,z:cz};
+ const cy2=cy;
  cam.shake=Math.max(0,cam.shake-dt*3);
  const sx=(Math.random()-.5)*cam.shake,sy=(Math.random()-.5)*cam.shake;
- camera.position.lerp(new THREE.Vector3(solved.x+sx,cy+sy,solved.z+sx),Math.min(1,dt*9));
+ camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
  camera.lookAt(target.x,1.5+(inCar?.6:0),target.z);
  const targetFov=62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0);
  cam.fov+=(targetFov-cam.fov)*Math.min(1,dt*4);

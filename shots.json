@@ -1,5 +1,1 @@
-[
-  { "name": "1-start.jpg", "query": "?shot=start&seed=1" },
-  { "name": "2-play.jpg", "query": "?shot=play&seed=1" },
-  { "name": "3-end.jpg", "query": "?shot=end&seed=1" }
-]
+[{"name": "1-street-solstice-bay.jpg", "query": "?shot=street&seed=7", "caption": "Marigold Mile, downtown Solstice Bay: the player beside a Solara GT with live traffic, the LOW TIDE objective, dialogue from Lena Vale, full HUD and minimap."}, {"name": "2-police-chase.jpg", "query": "?shot=chase&seed=7", "caption": "Three-star pursuit: the stolen Solara GT at 70 MPH with two cruisers on its tail, flashing lightbars, skid marks, THE LONG WAY objective and escape waypoint."}, {"name": "3-mission-docks.jpg", "query": "?shot=mission&seed=7", "caption": "NIGHT SHIFT at Copperworks Docks: courier dialogue, golden waypoint beam and ring at the container gate, delivery truck, port district with hills beyond."}, {"name": "4-beach-shootout.jpg", "query": "?shot=combat&seed=7", "caption": "BURN NOTICE on Glasshouse Strand: SMG firefight with Crane's crew, crossing tracers and muzzle flashes, a burning wreck with smoke column, two-star wanted level."}]

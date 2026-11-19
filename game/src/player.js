@@ -35,15 +35,15 @@ function walkPlayer(p,dt){
  let mx=0,mz=0;
  if(fwd||strafe){
   const yaw=cam.yaw+Math.PI;
-  mx=-Math.sin(yaw)*fwd+Math.cos(yaw)*strafe;
-  mz=-Math.cos(yaw)*fwd-Math.sin(yaw)*strafe;
+  mx=Math.sin(yaw)*fwd+Math.cos(yaw)*strafe;
+  mz=Math.cos(yaw)*fwd-Math.sin(yaw)*strafe;
   const len=Math.hypot(mx,mz);mx/=len;mz/=len;
  }
  p.speed+=((fwd||strafe?maxSpeed:0)-p.speed)*Math.min(1,dt*10);
  const nx=p.x+mx*p.speed*dt,nz=p.z+mz*p.speed*dt;
  const solved=collideCircle(nx,nz,.45);
  p.x=solved.x;p.z=solved.z;
- if(fwd||strafe)p.heading=Math.atan2(-mx,mz);
+ if(fwd||strafe)p.heading=Math.atan2(mx,mz);
  // aim mode turns avatar toward camera aim
  if(p.aiming)p.heading=cam.yaw+Math.PI;
  p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.heading;
@@ -80,7 +80,7 @@ function drivePlayerCar(p,dt){
   if(ped.dead)continue;
   if(dist2(car.x,car.z,ped.x,ped.z)<3.2&&Math.abs(car.speed)>4){ped.hitByCar=true;}
  }
- if(brake&&Math.abs(car.speed)>8){if(Math.random()<dt*30)skidMark(car.x-Math.sin(car.heading)*1.5,car.z+Math.cos(car.heading)*1.5,car.heading);if(Math.random()<dt*6)sfxSkid();}
+ if(brake&&Math.abs(car.speed)>8){if(Math.random()<dt*30)skidMark(car.x-Math.sin(car.heading)*1.5,car.z-Math.cos(car.heading)*1.5,car.heading);if(Math.random()<dt*6)sfxSkid();}
  p.x=car.x;p.z=car.z;p.heading=car.heading;
  p.mesh.visible=false;
  state.carSpeed=car.speed;state.carHeading=car.heading;
@@ -105,10 +105,11 @@ function ejectDriver(car){
 }
 function exitCar(p){
  const car=world.cars[state.inCar];
- if(car){p.x=car.x-Math.cos(car.heading)*2.4;p.z=car.z-Math.sin(car.heading)*2.4;const s=collideCircle(p.x,p.z,.45);p.x=s.x;p.z=s.z;car.speed*=.3;}
+ if(car){p.x=car.x+Math.cos(car.heading)*2.4;p.z=car.z-Math.sin(car.heading)*2.4;const s=collideCircle(p.x,p.z,.45);p.x=s.x;p.z=s.z;car.speed*=.3;}
  state.inCar=-1;state.carSpeed=0;p.mesh.visible=true;p.enterCooldown=.6;
 }
 export function damageCar(car,dmg){
+ if(state.photoNoDamage&&state.inCar>=0&&world.cars[state.inCar]===car)return;
  car.health-=dmg;
  if(car.health<=0&&!car.dead&&state.inCar!==world.cars.indexOf(car))blowUpCar(car);
 }
@@ -122,6 +123,7 @@ export function blowUpCar(car){
 }
 function explodePlayerCar(p,car){exitCar(p);state.foot.health-=45;blowUpCar(car);}
 export function damagePlayer(dmg){
+ if(state.photoNoDamage)return;
  const absorb=Math.min(state.foot.armor,dmg*.6);
  state.foot.armor-=absorb;state.foot.health-=dmg-absorb;
  import('./camera.js').then(c=>c.cam.shake=Math.min(.5,c.cam.shake+.15));

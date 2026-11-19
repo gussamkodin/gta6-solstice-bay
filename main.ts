@@ -11,6 +11,9 @@ mkdirSync(output, { recursive: true });
 cpSync(join(root, 'game'), join(output, 'game'), { recursive: true });
 mkdirSync(join(output, 'screenshots'), { recursive: true });
 if (existsSync(join(root, 'screenshots'))) cpSync(join(root, 'screenshots'), join(output, 'screenshots'), { recursive: true });
+// The four captures are staged by the game's own photo mode (?shot=…&seed=7); the manifest
+// travels with the output so a reviewer can reproduce every frame byte-for-byte.
+if (existsSync(join(root, 'shots.json'))) cpSync(join(root, 'shots.json'), join(output, 'shots.json'));
 writeFileSync(join(output, 'dossier.json'), buildDossier(output, {
   text_max_bytes: 163840,
   screenshots: { max: 4, max_bytes: 262144 },
@@ -18,3 +21,4 @@ writeFileSync(join(output, 'dossier.json'), buildDossier(output, {
   game_max_bytes: 50331648,
   game_path_max_bytes: 1000,
 }));
+console.log('Solstice Bay — Last Light: output ready at ' + output);

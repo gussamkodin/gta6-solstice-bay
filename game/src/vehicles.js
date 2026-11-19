@@ -59,9 +59,9 @@ export function stepCar(car,dt,throttle,brake,steerInput){
  car.speed=Math.max(-s.speed*.35,Math.min(s.speed,car.speed));
  const steerMax=.55/(1+Math.abs(car.speed)*.045);
  car.steer+=(steerInput*steerMax-car.steer)*Math.min(1,dt*8);
- car.heading-=car.steer*car.speed*dt*.28;
- car.x-=Math.sin(car.heading)*car.speed*dt;
- car.z+=Math.cos(car.heading)*car.speed*dt;
+ car.heading+=car.steer*car.speed*dt*.28;
+ car.x+=Math.sin(car.heading)*car.speed*dt;
+ car.z-=Math.cos(car.heading)*car.speed*dt;
  car.mesh.position.set(car.x,0,car.z);car.mesh.rotation.y=car.heading+Math.PI;
  // body roll and wheel spin
  car.mesh.rotation.z=car.steer*Math.min(1,Math.abs(car.speed)/12)*.12;

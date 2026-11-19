@@ -16,7 +16,8 @@ export function updateHUD(dt){
  const a=state.ammo[state.weapon];
  $('ammo').textContent=a===Infinity?'∞':a+' ROUNDS';
  $('missionTitle').textContent=state.missionTitle+(state.side?' · '+state.side.toUpperCase():'');
- $('objective').textContent=state.side?state.sideText:state.objective;
+ if(!state.side&&!state.photo)$('objective').textContent=state.objective;
+ else $('objective').textContent=state.side?state.sideText:state.objective;
  const inCar=state.inCar>=0;
  $('speed').classList.toggle('hide',!inCar);
  if(inCar)$('speed').innerHTML=Math.round(Math.abs(state.carSpeed)*2.2)+' <small>MPH</small>';

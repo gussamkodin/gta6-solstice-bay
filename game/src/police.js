@@ -49,6 +49,7 @@ export function updatePolice(dt){
   const lb=car.mesh.userData.lightbar;
   if(lb){const t=Math.floor(state.time*6)%2;lb.red.emissiveIntensity=t?2:.2;lb.blue.emissiveIntensity=t?.2:2;}
   if(ai.blocked)continue; // roadblock cars stay put
+  if(ai.photoHold>0){ai.photoHold-=dt;continue;} // staged scene: hold formation briefly
   if(state.wanted===0){ // return to patrol
    ai.mode='patrol';
   }
@@ -56,7 +57,7 @@ export function updatePolice(dt){
   const tx=chase?px:ai.patrolX,tz=chase?pz:ai.patrolZ;
   const dx=tx-car.x,dz=tz-car.z,d=Math.hypot(dx,dz);
   if(!chase&&d<12){ai.patrolX=rng.range(-HALF+30,HALF-30);ai.patrolZ=roadAt(rng.int(0,BLOCKS));}
-  const desired=Math.atan2(-dx,dz);
+  const desired=Math.atan2(dx,-dz);
   let diff=desired-car.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
   const steer=Math.max(-1,Math.min(1,diff*2.2));
   const targetSpeed=chase?(d>18?car.spec.speed*.95:8):11;
@@ -64,9 +65,13 @@ export function updatePolice(dt){
   stepCar(car,dt,throttle,false,steer);
   const solved=collideCircle(car.x,car.z,1.4);
   if(solved.hit){car.x=solved.x;car.z=solved.z;car.speed*=.35;car.heading+=rng.range(-.6,.6);car.mesh.position.set(car.x,0,car.z);}
-  // ram the player car
+  // ram the player car: damage scales with closing speed, not contact time
   if(state.inCar>=0){const pc=world.cars[state.inCar];
-   if(pc&&dist2(car.x,car.z,pc.x,pc.z)<10){damageCar(pc,dt*30);damageCar(car,dt*10);state.foot.health-=dt*2;}
+   if(pc&&dist2(car.x,car.z,pc.x,pc.z)<10){
+    ai.ramT=(ai.ramT||0)-dt;
+    const closing=Math.abs(car.speed-(pc.speed||0));
+    if(ai.ramT<=0&&closing>4){ai.ramT=.8;damageCar(pc,closing*1.2);damageCar(car,closing*.5);state.foot.health-=closing*.25;}
+   }
   }
   // deploy officers when close and player on foot or slow
   if(chase&&d<26&&ai.officers>0&&(state.inCar<0||Math.abs(state.carSpeed||0)<5)){
@@ -81,7 +86,7 @@ export function updatePolice(dt){
  for(const cop of world.peds){
   if(cop.kind!=='cop'||cop.dead)continue;
   const dx=px-cop.x,dz=pz-cop.z,d=Math.hypot(dx,dz);
-  cop.heading=Math.atan2(-dx,dz);
+  cop.heading=Math.atan2(dx,dz);
   if(state.wanted===0){cop.flee=true;}
   let speed=0;
   if(!cop.flee){
@@ -89,11 +94,11 @@ export function updatePolice(dt){
    else if(state.inCar<0&&d<2.2){killPlayer(world.player,'busted');return;}
    cop.fireT=(cop.fireT||0)-dt;
    if(d<26&&d>3&&cop.fireT<=0&&state.wanted>=2){cop.fireT=1.3;
-    muzzleFlash(cop.x-Math.sin(cop.heading)*.5,1.35,cop.z+Math.cos(cop.heading)*.5);
+    muzzleFlash(cop.x+Math.sin(cop.heading)*.5,1.35,cop.z+Math.cos(cop.heading)*.5);
     tracer(cop.x,1.35,cop.z,px+rng.range(-.8,.8),1.2,pz+rng.range(-.8,.8));sfxGun(1);
     if(rng()<.4)damagePlayer(rng.range(4,9));}
   }
-  cop.x-=Math.sin(cop.heading)*speed*dt;cop.z+=Math.cos(cop.heading)*speed*dt;
+  cop.x+=Math.sin(cop.heading)*speed*dt;cop.z+=Math.cos(cop.heading)*speed*dt;
   const s=collideCircle(cop.x,cop.z,.45);cop.x=s.x;cop.z=s.z;
   cop.mesh.position.set(cop.x,0,cop.z);cop.mesh.rotation.y=cop.heading;
   animateHuman(cop.mesh,speed,dt,true);
