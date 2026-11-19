@@ -31,13 +31,15 @@ export function updateCamera(camera,dt){
  const cy=Math.max(1.4,wantHeight+Math.sin(pitch)*cam.dist*frac);
  const solved={x:cx,z:cz};
  const cy2=cy;
+ // staged photo: aim point rides higher for a skyline view (set by photo.js)
+ const aimY=(state.photo&&cam.aimY)||1.5;
  cam.shake=Math.max(0,cam.shake-dt*3);
  // deterministic photos carry no shake jitter; NOS adds a low rumble while boosting
  const shakeAmt=state.photo?0:cam.shake+(state.nosActive?.045:0);
  const sx=(Math.random()-.5)*shakeAmt,sy=(Math.random()-.5)*shakeAmt;
  if(cam.snap){camera.position.set(solved.x,cy2,solved.z);cam.snap=false;}
  else camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
- camera.lookAt(target.x,1.5+(inCar?.6:0),target.z);
+ camera.lookAt(target.x,aimY+(inCar?.6:0),target.z);
  const targetFov=62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0)+(state.nosActive?6:0);
  cam.fov+=(targetFov-cam.fov)*Math.min(1,dt*4);
  camera.fov=cam.fov;camera.updateProjectionMatrix();

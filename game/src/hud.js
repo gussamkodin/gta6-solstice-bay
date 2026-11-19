@@ -22,6 +22,8 @@ export function updateHUD(dt){
  const next=RANKS[rank+1];
  $('respect').textContent=RANKS[rank].name+' · '+state.respect+' RP'+(next?' · NEXT '+next.at:'');
  $('missionTitle').textContent=state.missionTitle+(state.side?' · '+state.side.toUpperCase():'');
+ // in photo mode the district toast competes with the staged scene: keep it quiet
+ if(state.photo){districtT=0;$('toast').style.opacity=0;}
  if(!state.side&&!state.photo)$('objective').textContent=state.objective;
  else $('objective').textContent=state.side?state.sideText:state.objective;
  const inCar=state.inCar>=0;
@@ -34,7 +36,7 @@ export function updateHUD(dt){
  nos.classList.toggle('burn',!!state.nosActive);
  // radio chip: station + track while driving, toast styling right after a switch
  const radio=$('radio');
- const showRadio=inCar&&state.radioOn;
+ const showRadio=(inCar||state.photo)&&state.radioOn;
  radio.classList.toggle('hide',!showRadio);
  if(showRadio){
   const st=STATIONS[state.radioStation];

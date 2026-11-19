@@ -110,6 +110,8 @@ export function updatePeds(dt){
  for(const ped of world.peds){
   if(ped.kind==='driver'&&ped.inCar&&!ped.inCar.dead)continue;
   if(ped.dead){continue;}
+  if(ped.photoHold>0){ped.photoHold-=dt;continue;} // staged photo: hold the sidewalk pose
+  if(ped.kind==='crew')continue; // mission crew (Marisol) is moved by followCrew, not street AI
   if(ped.hitByCar&&!ped.dead){ped.dead=true;ped.hitByCar=false;ragdoll(ped.mesh);import('./police.js').then(p=>p.reportCrime('hit-run',ped.x,ped.z));import('./effects.js').then(e=>e.bloodPuff(ped.x,1,ped.z));state.cash+=0;continue;}
   ped.panic=Math.max(0,ped.panic-dt);
   if(state.gunfireT>0&&dist2(ped.x,ped.z,px,pz)<700)ped.panic=6;

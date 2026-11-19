@@ -12,7 +12,7 @@ const tailMat=new THREE.MeshStandardMaterial({color:0xc22a1e,roughness:.5,emissi
 const headMat=new THREE.MeshStandardMaterial({color:0xfff2c8,roughness:.3,emissive:0xffe9a8,emissiveIntensity:1.1});
 const flameMat=new THREE.MeshBasicMaterial({color:0x66d9ff,transparent:true,opacity:.9});
 const flameCoreMat=new THREE.MeshBasicMaterial({color:0xfff6d8,transparent:true,opacity:.95});
-function paint(color){const key='c'+color;if(!bodyMats[key])bodyMats[key]=new THREE.MeshStandardMaterial({color,roughness:.28,metalness:.45});return bodyMats[key];}
+function paint(color){const key='c'+color;if(!bodyMats[key])bodyMats[key]=new THREE.MeshStandardMaterial({color,roughness:.32,metalness:.2});return bodyMats[key];}
 export function buildVehicle(type){
  const spec=CAR_TYPES[type],color=rng.pick(spec.colors),g=new THREE.Group(),body=paint(color);
  const {w,l,h}=spec;

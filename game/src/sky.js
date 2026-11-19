@@ -2,6 +2,7 @@
 // over the hills casting long shadows, pink haze fog, lit clouds and a glowing sun disc.
 import {THREE} from './three.js';
 import {PALETTE} from './config.js';
+import {makeRng} from './rng.js';
 export function makeSky(scene,renderer){
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  const sun=new THREE.DirectionalLight(0xffb36b,2.6);
@@ -11,7 +12,9 @@ export function makeSky(scene,renderer){
  sun.shadow.bias=-0.0006;
  scene.add(sun);scene.add(sun.target);
  // cool violet sky fill against warm ground bounce keeps pastel walls saturated at dusk
- const hemi=new THREE.HemisphereLight(0x8a7ad0,0xd88a58,.75);scene.add(hemi);
+ const hemi=new THREE.HemisphereLight(0x9a8ad8,0xd8925e,1.05);scene.add(hemi);
+ // gentle ambient floor so shadowed asphalt and car bodies never crush to black
+ scene.add(new THREE.AmbientLight(0x7a6a98,.65));
  scene.fog=new THREE.Fog(PALETTE.fog,200,720);
  // gradient dome via vertex colors on a big sphere: horizon amber, mid rose, zenith indigo
  const geo=new THREE.SphereGeometry(850,28,16);
@@ -27,16 +30,19 @@ export function makeSky(scene,renderer){
  scene.add(dome);
  // low sun disc with a soft halo, sitting just above the western hills
  const disc=new THREE.Mesh(new THREE.CircleGeometry(52,28),new THREE.MeshBasicMaterial({color:0xffe9b8,fog:false}));
- disc.position.set(-720,95,190);disc.lookAt(0,60,0);scene.add(disc);
+ disc.position.set(-720,95,110);disc.lookAt(0,60,0);scene.add(disc);
  const halo=new THREE.Mesh(new THREE.CircleGeometry(150,28),new THREE.MeshBasicMaterial({color:0xff9e5e,fog:false,transparent:true,opacity:.35,depthWrite:false}));
- halo.position.set(-726,95,190);halo.lookAt(0,60,0);scene.add(halo);
+ halo.position.set(-726,95,110);halo.lookAt(0,60,0);scene.add(halo);
  // drifting clouds lit pink from below by the setting sun
  const clouds=new THREE.Group();
  for(let i=0;i<12;i++){
   const g=new THREE.Group();
   const m=new THREE.MeshBasicMaterial({color:i%3?0xffc9b0:0xffe3c8,fog:false,transparent:true,opacity:.8});
-  for(let b=0;b<3;b++){const box=new THREE.Mesh(new THREE.BoxGeometry(60+Math.random()*50,5,20),m);box.position.set(b*35-35,Math.random()*4,Math.random()*12);g.add(box);}
-  g.position.set((Math.random()-.5)*1400,200+Math.random()*110,(Math.random()-.5)*1400);clouds.add(g);
+  // seeded cloud layout: every reload stages the same sky, so screenshots are repeatable
+  const cr=makeRng(1200+i*77);
+  for(let b=0;b<3;b++){const box=new THREE.Mesh(new THREE.BoxGeometry(60+cr()*50,5,20),m);box.position.set(b*35-35,cr()*4,cr()*12);g.add(box);}
+  // keep the band low and out of the western view corridor so the cover sky stays clean
+  g.position.set((cr()-.5)*1400,205+cr()*70,180+cr()*560*(cr()<.5?-1:1));clouds.add(g);
  }
  scene.add(clouds);
  return{sun,hemi,dome,clouds,disc,
@@ -45,7 +51,7 @@ export function makeSky(scene,renderer){
    sun.target.position.set(focus.x,0,focus.z);
    sun.position.set(focus.x-190,85,focus.z+52);
    dome.position.set(focus.x,0,focus.z);
-   disc.position.set(focus.x-720,95,focus.z+190);halo.position.set(focus.x-726,95,focus.z+190);
+   disc.position.set(focus.x-720,95,focus.z+110);halo.position.set(focus.x-726,95,focus.z+110);
    for(const c of clouds.children){c.position.x+=dt*2.2;if(c.position.x-focus.x>800)c.position.x-=1600;}
   }}
 }

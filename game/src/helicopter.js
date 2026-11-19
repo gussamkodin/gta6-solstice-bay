@@ -48,7 +48,7 @@ export function updateHelicopter(dt){
   const from=new THREE.Vector3(h.mesh.position.x,h.alt-1,h.mesh.position.z);
   const to=new THREE.Vector3(px,.2,pz);
   const dir=to.clone().sub(from),len=dir.length();
-  h.searchlight.position.copy(from.clone().add(to).multiplyScalar(.5)).sub(h.mesh.position);
+  h.searchlight.position.copy(from.clone().add(to).multiplyScalar(.5));
   h.searchlight.scale.set(1,len/30,1);
   h.searchlight.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),dir.normalize());
   h.spotPool.position.set(px,.12,pz);
@@ -96,8 +96,10 @@ function spawnHeli(){
  // white livery stripe
  add(2.24,.3,3,new THREE.MeshStandardMaterial({color:0xe8e8e4,roughness:.5}),0,-.2,.4);
  // searchlight cone (apex at the belly) and the lit pool on the ground
- const cone=new THREE.Mesh(new THREE.ConeGeometry(5,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.16,side:THREE.DoubleSide,depthWrite:false}));
- cone.geometry.translate(0,-15,0);g.add(cone);
+ // cone lives in world space: the fuselage yaws constantly, and a parented beam
+ // would swing off-target with every orbit step
+ const cone=new THREE.Mesh(new THREE.ConeGeometry(5,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false}));
+ cone.geometry.translate(0,-15,0);world.scene.add(cone);
  const pool=new THREE.Mesh(new THREE.CircleGeometry(4.4,20),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.3,depthWrite:false}));
  pool.rotation.x=-Math.PI/2;world.scene.add(pool);
  const px=state.foot.x,pz=state.foot.z;
@@ -110,7 +112,7 @@ function spawnHeli(){
  notify('AIR ONE IS OVERHEAD');
 }
 function removeHeli(){
- world.scene.remove(heli.mesh);world.scene.remove(heli.spotPool);
+ world.scene.remove(heli.mesh);world.scene.remove(heli.spotPool);world.scene.remove(heli.searchlight);
  heli=null;world.heli=null;
 }
 function chatter(text){state.heliChatter=text;state.heliChatterT=5;}
@@ -129,13 +131,15 @@ function randomChatter(x,z){
 // staged photo: place AIR ONE holding a fixed orbit with the beam on the player
 export function photoHeli(px,pz){
  if(!heli)spawnHeli();
- heli.mesh.position.set(px-14,ALT-6,pz-18);
+ // hold the bird ahead-right and low enough that fuselage + full beam sit in frame
+ heli.mesh.position.set(px+16,ALT-18,pz+10);
+ heli.mesh.rotation.y=Math.PI/2-.3;heli.mesh.rotation.z=.1;
  heli.angle=Math.PI*.8;heli.lostT=0;heli.leaving=false;
  heli.searchlight.visible=true;heli.spotPool.visible=true;
  const from=new THREE.Vector3(heli.mesh.position.x,heli.mesh.position.y-1,heli.mesh.position.z);
  const to=new THREE.Vector3(px,.2,pz);
  const dir=to.clone().sub(from),len=dir.length();
- heli.searchlight.position.copy(from.clone().add(to).multiplyScalar(.5)).sub(heli.mesh.position);
+ heli.searchlight.position.copy(from.clone().add(to).multiplyScalar(.5));
  heli.searchlight.scale.set(1,len/30,1);
  heli.searchlight.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),dir.normalize());
  heli.spotPool.position.set(px,.12,pz);
