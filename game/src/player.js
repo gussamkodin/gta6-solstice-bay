@@ -1,5 +1,6 @@
 // Player avatar: on-foot movement, sprint, car entry/exit, nitro boost, health/armor,
 // hospital/police respawn with rank-based bail and a bust cinematic beat.
+// v3: district perks (Sunward Heights nitro cooling) feed the nitro regen.
 import {THREE} from './three.js';
 import {state,notify,say,rankOf} from './state.js';
 import {world} from './world.js';
@@ -11,6 +12,8 @@ import {cam} from './camera.js';
 import {HOSPITAL,PRECINCT,SPAWN,NITRO} from './config.js';
 import {sfxCrash,sfxHorn,updateEngine,sfxSkid,sfxNos} from './audio.js';
 import {skidMark} from './effects.js';
+import {districtPerk} from './district.js';
+import {districtAt} from './config.js';
 import {reportCrime} from './police.js';
 export function makePlayer(){
  const mesh=buildHuman({shirt:0xe8e2d2,pants:0x2c3e50,skin:0xb07848,gun:true});
@@ -53,7 +56,8 @@ function walkPlayer(p,dt){
  if(hit('KeyH'))sfxHorn();
  updateEngine(0,0,false);
  // nitro cools off on foot; the sidearm shows only while aiming a gun
- state.nitro=Math.min(100,state.nitro+NITRO.regen*dt);
+ const heightsCool=districtAt(p.x,p.z)==='Sunward Heights'?districtPerk('Sunward Heights'):0;
+ state.nitro=Math.min(100,state.nitro+NITRO.regen*(1+heightsCool)*dt);
  const sidearm=p.mesh.getObjectByName('sidearm');
  if(sidearm)sidearm.visible=p.aiming&&state.weapon>0;
 }

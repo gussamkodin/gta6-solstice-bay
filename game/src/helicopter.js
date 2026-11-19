@@ -1,6 +1,7 @@
 // AIR ONE — police helicopter: spawns at 3+ stars, orbits and pursues the player with a
 // searchlight cone and ground spotlight, radios position chatter to the HUD, and loses
 // the trail when the player hides under a pier deck or inside the garage.
+// A translucent rotor-blur disc spins above the blades so the bird reads at distance.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,notify} from './state.js';
@@ -86,6 +87,7 @@ function spawnHeli(){
  add(.16,.16,3.4,bodyMat,-1,-1.1,.2);add(.16,.16,3.4,bodyMat,1,-1.1,.2); // skids
  const rotor=new THREE.Group();
  const bladeMat=new THREE.MeshStandardMaterial({color:0x11151c,roughness:.6});
+ const rotorDisc=new THREE.Mesh(new THREE.CircleGeometry(5.6,24),new THREE.MeshBasicMaterial({color:0x4a5560,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide}));rotorDisc.rotation.x=-Math.PI/2;rotorDisc.position.y=.06;rotor.add(rotorDisc);
  const b1=new THREE.Mesh(new THREE.BoxGeometry(11,.08,.4),bladeMat);
  const b2=new THREE.Mesh(new THREE.BoxGeometry(.4,.08,11),bladeMat);
  rotor.add(b1,b2);rotor.position.y=1.2;g.add(rotor);
@@ -131,8 +133,8 @@ function randomChatter(x,z){
 // staged photo: place AIR ONE holding a fixed orbit with the beam on the player
 export function photoHeli(px,pz){
  if(!heli)spawnHeli();
- // hold the bird ahead-right and low enough that fuselage + full beam sit in frame
- heli.mesh.position.set(px+16,ALT-18,pz+10);
+ // hold the bird ahead-left in the camera corridor so fuselage + beam sit in frame
+ heli.mesh.position.set(px+18,ALT-14,pz-20);
  heli.mesh.rotation.y=Math.PI/2-.3;heli.mesh.rotation.z=.1;
  heli.angle=Math.PI*.8;heli.lostT=0;heli.leaving=false;
  heli.searchlight.visible=true;heli.spotPool.visible=true;

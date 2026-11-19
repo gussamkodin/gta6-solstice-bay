@@ -1,5 +1,7 @@
 // Weapons and combat: hitscan with spread, melee, enemy gang members, ammo, weapon
 // switching and takedown combo toasts (chain kills within 4s for bonus cash).
+// crewShot lets joined crew companions chip hostiles without friendly fire.
+// Companion rounds reuse the existing damage/ragdoll/mission accounting path.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,notify} from './state.js';
@@ -84,6 +86,7 @@ function fire(p,w){
   tracer(mx,originY,mz,end.x,end.y,end.z);
  }
 }
+export function crewShot(ped,dmg){if(ped.kind==='gang')hurtPed(ped,dmg,world.player);}
 function hurtPed(ped,dmg,p){
  ped.health=(ped.health??40)-dmg;ped.panic=8;sfxHit();
  if(ped.health<=0&&!ped.dead){

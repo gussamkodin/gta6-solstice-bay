@@ -1,5 +1,6 @@
 // Keyboard + mouse state. Pointer lock gives free-look aiming; keys are edge- and level-triggered.
-// The weapon wheel (hold Q) releases pointer lock and tracks the cursor in screen pixels instead.
+// The weapon wheel (hold Q) releases pointer lock and tracks the cursor in screen pixels
+// instead, and restores the lock cleanly when the wheel closes.
 export const keys = new Set();
 export const pressed = new Set();
 export const mouse = { dx: 0, dy: 0, down: false, clicked: false, locked: false, x: 0, y: 0 };

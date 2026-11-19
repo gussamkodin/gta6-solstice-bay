@@ -1,5 +1,6 @@
 // Stylized low-poly vehicles: sedan, sports, pickup, taxi, police cruiser — plus arcade
-// car physics with nitro boost. Every car carries hidden exhaust flame cones for NOS.
+// car physics with nitro boost. Every car carries hidden exhaust flame cones for NOS,
+// and sports cars wear a glossy clearcoat-style highlight strip for the hero shots.
 import {THREE} from './three.js';
 import {CAR_TYPES} from './config.js';
 import {addBox} from './city.js';

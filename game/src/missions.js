@@ -1,6 +1,7 @@
 // Story mission flow for the nine-job Last Light arc: waypoint travel, dialogue beats,
 // ambush holds, timed police escapes, the dock-lot car heist, Marisol's crew rescue and
-// escort, the convoy finale and the AIR ONE helicopter escape. Rewards cash + respect.
+// escort, the convoy finale and the AIR ONE helicopter escape. Rewards cash + respect;
+// v3 crew barks mark mission beats without interrupting movement.
 import {world} from './world.js';
 import {state,missions,notify,say,showBanner,addRespect} from './state.js';
 import {dist2} from './physics.js';
@@ -11,6 +12,9 @@ import {makeWaypoint} from './effects.js';
 import {makeCar} from './vehicles.js';
 import {buildHuman,animateHuman} from './peds.js';
 import {GARAGE} from './config.js';
+import {joinCrew,crewMember} from './crew.js';
+import {addDistrictRep,districtBonus} from './district.js';
+import {districtAt} from './config.js';
 import {sfxMission as fanfare} from './audio.js';
 let stage='travel',dialogueIdx=0,ambush=null,timer=0,convoy=[],heistCar=null,marisol=null;
 export function initMissions(){makeWaypoint();startMission(0);}
@@ -50,10 +54,12 @@ export function updateMissions(dt){
  }else if(stage==='escort'){
   const gx=36,gz=136; // Bay Cab stand on Palmetto Row
   followCrew(dt);
+  const joined=crewMember('marisol');
+ const escortReady=joined&&joined.joined&&!joined.dead&&dist2(joined.x,joined.z,gx,gz)<400;
   if(marisol&&marisol.dead){state.objective='Marisol is down — the strand crew still holds the block';const left=ambush.filter(g=>!g.dead).length;if(left===0){say('LENA VALE','We lost her, Remy. Finish the job anyway — for her.',6);completeMission(m);}return;}
   const d=Math.sqrt(dist2(px,pz,gx,gz));
   state.objective='Walk Marisol to the cab stand — '+Math.round(d)+'m';
-  if(d<10&&marisol&&dist2(marisol.x,marisol.z,gx,gz)<400)completeMission(m);
+  if(d<10&&((joined&&joined.joined&&escortReady)|| (marisol&&dist2(marisol.x,marisol.z,gx,gz)<400)))completeMission(m);
  }else if(stage==='escape'||stage==='heliEscape'){
   timer-=dt;
   const clear=stage==='heliEscape'?state.wanted<3:state.wanted===0;
@@ -117,6 +123,9 @@ function beginTask(m){
 }
 function beginEscort(m){
  stage='escort';
+ joinCrew('marisol');
+ if(marisol){marisol.mesh.visible=false;marisol.dead=true;}
+ const partner=crewMember('marisol');if(partner){partner.x=state.foot.x+2;partner.z=state.foot.z+2;partner.mesh.position.set(partner.x,0,partner.z);}
  say('MARISOL','I can walk. Stay close — I know who signs Crane\'s checks.',6);
  world.waypoint={x:36,z:136,label:'Bay Cab Stand'};
  world.waypointMesh.position.set(36,0,136);world.waypointMesh.visible=true;
@@ -142,11 +151,14 @@ function spawnConvoy(x,z){
 }
 function completeMission(m){
  fanfare();
- state.cash+=m.reward;
+ const payout=state.photo?m.reward:districtBonus(districtAt(state.foot.x,state.foot.z),m.reward);
+ state.cash+=payout;
  addRespect(m.respect);
- showBanner('MISSION COMPLETE — '+m.title,['+$'+m.reward.toLocaleString('en-US'),'+'+m.respect+' RESPECT']);
- if(state.mission===3){state.unlockedWeapons[2]=true;state.ammo[2]=120;notify('HORNET SMG UNLOCKED');}
+ showBanner('MISSION COMPLETE — '+m.title,['+$'+payout.toLocaleString('en-US'),'+'+m.respect+' RESPECT']);
+ addDistrictRep(districtAt(state.foot.x,state.foot.z),Math.ceil(m.respect/2));
+ if(state.mission===3){state.unlockedWeapons[2]=true;state.ammo[2]=120;notify('HORNET SMG UNLOCKED');joinCrew('dex');}
  if(state.mission===4){state.unlockedWeapons[3]=true;state.ammo[3]=24;notify('TIDEBREAKER UNLOCKED');}
+ if(state.mission===6)joinCrew('marisol');
  if(state.mission<missions.length-1){startMission(state.mission+1);}
  else{stage='done';state.missionTitle='FIRST LIGHT';state.objective='Solstice Bay is yours. Races, fares and rampages await — press F near a marker.';world.waypointMesh.visible=false;say('LENA VALE','Sunrise over the bay. You gave the city its morning back, Remy.',10);}
 }

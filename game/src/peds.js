@@ -1,5 +1,6 @@
 // Low-poly articulated characters: player avatar, pedestrians, drivers, police, gang, crew.
 // A held sidearm (buildHuman({gun:true})) rides the right hand so aiming poses read at a glance.
+// Crew members reuse the same rig with name-tag sprites attached by crew.js.
 import {THREE} from './three.js';
 import {rng} from './rng.js';
 const SKIN=[0xd9a066,0xb07848,0x8a5a34,0xe8b88a,0x6a4426];

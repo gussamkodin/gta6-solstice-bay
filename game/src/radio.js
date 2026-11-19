@@ -1,6 +1,7 @@
 // Car radio: three original stations with distinct procedural WebAudio music loops —
 // WAVE 101.5 (synthwave), SOLSTICE SOUNDS (latin-funk), NIGHTDRIVE FM (lo-fi hop).
 // R cycles stations while driving; the radio goes quiet on foot. No audio files.
+// A track-change toast fires when the procedural playlist rolls to the next cut.
 import {state} from './state.js';
 import {hit} from './input.js';
 import {setStation,getStationTime} from './audio.js';

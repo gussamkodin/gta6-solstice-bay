@@ -1,6 +1,6 @@
 // Circle-vs-AABB collision against city footprints plus world bounds; shared by all movers.
 // Footprints register lazily through a uniform spatial grid, so late-built props (garage,
-// neon signs) are indexed the same way as the city bake.
+// neon signs, the garage bay) are indexed the same way as the city bake.
 import {obstacles} from './city.js';
 import {LAND,PITCH,PIER} from './config.js';
 // uniform grid: only test footprints in nearby cells

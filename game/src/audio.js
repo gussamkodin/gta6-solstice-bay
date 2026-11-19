@@ -1,6 +1,7 @@
 // Procedural WebAudio: engine loop, sirens, gunfire, impacts, helicopter rotor, NOS whoosh,
 // title ambience and the car radio's three station engines (synthwave / latin-funk / lo-fi).
-// Everything is synthesized — the game ships zero audio files.
+// Everything is synthesized — the game ships zero audio files, including the crew
+// bark blip that punctuates companion radio lines.
 import {state} from './state.js';
 let ctx=null,master,musicBus,sfxBus,radioBus,engineOsc,engineGain,engineFilter,sirenOsc,sirenGain,sirenLfo,rotorGain,rotorLfo,started=false;
 let currentStation=-1,stationTimer=null,stationBar=0,stationStart=0;

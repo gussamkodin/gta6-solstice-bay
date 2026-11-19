@@ -1,6 +1,6 @@
 // Solstice Bay — Last Light: boot, game loop, menus, pause and photo mode wiring.
-// v2 systems: AIR ONE helicopter, car radio, nitro, garage safehouse, weapon wheel,
-// respect ranks and the nine-mission story arc.
+// v3 systems: named crew companions, district standing, hero photo staging — on top of
+// AIR ONE, car radio, nitro, garage safehouse, weapon wheel and the nine-mission arc.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,saveGame,loadGame,hasSave,notify} from './state.js';
@@ -17,6 +17,8 @@ import {initRadio,updateRadio} from './radio.js';
 import {initGarage,updateGarage} from './garage.js';
 import {initMissions,updateMissions} from './missions.js';
 import {initActivities,updateActivities} from './activities.js';
+import {initCrew,updateCrew} from './crew.js';
+import {updateDistrict} from './district.js';
 import {initPickups,updatePickups} from './pickups.js';
 import {updateEffects} from './effects.js';
 import {updateCamera} from './camera.js';
@@ -42,6 +44,7 @@ spawnTraffic(26);
 spawnPeds(44);
 initMissions();
 initActivities();
+initCrew();
 initPickups();
 initGarage();
 initRadio();
@@ -93,6 +96,7 @@ function frame(now){
    updateCombat(dt);
    updateMissions(dt);
    updateActivities(dt);
+   updateCrew(dt);
    updateGarage(dt);
    updatePickups(dt);
   }
@@ -101,6 +105,7 @@ function frame(now){
   updateEffects(dt);
   updateCamera(camera,dt);
   world.sky.update(dt,state.foot);
+  updateDistrict(dt);
   updateHUD(dt);
   endFrame();
  }else{

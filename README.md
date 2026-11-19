@@ -9,6 +9,9 @@
 The city is yours to roam: art-deco pastel towers downtown under a neon-sunset sky, a palm-lined beach and boardwalk, an industrial port of cranes and container stacks, quiet suburbs, and green hills with a lookout over the whole bay. Walk it, steal any car on the street, and drive — traffic, pedestrians, and a five-star police force that escalates from patrols to pursuits to roadblocks all react to what you do. Push the heat to three stars and **AIR ONE**, the police helicopter, takes to the sky with a searchlight and radio chatter; duck under a pier deck or into your garage to shake it.
 
 - Nine story missions with dialogue, waypoints, chases, shootouts, a garage heist, a crew rescue and a helicopter-escape finale
+- Two named crew companions, Marisol and Dex: follow on foot, cover Remy in shootouts, and trade neighborhood barks
+- Seven districts remember local respect, announce arrivals with their own color banners, and unlock small neighborhood perks
+- Low-angle photo staging puts Remy, a glossy Solara GT, busy streets and the sunset skyline together in the cover frame
 - RESPECT ranks from STREET NAME to BAY LEGEND, each unlocking real perks (faster nitro regen, tougher bail deals)
 - Your own garage safehouse: store a ride, repair it, save the game, and hide from AIR ONE
 - Car radio with three original procedural stations — WAVE 101.5 synthwave, FUEGO 99 latin-funk, DRIFT FM lo-fi hop — cycled with R, all synthesized live

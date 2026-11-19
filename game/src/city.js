@@ -1,7 +1,8 @@
 // Procedural Solstice Bay at last light: pastel art-deco blocks with lit windows and neon
-// storefront signs, wet-look asphalt, glowing street lamps, palms, hills, docks, piers.
+// storefront signs, wet-look asphalt with neon reflection streaks, glowing street lamps,
+// palms, hills, docks with gantry cranes, and five piers over the bay.
 import {THREE} from './three.js';
-import {BLOCK,BLOCKS,ROAD,PITCH,HALF,LAND,PALETTE,roadAt,blockAt} from './config.js';
+import {BLOCK,BLOCKS,ROAD,PITCH,HALF,LAND,LANE,PALETTE,roadAt,blockAt} from './config.js';
 import {rng} from './rng.js';
 const mat=(color,roughness=.82,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 // canvas-texture neon signs: original Solstice Bay businesses, no external assets
@@ -27,7 +28,7 @@ export function addBox(parent,x,y,z,w,h,d,material){const m=new THREE.Mesh(boxGe
 export function addCylinder(parent,x,y,z,r,h,material,segments=8){const m=new THREE.Mesh(new THREE.CylinderGeometry(r*.75,r,h,segments),material);m.position.set(x,y+h/2,z);m.castShadow=true;parent.add(m);return m;}
 export function makeCity(scene){
  const root=new THREE.Group();root.userData.bakeRoot=true;scene.add(root);
- const mats={asphalt:mat(PALETTE.asphalt,.4,.18),side:mat(PALETTE.sidewalk),sand:mat(PALETTE.sand),grass:mat(PALETTE.grass),water:mat(PALETTE.water,.14,.65),white:mat(0xf4ead8),dark:mat(0x34424a),yellow:mat(0xf4c75e),line:mat(0xe9dfc7),palm:mat(0x78543c),leaf:mat(0x3d8057),roof:mat(0xc46954),steel:mat(0x69777c,.45,.5)};
+ const mats={asphalt:mat(PALETTE.asphalt,.3,.28),side:mat(PALETTE.sidewalk),sand:mat(PALETTE.sand),grass:mat(PALETTE.grass),water:mat(PALETTE.water,.14,.65),white:mat(0xf4ead8),dark:mat(0x34424a),yellow:mat(0xf4c75e),line:mat(0xe9dfc7),palm:mat(0x78543c),leaf:mat(0x3d8057),roof:mat(0xc46954),steel:mat(0x69777c,.45,.5)};
  // dusk windows glow warm or cool; a dark share keeps the facades believable
  mats.windowLit=new THREE.MeshStandardMaterial({color:0x3a2c18,emissive:PALETTE.windowLit,emissiveIntensity:1.5,roughness:.4});
  mats.windowCool=new THREE.MeshStandardMaterial({color:0x14222c,emissive:PALETTE.windowCool,emissiveIntensity:1.2,roughness:.4});
@@ -43,6 +44,16 @@ export function makeCity(scene){
  shimmer.rotation.x=-Math.PI/2;shimmer.position.set(452,-.9,40);root.add(shimmer);
  const shimmer2=new THREE.Mesh(new THREE.PlaneGeometry(46,760),new THREE.MeshBasicMaterial({color:0xffd9a0,transparent:true,opacity:.28,depthWrite:false}));
  shimmer2.rotation.x=-Math.PI/2;shimmer2.position.set(430,-.88,40);root.add(shimmer2);
+ // polished-road streaks: narrow, translucent neon catches on the busiest boulevard
+ // make wet pavement visible in the contact sheet without obscuring traffic silhouettes
+ const roadGlow=[0xff4fa0,0x3fe8e0,0xffb347,0xb46bff];
+ for(let row=0;row<8;row++){
+  const z=roadAt(row)+LANE;
+  for(let col=0;col<8;col++){
+   const streak=new THREE.Mesh(new THREE.PlaneGeometry(10+col*2,.5),new THREE.MeshBasicMaterial({color:roadGlow[(row+col)%roadGlow.length],transparent:true,opacity:.34,depthWrite:false}));
+   streak.rotation.x=-Math.PI/2;streak.position.set(30+col*42,.075,z+(col%2?1.3:-1.3));streak.userData.cityStatic=true;root.add(streak);
+  }
+ }
  // distant hills are layered silhouettes made of irregular facets
  for(let i=0;i<13;i++){const h=30+rng()*65;const m=new THREE.Mesh(new THREE.ConeGeometry(25+rng()*30,h,7),mat([0x668365,0x75916a,0x8b986a][i%3]));m.position.set(-390+i*45,h/2-1,-290-rng()*80);m.rotation.z=(rng()-.5)*.15;root.add(m);}
  // street and intersections
@@ -65,7 +76,8 @@ export function makeCity(scene){
   if(isPort){
    addBox(root,cx,.12,cz,48,.08,48,mat(0x707b7c));
    for(let k=0;k<4;k++)container(root,cx-17+(k%2)*19,.18,cz-17+Math.floor(k/2)*17,16,6+rng()*3,mat(PALETTE.portColors[(bx+k)%PALETTE.portColors.length]));
-   if(bx===0){crane(root,cx+17,.15,cz+5,mats.steel);}
+   // two gantry cranes frame the Copperworks docks and silhouette cleanly at sunset
+   if(bx<=1){crane(root,cx+17,.15,cz+5,mats.steel);crane(root,cx-20,.15,cz-8,mats.steel);}
    continue;
   }
   if(isSuburb&&rng()<.8){house(root,cx,cz,bx,bz);for(let p=0;p<2;p++)palm(root,cx-21+p*39,.16,cz+24,mats);continue;}
@@ -167,4 +179,11 @@ function neonSign(scene,x,z,w,d,m){
 }
 function house(scene,x,z,bx,bz){solid(x,z,27,22);const wall=mat(PALETTE.pastel[rng.int(0,PALETTE.pastel.length-1)]),roof=mat([0xb75243,0x905646,0x697b88][rng.int(0,2)]);addBox(scene,x,.15,z,27,8,22,wall);const r=new THREE.Mesh(new THREE.ConeGeometry(19,7,4),roof);r.position.set(x,11,z);r.rotation.y=Math.PI/4;scene.add(r);for(let side of [-1,1])addBox(scene,x+side*7,3.5,z+11.05,4,3,.12,mat(0x91bccb));}
 function container(scene,x,y,z,w,h,m){solid(x,z,w,8);addBox(scene,x,y,z,w,h,8,m);for(let i=-w/2+1;i<w/2;i+=2)addBox(scene,x+i,y,z+4.05,.08,h*.9,.08,mat(0x303b40));}
-function crane(scene,x,y,z,m){addBox(scene,x,y,z,1,23,1,m);addBox(scene,x,y+22,z+9,24,1,1,m);addBox(scene,x-7,y+11,z,1,22,1,m);addBox(scene,x+8,y+15,z+4,1,15,1,m);}
+function crane(scene,x,y,z,m){
+ // gantry silhouette: paired uprights, crossbeam, trolley rail, diagonal bracing
+ addBox(scene,x,y,z,1.2,26,1.2,m);addBox(scene,x+22,y,z,1.2,26,1.2,m);
+ addBox(scene,x+11,y+25,z,25,1.3,1.3,m);addBox(scene,x+11,y+22,z+8,23,.6,.6,m);
+ addBox(scene,x+11,y+18,z+8,.8,8,.8,m);
+ const brace=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);const bar=addBox(scene,x+a[0],y+a[1],z+4,.55,len,.55,m);bar.position.set(x+(a[0]+b[0])/2,y+(a[1]+b[1])/2,z+4);bar.rotation.z=-Math.atan2(dx,dy);};
+ brace([0,2],[11,24]);brace([22,2],[11,24]);
+}

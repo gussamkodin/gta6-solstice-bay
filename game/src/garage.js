@@ -1,5 +1,6 @@
 // Cortez Garage — the Palmetto Row safehouse: save the night, repair the ride, and swap
 // the stored vehicle. Pull in (or walk up) and press F; the bay also hides you from AIR ONE.
+// Palmetto Row standing makes home-turf service calls feel personal.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,saveGame,notify,say,addRespect} from './state.js';

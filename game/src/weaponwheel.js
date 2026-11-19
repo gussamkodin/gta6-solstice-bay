@@ -1,5 +1,6 @@
 // Weapon wheel: hold Q to open a radial selector (fists + four guns), pick with the mouse,
-// release Q to equip. Pointer lock is released while open so the cursor can point.
+// release Q to equip. Pointer lock is released while open so the cursor can point;
+// locked weapons show which mission unlocks them.
 import {state,notify} from './state.js';
 import {WEAPONS} from './config.js';
 import {key,mouse,setWheelActive} from './input.js';

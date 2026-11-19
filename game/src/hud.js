@@ -1,8 +1,9 @@
 // DOM HUD: health/armor, cash, wanted stars, weapon/ammo, respect rank, nitro meter,
-// radio station chip, AIR ONE chatter, objective, dialogue, mission banner, damage vignette.
+// radio station chip, AIR ONE chatter, objective, dialogue, mission banner, damage vignette,
+// and the district standing banner fed by district.js.
 import {state,RANKS,rankOf} from './state.js';
 import {world} from './world.js';
-import {WEAPONS,districtAt} from './config.js';
+import {WEAPONS,districtAt,DISTRICT_META} from './config.js';
 import {STATIONS} from './radio.js';
 import {drawMinimap} from './minimap.js';
 const $=id=>document.getElementById(id);
@@ -17,6 +18,16 @@ export function updateHUD(dt){
  $('weapon').textContent=WEAPONS[state.weapon].name;
  const a=state.ammo[state.weapon];
  $('ammo').textContent=a===Infinity?'∞':a+' ROUNDS';
+ // district entry banners are owned by district.js; suppress the old generic toast
+ // so a neighborhood arrival is never covered by a second notification.
+ if(state.district){const districtEl=$('districtBanner');if(districtEl&&!districtEl.classList.contains('hide'))$('toast').style.opacity=0;}
+ // local standing chip: neighborhood name + rank, colored like its arrival banner
+ const dNow=districtAt(state.foot.x,state.foot.z);
+ const rep=state.districtRep?.[dNow]||0;
+ const repRank=rep>=80?'LEGENDARY':rep>=40?'RESPECTED':rep>=15?'KNOWN':'NEW FACE';
+ $('districtChip').textContent=dNow.toUpperCase()+' · '+repRank;
+ $('districtChip').classList.toggle('hide',!!state.photo);
+ $('districtChip').style.color=(DISTRICT_META[dNow]||DISTRICT_META.Midtown).color;
  // respect rank chip
  const rank=rankOf(state.respect);
  const next=RANKS[rank+1];
@@ -62,10 +73,15 @@ export function updateHUD(dt){
  $('damage').style.opacity=state.damageFlash*.85;
  if(state.bustT>0)state.bustT=Math.max(0,state.bustT-dt);
  $('bust').style.opacity=state.bustT>0?Math.min(1,state.bustT):0;
+ // independent companion bark chip, intentionally above the low mission dialogue rail
+ if(state.crewBarkT>0){state.crewBarkT-=dt;$('crewName').textContent=state.crewSpeaker;$('crewLine').textContent=state.crewBark;$('crewBark').classList.remove('hide');}
+ else $('crewBark').classList.add('hide');
  // dialogue box
  const dlg=$('dialogue');
  if(state.dialogue){dlg.style.display='block';$('speaker').textContent=state.speaker;$('line').textContent=state.dialogue;}
  else dlg.style.display='none';
+ // hide the generic controls strip while a line plays so the two never overlap
+ $('prompt').style.display=state.dialogue?'none':'block';
  // contextual prompt
  let prompt='WASD move · E enter vehicle · F interact · Q weapon wheel · Click fire · Esc pause';
  if(inCar)prompt='WASD drive · Shift NOS · R radio · Space handbrake · E exit · H horn';

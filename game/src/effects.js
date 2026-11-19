@@ -1,4 +1,5 @@
-// Pooled visual effects: muzzle flashes, tracers, sparks, explosions, skid marks, pickups, waypoint beam.
+// Pooled visual effects: muzzle flashes, tracers, sparks, explosions, skid marks, pickups,
+// waypoint beam and neon ground reflections for the wet-asphalt look.
 import {THREE} from './three.js';
 import {world} from './world.js';
 const pool=[],skids=[],skidMax=180;
@@ -26,14 +27,14 @@ export function explosion(x,y,z){
   // staged wreck fire: layered flame tongues lick up around the car body instead of
   // one big sphere swallowing it — the burnt wreck stays readable inside the flames
   const tongues=[[.6,1.4,1.15,0xff5a18],[1.5,1.9,.8,0xff8a30],[-.4,1.8,.7,0xff7020],[.9,2.7,.55,0xffb050],[.3,3.4,.4,0xffd27a]];
-  for(const [dx,dy,s,c] of tongues){const f=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.9}));f.position.set(x+dx,y+dy,z+dx*.5+.4);f.scale.set(s,s*1.6,s);spawn(f,.5,0);}
+  for(const [dx,dy,s,c] of tongues){const f=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.95}));f.position.set(x+dx,y+dy,z+dx*.5+.4);f.scale.set(s*.65,s*1.05,s*.65);spawn(f,.5,0);}
  }else{
-  const core=new THREE.Mesh(geo,fireMat.clone());core.position.set(x,y+1,z);core.scale.setScalar(1.2);spawn(core,.45,10);
+  const core=new THREE.Mesh(geo,fireMat.clone());core.position.set(x,y+1,z);core.scale.set(1.3,1.9,1.3);spawn(core,.45,world.photoFx?0:10);
  }
- for(let i=0;i<10;i++){const m=new THREE.Mesh(geo,smokeMat.clone());m.position.set(x+(Math.random()-.5)*2,y+1,z+(Math.random()-.5)*2);m.scale.setScalar(.8+Math.random());spawn(m,1.2+Math.random(),2.5,new THREE.Vector3((Math.random()-.5)*5,3+Math.random()*5,(Math.random()-.5)*5));}
+ for(let i=0;i<10;i++){const m=new THREE.Mesh(geo,smokeMat.clone());m.position.set(x+(Math.random()-.5)*2,y+1,z+(Math.random()-.5)*2);m.scale.setScalar(world.photoFx?.45:.8+Math.random()*.25);spawn(m,1.2+Math.random(),2.5,new THREE.Vector3((Math.random()-.5)*5,3+Math.random()*5,(Math.random()-.5)*5));}
  for(let i=0;i<8;i++){const m=new THREE.Mesh(geo,sparkMat.clone());m.position.set(x,y+1,z);m.scale.setScalar(.14);spawn(m,.7,0,new THREE.Vector3((Math.random()-.5)*16,4+Math.random()*12,(Math.random()-.5)*16));}
- const light=new THREE.PointLight(0xffa040,40,40);light.position.set(x,y+2,z);light.userData.fx={life:fxLife(.4),max:fxLife(.4),grow:0,vel:null,fade:false,isLight:true};world.scene.add(light);pool.push(light);
- if(world.photoFx){for(let i=0;i<7;i++){const m=new THREE.Mesh(geo,smokeMat.clone());m.position.set(x-1-i*.6+(Math.random()-.5)*1.6,y+3.6+i*1.7,z-1-i*.4+(Math.random()-.5)*1.6);m.scale.setScalar(.8+i*.42);m.material.opacity=.62-i*.07;spawn(m,2,0);}}
+ const light=new THREE.PointLight(0xffa040,world.photoFx?7:40,world.photoFx?14:40);light.position.set(x,y+2,z);light.userData.fx={life:fxLife(.4),max:fxLife(.4),grow:0,vel:null,fade:false,isLight:true};world.scene.add(light);pool.push(light);
+ if(world.photoFx){for(let i=0;i<6;i++){const m=new THREE.Mesh(geo,smokeMat.clone());m.position.set(x-1-i*.4+(Math.random()-.5)*.5,y+2.3+i*.7,z-1-i*.3+(Math.random()-.5)*.5);m.scale.set(.28+i*.045,.45+i*.06,.28+i*.045);m.material.opacity=.32-i*.03;spawn(m,2,0);}}
 }
 export function skidMark(x,z,heading){
  if(skids.length>=skidMax){const old=skids.shift();world.scene.remove(old);}

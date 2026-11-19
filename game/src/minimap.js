@@ -1,5 +1,6 @@
 // Live rotating minimap: static city layer baked once, dynamic blips per frame —
-// traffic, police, gangs, AIR ONE (pulsing ring), the garage and the objective waypoint.
+// traffic, police, gangs, AIR ONE (pulsing ring), the garage, crew diamonds and the
+// objective waypoint with a dashed route line leading to it.
 import {world} from './world.js';
 import {state} from './state.js';
 import {roadAt,BLOCKS,ROAD,HALF,PITCH,BLOCK} from './config.js';
@@ -49,9 +50,9 @@ export function drawMinimap(){
  };
  for(const car of world.cars){
   if(car.dead)continue;
-  if(car.ai&&car.ai.kind==='police')blip(car.x,car.z,'#4a90ff',4.5);
-  else if(car.ai)blip(car.x,car.z,'#c8c8c8',2.5);
-  else blip(car.x,car.z,'#88e088',2.5);
+  if(car.ai&&car.ai.kind==='police')blip(car.x,car.z,'#4a90ff',5.5);
+  else if(car.ai)blip(car.x,car.z,'#d8d8d8',3.2);
+  else blip(car.x,car.z,'#88e088',3.2);
  }
  for(const ped of world.peds){if(ped.dead)continue;if(ped.kind==='cop')blip(ped.x,ped.z,'#4a90ff',3);if(ped.kind==='gang')blip(ped.x,ped.z,'#ff5040',3.5);if(ped.kind==='crew')blip(ped.x,ped.z,'#ff8ad0',3.5);}
  // garage: small house square
@@ -73,7 +74,11 @@ export function drawMinimap(){
  if(world.waypoint){
   const dx=(world.waypoint.x-p.x)*scale,dz=(world.waypoint.z-p.z)*scale;
   const d=Math.hypot(dx,dz),cl=Math.min(d,SIZE/2-10),fx=d?dx/d:0,fz=d?dz/d:0;
-  ctx.fillStyle='#ffd24a';ctx.beginPath();ctx.arc(fx*cl,fz*cl,5,0,Math.PI*2);ctx.fill();
+  // dashed waypoint route: the minimap tells the driver where to turn, not just a dot
+  ctx.strokeStyle='rgba(255,210,74,.85)';ctx.lineWidth=2.5;ctx.setLineDash([6,5]);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(fx*cl,fz*cl);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#ffd24a';ctx.beginPath();ctx.arc(fx*cl,fz*cl,6,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#10202a';ctx.lineWidth=1.5;ctx.stroke();
  }
  ctx.restore();
  // player arrow (points up = facing)

@@ -1,4 +1,5 @@
-// Side activities: circuit street race, taxi fares, and timed rampage — cash and respect.
+// Side activities: circuit street race, taxi fares, and timed rampage — cash and respect,
+// with district perks paying a little extra where the neighborhood knows your face.
 import {world} from './world.js';
 import {state,notify,say,addRespect} from './state.js';
 import {dist2} from './physics.js';
@@ -6,6 +7,8 @@ import {hit} from './input.js';
 import {roadAt} from './config.js';
 import {sfxPickup,sfxMission} from './audio.js';
 import {makePickup} from './effects.js';
+import {districtAt} from './config.js';
+import {addDistrictRep,districtBonus} from './district.js';
 // checkpoints and stops sit on road centerlines/intersections, never inside a block
 const RACE_POINTS=[{x:216,z:144},{x:216,z:-144},{x:-72,z:-144},{x:-72,z:144},{x:216,z:144}];
 const TAXI_STOPS=[{x:36,z:144},{x:-108,z:36},{x:252,z:-36},{x:-180,z:-144},{x:108,z:-216}];
@@ -38,7 +41,7 @@ export function updateActivities(dt){
   const d=Math.sqrt(dist2(px,pz,t.x,t.z));
   state.sideText='LAP '+(raceLaps+1)+'/2 — CHECKPOINT '+(raceIdx+1)+'/'+RACE_POINTS.length+' — '+raceTime.toFixed(1)+'s';
   if(d<12){sfxPickup();raceIdx++;
-   if(raceIdx>=RACE_POINTS.length){raceIdx=0;raceLaps++;state.cash+=300;notify('LAP DONE +$300');
+   if(raceIdx>=RACE_POINTS.length){raceIdx=0;raceLaps++;const lapPay=districtBonus(districtAt(px,pz),300);state.cash+=lapPay;addDistrictRep(districtAt(px,pz),4);notify('LAP DONE +$'+lapPay);
     if(raceLaps>=2){endSide('RACE WON — $600 + time bonus');state.cash+=Math.max(0,Math.round(200-raceTime));}}}
  }else if(state.side==='taxi'){
   const t=TAXI_STOPS[taxiIdx];

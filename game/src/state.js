@@ -1,9 +1,10 @@
 // Central game state: the nine-mission Last Light story, respect progression, nitro,
-// radio/garage records, notifications and localStorage save/load.
+// radio/garage records, notifications and localStorage save/load. v3 adds crew barks
+// and per-district standing alongside the respect ranks.
 export const state={mode:'title',time:0,paused:false,foot:{x:0,z:0,heading:0,health:100,armor:65},cash:2450,wanted:0,heat:0,weapon:0,ammo:[Infinity,48,0,0],unlockedWeapons:[true,true,false,false],inCar:-1,carSpeed:0,carHeading:0,crimeX:0,crimeZ:0,lastCrimeT:0,gunfireT:0,mission:0,missionStep:0,objective:'Meet Lena at the Breakwater',missionTitle:'LOW TIDE',dialogue:'',speaker:'',dialogueT:0,toast:'',toastTime:0,kills:0,side:null,sideKills:0,sideTime:0,deathCause:'',shot:new URLSearchParams(location.search).get('shot')||'',seed:Number(new URLSearchParams(location.search).get('seed')||7),
  // v2 progression + systems
- respect:0,nitro:100,nosActive:false,storedRide:'sports',radioStation:0,radioOn:false,
- heliChatter:'',heliChatterT:0,banner:null,damageFlash:0,combo:0,comboT:0,wheelOpen:false,bustT:0};
+ respect:0,nitro:100,nosActive:false,storedRide:'sports',radioStation:0,radioOn:false,districtRep:{},
+ heliChatter:'',heliChatterT:0,banner:null,damageFlash:0,combo:0,comboT:0,wheelOpen:false,bustT:0,crewBark:'',crewSpeaker:'',crewBarkT:0,district:'',districtPerk:''};
 // respect ranks: earned per mission and side job; rank 2 halves bail, rank 4 doubles NOS regen
 export const RANKS=[
  {at:0,name:'OUTSIDER'},{at:30,name:'KNOWN FACE'},{at:70,name:'CONNECTED'},
@@ -32,6 +33,8 @@ export const missions=[
 ];
 export function notify(text){state.toast=text;state.toastTime=2.6;const el=document.querySelector('#toast');if(el){el.textContent=text;el.style.opacity=1;}}
 export function say(speaker,line,secs=5){state.speaker=speaker;state.dialogue=line;state.dialogueT=secs;}
+// crew radio barks ride a separate HUD chip so they never fight the mission dialogue box
+export function bark(speaker,line,secs=4){state.crewSpeaker=speaker;state.crewBark=line;state.crewBarkT=secs;}
 // mission-complete banner with the cash + respect tally, drawn by hud.js
 export function showBanner(title,lines,secs=4.5){state.banner={title,lines,t:secs};}
 export function addRespect(amount){
@@ -40,6 +43,6 @@ export function addRespect(amount){
  const after=rankOf(state.respect);
  if(after>before)notify('RESPECT UP — '+RANKS[after].name+(after===2?' · BAIL HALVED':after===4?' · NITRO REGEN x2':''));
 }
-export function saveGame(){const data={foot:{x:state.foot.x,z:state.foot.z,health:state.foot.health,armor:state.foot.armor},cash:state.cash,mission:state.mission,missionStep:state.missionStep,objective:state.objective,missionTitle:state.missionTitle,weapon:state.weapon,ammo:state.ammo.map(a=>a===Infinity?-1:a),unlockedWeapons:state.unlockedWeapons,kills:state.kills,respect:state.respect,nitro:state.nitro,storedRide:state.storedRide,radioStation:state.radioStation};localStorage.setItem('solstice-save',JSON.stringify(data));notify('NIGHT SAVED');}
-export function loadGame(){try{const raw=localStorage.getItem('solstice-save');if(!raw)return false;const d=JSON.parse(raw);Object.assign(state,d);state.ammo=d.ammo.map(a=>a===-1?Infinity:a);state.inCar=-1;state.wanted=0;state.heat=0;state.nosActive=false;state.banner=null;notify('SAVE RESTORED');return true;}catch{return false;}}
+export function saveGame(){const data={foot:{x:state.foot.x,z:state.foot.z,health:state.foot.health,armor:state.foot.armor},cash:state.cash,mission:state.mission,missionStep:state.missionStep,objective:state.objective,missionTitle:state.missionTitle,weapon:state.weapon,ammo:state.ammo.map(a=>a===Infinity?-1:a),unlockedWeapons:state.unlockedWeapons,kills:state.kills,respect:state.respect,nitro:state.nitro,storedRide:state.storedRide,radioStation:state.radioStation,districtRep:state.districtRep||{}};localStorage.setItem('solstice-save',JSON.stringify(data));notify('NIGHT SAVED');}
+export function loadGame(){try{const raw=localStorage.getItem('solstice-save');if(!raw)return false;const d=JSON.parse(raw);Object.assign(state,d);state.ammo=d.ammo.map(a=>a===-1?Infinity:a);state.districtRep=d.districtRep||{};state.inCar=-1;state.wanted=0;state.heat=0;state.nosActive=false;state.banner=null;notify('SAVE RESTORED');return true;}catch{return false;}}
 export function hasSave(){return !!localStorage.getItem('solstice-save');}

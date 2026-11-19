@@ -14,4 +14,5 @@ export function makeRng(seed) {
   next.chance = p => next() < p;
   return next;
 }
+// City-wide stream, seeded once per boot so world layout and AI choices repeat.
 export const rng = makeRng(20261119);

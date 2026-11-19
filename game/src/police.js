@@ -1,5 +1,6 @@
 // Wanted level and police AI: patrols, pursuits, on-foot arrests, roadblocks, heat decay.
 // AIR ONE (helicopter.js) joins the hunt at 3+ stars; this module owns ground units.
+// Cruiser lightbars pulse faster as the wanted level climbs.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,notify} from './state.js';

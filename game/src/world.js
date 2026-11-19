@@ -11,4 +11,5 @@ export const world = {
   hubMarkers: [],  // activity hub pickups
   pickups: [],     // ammo/armor/cash/health pickups
   photoFx: false,  // staged photo scenes keep effects alive for the frozen frame
+ crew: [],        // named crew companions (crew.js), tagged and followed in missions
 };

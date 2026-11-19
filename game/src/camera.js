@@ -1,5 +1,6 @@
 // Third-person follow camera: mouse orbit, wall sweep, speed FOV kick and NOS rumble,
-// tuned separately for foot and car. Staged photos snap the camera so captures are exact.
+// tuned separately for foot and car. Staged photos snap the camera so captures are exact;
+// v3 photo framing can aim off-axis for hero compositions.
 import {THREE} from './three.js';
 import {state} from './state.js';
 import {mouse} from './input.js';
@@ -9,7 +10,9 @@ export function updateCamera(camera,dt){
  cam.yaw-=mouse.dx*.0026;cam.pitch=Math.max(-.15,Math.min(1.15,cam.pitch+mouse.dy*.0022));
  const inCar=state.inCar>=0;
  const target=state.foot;
- const wantDist=state.photo?cam.dist:(inCar?10.5:7.5),wantHeight=inCar?4.4:3.1;
+ const wantDist=state.photo?cam.dist:(inCar?10.5:7.5);
+ // staged photos can drop the pivot for a low hero angle (cam.baseY)
+ const wantHeight=state.photo&&cam.baseY!=null?cam.baseY:(inCar?4.4:3.1);
  cam.dist+=(wantDist-cam.dist)*Math.min(1,dt*3);
  // in car, camera drifts behind travel direction when moving fast (not in staged photo mode)
  if(inCar&&!state.photo&&Math.abs(state.carSpeed||0)>6){
@@ -33,14 +36,17 @@ export function updateCamera(camera,dt){
  const cy2=cy;
  // staged photo: aim point rides higher for a skyline view (set by photo.js)
  const aimY=(state.photo&&cam.aimY)||1.5;
+ // off-axis aim lets photo mode frame a hero left-of-center with the car beside them
+ const aimX=state.photo&&cam.aimDX?cam.aimDX:0,aimZ=state.photo&&cam.aimDZ?cam.aimDZ:0;
  cam.shake=Math.max(0,cam.shake-dt*3);
  // deterministic photos carry no shake jitter; NOS adds a low rumble while boosting
  const shakeAmt=state.photo?0:cam.shake+(state.nosActive?.045:0);
  const sx=(Math.random()-.5)*shakeAmt,sy=(Math.random()-.5)*shakeAmt;
  if(cam.snap){camera.position.set(solved.x,cy2,solved.z);cam.snap=false;}
  else camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
- camera.lookAt(target.x,aimY+(inCar?.6:0),target.z);
- const targetFov=62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0)+(state.nosActive?6:0);
+ camera.lookAt(target.x+aimX,aimY+(inCar&&!state.photo?.6:0),target.z+aimZ);
+ const targetFov=state.photo&&cam.fovWish?cam.fovWish:62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0)+(state.nosActive?6:0);
+ if(cam.snap)cam.fov=targetFov; // staged framing is exact on the first frame
  cam.fov+=(targetFov-cam.fov)*Math.min(1,dt*4);
  camera.fov=cam.fov;camera.updateProjectionMatrix();
 }

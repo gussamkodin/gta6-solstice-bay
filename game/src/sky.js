@@ -1,5 +1,6 @@
 // Neon-sunset sky: three-stop gradient dome (indigo → rose → amber), low warm sun west
 // over the hills casting long shadows, pink haze fog, lit clouds and a glowing sun disc.
+// Photo mode can bias the exposure and sun strength per staged frame.
 import {THREE} from './three.js';
 import {PALETTE} from './config.js';
 import {makeRng} from './rng.js';

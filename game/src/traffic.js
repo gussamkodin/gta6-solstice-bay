@@ -1,5 +1,6 @@
 // AI traffic on the road grid plus sidewalk pedestrians with panic/flee reactions.
 // Head-on avoidance and horn honks run off the seeded stream so traffic is reproducible.
+// Crew peds (kind 'crew') are driven by crew.js, never by street AI.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state} from './state.js';

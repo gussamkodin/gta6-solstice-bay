@@ -66,3 +66,14 @@ export const SPAWN = { x: 246, z: 10 };
 export const NITRO = { drain: 34, regen: 9, regenPerk: 16, minSpeed: 4 };
 // safehouse garage on the Palmetto Row curb: save, repair, swap the stored ride
 export const GARAGE = { x: -36, z: 224, label: 'CORTEZ GARAGE' };
+
+// district standing: colors for the entry banner and the local perk each grants
+export const DISTRICT_META = {
+ 'Marigold Mile':      { color: '#ff4fa0', perk: 'NEON MILE — shop discounts, tips flow' },
+ 'Glasshouse Strand':  { color: '#3fe8e0', perk: 'BOARDWALK — beach crowds pay fares' },
+ 'Copperworks Docks':  { color: '#ffb347', perk: 'PORT SIDE — cargo jobs pay extra' },
+ 'Palmetto Row':       { color: '#b46bff', perk: 'HOME TURF — garage repairs are free' },
+ 'Sunward Heights':    { color: '#8fc0ea', perk: 'HILL ROAD — nitro cools faster' },
+ 'Glasshouse Downtown':{ color: '#ffd36f', perk: 'CITY CORE — respect comes quicker' },
+ 'Midtown':            { color: '#c0b8d0', perk: 'OPEN STREETS — the bay is yours' },
+};
