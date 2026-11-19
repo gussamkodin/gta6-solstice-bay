@@ -1,6 +1,7 @@
 // Deterministic make.fun entrypoint for Solstice Bay — Last Light (v2).
-// Copies the static browser game and its four photo-mode captures into the output
-// directory, then let the kit's unchanged dossier builder describe exactly those bytes.
+// Copies the static v2 browser game (helicopter, radio, garage, weapon wheel,
+// 9-mission arc) and its four photo-mode captures into the output directory, then
+// lets the kit's unchanged dossier builder describe exactly those bytes.
 // The copy is byte-for-byte: no transforms, no timestamps in content, so two runs with
 // the same MAKEFUN_OUTPUT_DIR produce identical trees (verified with diff -r).
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
