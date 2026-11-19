@@ -1,6 +1,6 @@
 // Circle-vs-AABB collision against city footprints plus world bounds; shared by all movers.
 import {obstacles} from './city.js';
-import {LAND,PITCH} from './config.js';
+import {LAND,PITCH,PIER} from './config.js';
 // uniform grid: only test footprints in nearby cells
 const CELL=PITCH,grid=new Map();
 let indexed=false;
@@ -39,9 +39,12 @@ export function collideCircle(x,z,r){
   }
  }
  if(nx<LAND.minX+r){nx=LAND.minX+r;hit=true;}
- if(nx>LAND.maxX-r){nx=LAND.maxX+r;hit=true;}
  if(nz<LAND.minZ+r){nz=LAND.minZ+r;hit=true;}
  if(nz>LAND.maxZ-r){nz=LAND.maxZ+r;hit=true;}
+ // east edge: sand and promenade are open, but past them only the five pier decks stay walkable
+ const onPier=PIER.zs.some(z=>Math.abs(nz-z)<=PIER.halfWidth+r)&&nx>=PIER.minX-r;
+ if(nx>LAND.maxX-r&&!onPier){nx=LAND.maxX+r;hit=true;}
+ if(nx>PIER.maxX+r){nx=PIER.maxX+r;hit=true;}
  return{x:nx,z:nz,hit};
 }
 export function blocked(x,z,r=0.5){return collideCircle(x,z,r).hit;}

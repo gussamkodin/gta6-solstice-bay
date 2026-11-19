@@ -4,7 +4,10 @@ export const BLOCK = 56;            // block width (sidewalk to sidewalk)
 export const ROAD = 16;             // road width
 export const PITCH = BLOCK + ROAD;  // intersection spacing
 export const HALF = (BLOCKS * PITCH + ROAD) / 2; // 296: land half-extent
-export const LAND = { minX: -HALF, maxX: 310, minZ: -HALF, maxZ: HALF };
+// east edge reaches the promenade: beach sand, walkway and piers are all on foot
+export const LAND = { minX: -HALF, maxX: 374, minZ: -HALF, maxZ: HALF };
+// the five piers reach past the promenade out over the water
+export const PIER = { minX: 364, maxX: 406, zs: [-170, -85, 0, 85, 170], halfWidth: 5 };
 export const LANE = 3.6;            // lane offset from road centerline
 export const SIDEWALK = 2.6;
 
@@ -50,6 +53,7 @@ export const WEAPONS = [
   { name: 'TIDEBREAKER', dmg: 11, rate: 0.85, range: 30, auto: false, spread: 0.09, pellets: 6 },
 ];
 
-export const HOSPITAL = { x: 108, z: -108 };
-export const PRECINCT = { x: -108, z: 108 };
+// respawn doors sit on the sidewalk just outside the buildings
+export const HOSPITAL = { x: 108, z: -80 };
+export const PRECINCT = { x: -108, z: 80 };
 export const SPAWN = { x: 246, z: 10 };

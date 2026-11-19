@@ -7,7 +7,7 @@ import {key,hit,axis} from './input.js';
 import {collideCircle,dist2} from './physics.js';
 import {stepCar} from './vehicles.js';
 import {cam} from './camera.js';
-import {HOSPITAL,SPAWN} from './config.js';
+import {HOSPITAL,PRECINCT,SPAWN} from './config.js';
 import {sfxCrash,sfxHorn,updateEngine,sfxSkid} from './audio.js';
 import {skidMark} from './effects.js';
 import {reportCrime} from './police.js';
@@ -136,7 +136,7 @@ export function killPlayer(p,cause){
  state.cash=Math.max(0,state.cash-(cause==='busted'?400:250));
 }
 function respawn(p){
- const spot=state.deathCause==='busted'?{x:-108,z:120}:HOSPITAL;
+ const spot=state.deathCause==='busted'?PRECINCT:HOSPITAL;
  p.x=spot.x;p.z=spot.z;p.dead=false;p.mesh.visible=true;
  state.foot.health=100;state.foot.armor=0;
  p.mesh.position.set(p.x,0,p.z);

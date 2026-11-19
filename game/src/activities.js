@@ -6,11 +6,12 @@ import {hit} from './input.js';
 import {roadAt} from './config.js';
 import {sfxPickup,sfxMission} from './audio.js';
 import {makePickup} from './effects.js';
-const RACE_POINTS=[{x:180,z:108},{x:180,z:-108},{x:-36,z:-108},{x:-36,z:108},{x:180,z:108}];
-const TAXI_STOPS=[{x:36,z:180},{x:-108,z:36},{x:252,z:-36},{x:-180,z:-108},{x:108,z:-180}];
+// checkpoints and stops sit on road centerlines/intersections, never inside a block
+const RACE_POINTS=[{x:216,z:144},{x:216,z:-144},{x:-72,z:-144},{x:-72,z:144},{x:216,z:144}];
+const TAXI_STOPS=[{x:36,z:144},{x:-108,z:36},{x:252,z:-36},{x:-180,z:-144},{x:108,z:-216}];
 const HUBS=[
- {kind:'race',x:180,z:126,label:'STREET RACE — press F to enter ($300 per lap)'},
- {kind:'taxi',x:36,z:126,label:'BAY CAB CO. — press F to start fares'},
+ {kind:'race',x:180,z:132,label:'STREET RACE — press F to enter ($300 per lap)'},
+ {kind:'taxi',x:36,z:136,label:'BAY CAB CO. — press F to start fares'},
  {kind:'rampage',x:-108,z:-126,label:'RAMPAGE — press F ($25 per takedown, 60s)'},
 ];
 let raceIdx=0,raceLaps=0,raceTime=0,taxiIdx=0,taxiFare=0,rampageSpawns=[];

@@ -45,7 +45,7 @@ function setMode(mode){
  $('start').classList.toggle('hide',mode!=='title');
  $('pause').classList.toggle('hide',mode!=='pause');
  showHUD(mode==='play'||mode==='pause');
- if(mode==='play'){canvas.requestPointerLock?.();}
+ if(mode==='play'&&!state.shot){const req=canvas.requestPointerLock?.();if(req&&req.catch)req.catch(()=>{});}
  else document.exitPointerLock?.();
 }
 function newGame(){

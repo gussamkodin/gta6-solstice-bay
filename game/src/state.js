@@ -3,7 +3,7 @@ export const state={mode:'title',time:0,paused:false,foot:{x:0,z:0,heading:0,hea
 export const missions=[
  {title:'LOW TIDE',brief:'Meet Lena at the Breakwater',goal:{x:385,z:-85,label:'Breakwater Pier'},reward:650,
   intro:[['LENA VALE','You came. Crane\'s people dredged the bay at dawn — six hours off the tide charts.'],['REMY CORTEZ','Nobody dredges at dawn unless they want the sand to keep a secret.'],['LENA VALE','Find out what they buried. Start at the pier office. And Remy — keep it quiet.']]},
- {title:'PAPER TRAIL',brief:'Catch the courier on Marigold Mile',goal:{x:180,z:36,label:'Marigold Courier'},reward:900,
+ {title:'PAPER TRAIL',brief:'Catch the courier on Marigold Mile',goal:{x:180,z:64,label:'Marigold Courier'},reward:900,
   intro:[['LENA VALE','The dredging permits were signed by a shell company. A courier carries the real ledger.'],['REMY CORTEZ','Marigold Mile. He runs the pastel arcade every evening.'],['LENA VALE','Take the ledger, not his life. We need him talking later.']]},
  {title:'NIGHT SHIFT',brief:'Deliver the ledger to Copperworks Docks',goal:{x:-216,z:-252,label:'Copperworks Gate'},reward:1200,
   intro:[['COURIER','This is bigger than a property deal. Crane is buying the whole waterfront.'],['REMY CORTEZ','Who is he buying it for?'],['COURIER','Get the ledger to the old dock office. Lena will read what the numbers hide.']]},

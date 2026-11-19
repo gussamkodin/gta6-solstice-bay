@@ -15,7 +15,7 @@ export function initInput(canvas, onEscape) {
   canvas.addEventListener('mousedown', e => {
     if (e.button === 0) {
       mouse.down = true; mouse.clicked = true;
-      if (!mouse.locked) canvas.requestPointerLock?.();
+      if (!mouse.locked) { const req = canvas.requestPointerLock?.(); if (req && req.catch) req.catch(() => {}); }
     }
   });
   addEventListener('mouseup', e => { if (e.button === 0) mouse.down = false; });
