@@ -1,8 +1,22 @@
-// Procedural Solstice Bay: original blocks, pastel storefronts, palms, hills, docks and waterfront.
+// Procedural Solstice Bay at last light: pastel art-deco blocks with lit windows and neon
+// storefront signs, wet-look asphalt, glowing street lamps, palms, hills, docks, piers.
 import {THREE} from './three.js';
 import {BLOCK,BLOCKS,ROAD,PITCH,HALF,LAND,PALETTE,roadAt,blockAt} from './config.js';
 import {rng} from './rng.js';
 const mat=(color,roughness=.82,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
+// canvas-texture neon signs: original Solstice Bay businesses, no external assets
+const SIGNS=['SOLSTICE','LOW TIDE','PALMA CLUB','BAYSIDE DINER','MARIGOLD','NEON TIDE','HOTEL AZUL','CASINO SOL','COPPER & CO','SURF CITY','LAST LIGHT','EL FARO'];
+const signMats=[];
+function signMaterial(text,color){
+ const cv=document.createElement('canvas');cv.width=256;cv.height=64;const g=cv.getContext('2d');
+ const css='#'+color.toString(16).padStart(6,'0');
+ g.fillStyle='#0d1220';g.fillRect(0,0,256,64);
+ g.strokeStyle=css;g.lineWidth=3;g.strokeRect(5,5,246,54);
+ g.font='bold 30px Arial';g.textAlign='center';g.textBaseline='middle';
+ g.shadowColor=css;g.shadowBlur=16;g.fillStyle=css;g.fillText(text,128,34);g.fillText(text,128,34);
+ const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
+ return new THREE.MeshBasicMaterial({map:tex});
+}
 const boxGeo=new THREE.BoxGeometry(1,1,1),cylGeo=new THREE.CylinderGeometry(.45,.58,1,8),sphereGeo=new THREE.SphereGeometry(1,8,6);
 // solid footprints used by player/car collision and AI avoidance
 export const obstacles=[];
@@ -11,7 +25,12 @@ export function addBox(parent,x,y,z,w,h,d,material){const m=new THREE.Mesh(boxGe
 export function addCylinder(parent,x,y,z,r,h,material,segments=8){const m=new THREE.Mesh(new THREE.CylinderGeometry(r*.75,r,h,segments),material);m.position.set(x,y+h/2,z);m.castShadow=true;parent.add(m);return m;}
 export function makeCity(scene){
  const root=new THREE.Group();root.userData.bakeRoot=true;scene.add(root);
- const mats={asphalt:mat(PALETTE.asphalt),side:mat(PALETTE.sidewalk),sand:mat(PALETTE.sand),grass:mat(PALETTE.grass),water:mat(PALETTE.water,.35,.15),white:mat(0xf4ead8),dark:mat(0x34424a),yellow:mat(0xf4c75e),line:mat(0xe9dfc7),palm:mat(0x78543c),leaf:mat(0x3d8057),window:mat(0x8fbed0,.36,.25),roof:mat(0xc46954),steel:mat(0x69777c,.45,.5)};
+ const mats={asphalt:mat(PALETTE.asphalt,.22,.5),side:mat(PALETTE.sidewalk),sand:mat(PALETTE.sand),grass:mat(PALETTE.grass),water:mat(PALETTE.water,.14,.65),white:mat(0xf4ead8),dark:mat(0x34424a),yellow:mat(0xf4c75e),line:mat(0xe9dfc7),palm:mat(0x78543c),leaf:mat(0x3d8057),roof:mat(0xc46954),steel:mat(0x69777c,.45,.5)};
+ // dusk windows glow warm or cool; a dark share keeps the facades believable
+ mats.windowLit=new THREE.MeshStandardMaterial({color:0x3a2c18,emissive:PALETTE.windowLit,emissiveIntensity:1.5,roughness:.4});
+ mats.windowCool=new THREE.MeshStandardMaterial({color:0x14222c,emissive:PALETTE.windowCool,emissiveIntensity:1.2,roughness:.4});
+ mats.windowDark=mat(0x27333e,.3,.3);
+ mats.lampGlow=new THREE.MeshStandardMaterial({color:0xffe1a0,emissive:0xffc878,emissiveIntensity:2.2,roughness:.3});
  // ground and ocean to the eastern edge; warm beach separates city from sea
  addBox(root,-30,-1,0,720,1,680,mats.grass);
  addBox(root,352,-.5,0,120,.5,700,mats.sand);
@@ -47,6 +66,7 @@ export function makeCity(scene){
    const w=count===1?40:22,d=count===1?42:24;
    const floors=isDowntown?7+rng.int(0,13):2+rng.int(0,5),h=floors*(isDowntown?4.2:3.2);
    building(root,x,z,w,h,d,mat(PALETTE.pastel[rng.int(0,PALETTE.pastel.length-1)]),mats,isDowntown);
+   neonSign(root,x,z,w,d,mats);
   }
   for(let p=0;p<2;p++)palm(root,cx+(p?21:-21),.15,cz+22,mats);
  }
@@ -57,7 +77,7 @@ export function makeCity(scene){
  for(let i=0;i<=BLOCKS;i++)for(let j=0;j<=BLOCKS;j++){
   const x=roadAt(i),z=roadAt(j);
   if(i<8&&j<8){for(let s=0;s<5;s++){addBox(root,x-6+s*3,.08,z-7,1.3,.04,2.2,mats.white);addBox(root,x-6+s*3,.08,z+7,1.3,.04,2.2,mats.white);}}
-  for(const side of [-1,1]){const px=x+side*10,pz=z+10;addBox(root,px,.1,pz,.2,4,.2,mats.dark);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.35,6,4),mat(0xffe1a0,.2));lamp.position.set(px,.4+4,pz);root.add(lamp);}
+  for(const side of [-1,1]){const px=x+side*10,pz=z+10;addBox(root,px,.1,pz,.2,4,.2,mats.dark);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.35,6,4),mats.lampGlow);lamp.position.set(px,.4+4,pz);lamp.castShadow=false;lamp.userData.cityStatic=true;root.add(lamp);}
  }
  // Civic landmarks and location signage
  addBox(root,blockAt(4),.2,blockAt(4),24,.3,28,mat(0x7e9d73));
@@ -92,8 +112,33 @@ function mergeGeometries(geos){
  return out;
 }
 function palm(scene,x,y,z,m){addCylinder(scene,x,y,z,.55,9,m.palm,7);const top=new THREE.Vector3(x,y+8.7,z);for(let i=0;i<7;i++){const a=i*Math.PI*2/7;const end=new THREE.Vector3(x+Math.cos(a)*5,y+7.5,z+Math.sin(a)*5);const dir=end.clone().sub(top);const leaf=new THREE.Mesh(new THREE.ConeGeometry(.8,dir.length(),5),m.leaf);leaf.position.copy(top).add(end).multiplyScalar(.5);leaf.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());leaf.castShadow=true;scene.add(leaf);}}
-function building(scene,x,z,w,h,d,wall,m,isTall){solid(x,z,w,d);addBox(scene,x,.2,z,w,h,d,wall);addBox(scene,x,.2+h,z,w+1,.5,d+1,mat(0xe2ceb0));for(let floor=2.5;floor<h;floor+=isTall?4.2:3.2){for(let side=-1;side<=1;side+=2){for(let col=-1;col<=1;col++){const win=addBox(scene,x+col*w*.28,.2+floor,z+side*(d/2+.04),w*.16,1.5,.08,m.window);win.castShadow=false;}}for(let col=-1;col<=1;col++){addBox(scene,x+col*w*.28,.2+floor,z,w*.15,1.5,.08,m.window);}}
- addBox(scene,x,.2+h+.55,z,w*.35,.7,d*.35,isTall?m.roof:m.white);if(isTall){addBox(scene,x,.2+h+1.4,z,w*.16,1,d*.16,m.roof);}}
+function building(scene,x,z,w,h,d,wall,m,isTall){solid(x,z,w,d);addBox(scene,x,.2,z,w,h,d,wall);addBox(scene,x,.2+h,z,w+1,.5,d+1,mat(0xe2ceb0));
+ // window grid: mostly lit warm at dusk, a cool share and a dark share for rhythm
+ const winMat=()=>{const r=rng();return r<.62?m.windowLit:r<.82?m.windowCool:m.windowDark;};
+ for(let floor=2.5;floor<h;floor+=isTall?4.2:3.2){
+  for(let side=-1;side<=1;side+=2){for(let col=-1;col<=1;col++){const win=addBox(scene,x+col*w*.28,.2+floor,z+side*(d/2+.04),w*.16,1.5,.08,winMat());win.castShadow=false;}}
+  for(let col=-1;col<=1;col++){const win=addBox(scene,x+col*w*.28,.2+floor,z,w*.15,1.5,.08,winMat());win.castShadow=false;}
+ }
+ addBox(scene,x,.2+h+.55,z,w*.35,.7,d*.35,isTall?m.roof:m.white);if(isTall){addBox(scene,x,.2+h+1.4,z,w*.16,1,d*.16,m.roof);
+  // art-deco neon crown strip along the roofline of every tower
+  const crown=new THREE.MeshStandardMaterial({color:0x201826,emissive:rng.pick([PALETTE.neonPink,PALETTE.neonCyan,PALETTE.neonAmber,PALETTE.neonViolet]),emissiveIntensity:1.8,roughness:.4});
+  const strip=addBox(scene,x,.2+h+.5,z+d/2+.06,w*.96,.22,.1,crown);strip.castShadow=false;
+  const strip2=addBox(scene,x,.2+h+.5,z-d/2-.06,w*.96,.22,.1,crown);strip2.castShadow=false;
+ }}
+// glowing storefront sign above the street-level floor, facing the nearest road
+function neonSign(scene,x,z,w,d,m){
+ if(!rng.chance(.75))return;
+ if(!signMats.length){const colors=[PALETTE.neonPink,PALETTE.neonCyan,PALETTE.neonAmber,PALETTE.neonViolet];for(let i=0;i<SIGNS.length;i++)signMats.push(signMaterial(SIGNS[i],colors[i%colors.length]));}
+ const matSign=rng.pick(signMats);
+ const faceZ=rng.chance(.5);
+ const sign=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w*.8,10),2.2),matSign);
+ if(faceZ){sign.position.set(x,5.4,z+d/2+.15);}
+ else{sign.position.set(x+w/2+.15,5.4,z);sign.rotation.y=Math.PI/2;}
+ sign.userData.cityStatic=true;scene.add(sign);
+ // dark backing board so the sign reads as a mounted box, not a floating decal
+ const back=addBox(scene,faceZ?x:x+w/2+.08,4.25,faceZ?z+d/2+.08:z,faceZ?Math.min(w*.8,10)+.5:.16,2.5,faceZ?.16:Math.min(w*.8,10)+.5,m.dark);
+ back.castShadow=false;
+}
 function house(scene,x,z,bx,bz){solid(x,z,27,22);const wall=mat(PALETTE.pastel[rng.int(0,PALETTE.pastel.length-1)]),roof=mat([0xb75243,0x905646,0x697b88][rng.int(0,2)]);addBox(scene,x,.15,z,27,8,22,wall);const r=new THREE.Mesh(new THREE.ConeGeometry(19,7,4),roof);r.position.set(x,11,z);r.rotation.y=Math.PI/4;scene.add(r);for(let side of [-1,1])addBox(scene,x+side*7,3.5,z+11.05,4,3,.12,mat(0x91bccb));}
 function container(scene,x,y,z,w,h,m){solid(x,z,w,8);addBox(scene,x,y,z,w,h,8,m);for(let i=-w/2+1;i<w/2;i+=2)addBox(scene,x+i,y,z+4.05,.08,h*.9,.08,mat(0x303b40));}
 function crane(scene,x,y,z,m){addBox(scene,x,y,z,1,23,1,m);addBox(scene,x,y+22,z+9,24,1,1,m);addBox(scene,x-7,y+11,z,1,22,1,m);addBox(scene,x+8,y+15,z+4,1,15,1,m);}

@@ -1,18 +1,19 @@
-// Player avatar: on-foot movement, sprint, car entry/exit, health/armor, hospital respawn.
+// Player avatar: on-foot movement, sprint, car entry/exit, nitro boost, health/armor,
+// hospital/police respawn with rank-based bail and a bust cinematic beat.
 import {THREE} from './three.js';
-import {state,notify} from './state.js';
+import {state,notify,say,rankOf} from './state.js';
 import {world} from './world.js';
 import {buildHuman,animateHuman} from './peds.js';
 import {key,hit,axis} from './input.js';
 import {collideCircle,dist2} from './physics.js';
 import {stepCar} from './vehicles.js';
 import {cam} from './camera.js';
-import {HOSPITAL,PRECINCT,SPAWN} from './config.js';
-import {sfxCrash,sfxHorn,updateEngine,sfxSkid} from './audio.js';
+import {HOSPITAL,PRECINCT,SPAWN,NITRO} from './config.js';
+import {sfxCrash,sfxHorn,updateEngine,sfxSkid,sfxNos} from './audio.js';
 import {skidMark} from './effects.js';
 import {reportCrime} from './police.js';
 export function makePlayer(){
- const mesh=buildHuman({shirt:0xe8e2d2,pants:0x2c3e50,skin:0xb07848});
+ const mesh=buildHuman({shirt:0xe8e2d2,pants:0x2c3e50,skin:0xb07848,gun:true});
  mesh.position.set(SPAWN.x,0,SPAWN.z);
  world.scene.add(mesh);
  const p={mesh,x:SPAWN.x,z:SPAWN.z,heading:0,speed:0,dead:false,respawnT:0,fireCooldown:0,enterCooldown:0};
@@ -51,12 +52,22 @@ function walkPlayer(p,dt){
  if(hit('KeyE')&&p.enterCooldown<=0)tryEnterCar(p);
  if(hit('KeyH'))sfxHorn();
  updateEngine(0,0,false);
+ // nitro cools off on foot; the sidearm shows only while aiming a gun
+ state.nitro=Math.min(100,state.nitro+NITRO.regen*dt);
+ const sidearm=p.mesh.getObjectByName('sidearm');
+ if(sidearm)sidearm.visible=p.aiming&&state.weapon>0;
 }
 function drivePlayerCar(p,dt){
  const car=world.cars[state.inCar];
  if(!car||car.dead){exitCar(p);return;}
  const throttle=axis('KeyS','KeyW'),steer=axis('KeyD','KeyA');
  const brake=key('Space');
+ // NOS: hold Shift while rolling; Street Legend rank regenerates the meter twice as fast
+ const wantNos=(key('ShiftLeft')||key('ShiftRight'))&&state.nitro>0&&car.speed>NITRO.minSpeed;
+ if(wantNos&&!state.nosActive)sfxNos();
+ state.nosActive=wantNos;car.nos=wantNos;
+ if(wantNos)state.nitro=Math.max(0,state.nitro-NITRO.drain*dt);
+ else state.nitro=Math.min(100,state.nitro+(rankOf(state.respect)>=4?NITRO.regenPerk:NITRO.regen)*dt);
  const before=car.speed;
  stepCar(car,dt,throttle,brake,steer);
  const solved=collideCircle(car.x,car.z,1.4);
@@ -80,7 +91,7 @@ function drivePlayerCar(p,dt){
   if(ped.dead)continue;
   if(dist2(car.x,car.z,ped.x,ped.z)<3.2&&Math.abs(car.speed)>4){ped.hitByCar=true;}
  }
- if(brake&&Math.abs(car.speed)>8){if(Math.random()<dt*30)skidMark(car.x-Math.sin(car.heading)*1.5,car.z-Math.cos(car.heading)*1.5,car.heading);if(Math.random()<dt*6)sfxSkid();}
+ if((brake||state.nosActive)&&Math.abs(car.speed)>8){if(Math.random()<dt*30)skidMark(car.x-Math.sin(car.heading)*1.5,car.z-Math.cos(car.heading)*1.5,car.heading);if(brake&&Math.random()<dt*6)sfxSkid();}
  p.x=car.x;p.z=car.z;p.heading=car.heading;
  p.mesh.visible=false;
  state.carSpeed=car.speed;state.carHeading=car.heading;
@@ -106,7 +117,7 @@ function ejectDriver(car){
 function exitCar(p){
  const car=world.cars[state.inCar];
  if(car){p.x=car.x+Math.cos(car.heading)*2.4;p.z=car.z-Math.sin(car.heading)*2.4;const s=collideCircle(p.x,p.z,.45);p.x=s.x;p.z=s.z;car.speed*=.3;}
- state.inCar=-1;state.carSpeed=0;p.mesh.visible=true;p.enterCooldown=.6;
+ state.inCar=-1;state.carSpeed=0;state.nosActive=false;p.mesh.visible=true;p.enterCooldown=.6;
 }
 export function damageCar(car,dmg){
  if(state.photoNoDamage&&state.inCar>=0&&world.cars[state.inCar]===car)return;
@@ -126,14 +137,20 @@ export function damagePlayer(dmg){
  if(state.photoNoDamage)return;
  const absorb=Math.min(state.foot.armor,dmg*.6);
  state.foot.armor-=absorb;state.foot.health-=dmg-absorb;
+ state.damageFlash=Math.min(1,state.damageFlash+.5); // red screen-edge pulse
  import('./camera.js').then(c=>c.cam.shake=Math.min(.5,c.cam.shake+.15));
 }
 export function killPlayer(p,cause){
- p.dead=true;p.respawnT=3;p.mesh.visible=false;
+ p.dead=true;p.respawnT=3.4;p.mesh.visible=false;
  if(state.inCar>=0){const car=world.cars[state.inCar];if(car)car.speed=0;state.inCar=-1;state.carSpeed=0;}
- state.deathCause=cause;state.wanted=0;state.heat=0;
- notify(cause==='hospital'?'DOWN — WAKING AT BAYSIDE GENERAL':'BUSTED — RELEASED ON BAIL');
- state.cash=Math.max(0,state.cash-(cause==='busted'?400:250));
+ state.deathCause=cause;state.wanted=0;state.heat=0;state.nosActive=false;
+ // CONNECTED rank halves the bail; the bust gets a cinematic text beat
+ const bail=cause==='busted'?(rankOf(state.respect)>=2?200:400):250;
+ state.bustT=3.2;
+ say(cause==='busted'?'COUNTY LOCKUP':'BAYSIDE GENERAL',
+  cause==='busted'?'Hands where we can see them. You\'re done tonight, Cortez. Bail: $'+bail+'.':'Easy now. You took a beating out there. Bill: $'+bail+'.',3.2);
+ notify(cause==='hospital'?'DOWN — WAKING AT BAYSIDE GENERAL':'BUSTED — RELEASED ON BAIL $'+bail);
+ state.cash=Math.max(0,state.cash-bail);
 }
 function respawn(p){
  const spot=state.deathCause==='busted'?PRECINCT:HOSPITAL;

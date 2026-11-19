@@ -1,4 +1,6 @@
 // Solstice Bay — Last Light: boot, game loop, menus, pause and photo mode wiring.
+// v2 systems: AIR ONE helicopter, car radio, nitro, garage safehouse, weapon wheel,
+// respect ranks and the nine-mission story arc.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,saveGame,loadGame,hasSave,notify} from './state.js';
@@ -8,7 +10,11 @@ import {makeSky} from './sky.js';
 import {makePlayer,updatePlayer} from './player.js';
 import {spawnTraffic,spawnPeds,updateTraffic,updatePeds} from './traffic.js';
 import {updatePolice} from './police.js';
+import {updateHelicopter} from './helicopter.js';
 import {updateCombat} from './combat.js';
+import {updateWeaponWheel} from './weaponwheel.js';
+import {initRadio,updateRadio} from './radio.js';
+import {initGarage,updateGarage} from './garage.js';
 import {initMissions,updateMissions} from './missions.js';
 import {initActivities,updateActivities} from './activities.js';
 import {initPickups,updatePickups} from './pickups.js';
@@ -37,6 +43,8 @@ spawnPeds(44);
 initMissions();
 initActivities();
 initPickups();
+initGarage();
+initRadio();
 initMinimap();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 const $=id=>document.getElementById(id);
@@ -51,6 +59,7 @@ function setMode(mode){
 function newGame(){
  initAudio();
  state.mission=0;state.cash=2450;state.foot.health=100;state.foot.armor=65;state.wanted=0;state.heat=0;
+ state.respect=0;state.nitro=100;state.storedRide='sports';
  setMode('play');
  notify('WELCOME TO SOLSTICE BAY');
 }
@@ -80,11 +89,15 @@ function frame(now){
    updateTraffic(dt);
    updatePeds(dt);
    updatePolice(dt);
+   updateHelicopter(dt);
    updateCombat(dt);
    updateMissions(dt);
    updateActivities(dt);
+   updateGarage(dt);
    updatePickups(dt);
   }
+  updateRadio(dt);
+  updateWeaponWheel();
   updateEffects(dt);
   updateCamera(camera,dt);
   world.sky.update(dt,state.foot);

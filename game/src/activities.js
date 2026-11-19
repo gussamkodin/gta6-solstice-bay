@@ -1,6 +1,6 @@
-// Side activities: circuit street race, taxi fares, and timed rampage — with cash rewards.
+// Side activities: circuit street race, taxi fares, and timed rampage — cash and respect.
 import {world} from './world.js';
-import {state,notify,say} from './state.js';
+import {state,notify,say,addRespect} from './state.js';
 import {dist2} from './physics.js';
 import {hit} from './input.js';
 import {roadAt} from './config.js';
@@ -68,5 +68,6 @@ function startSide(kind){
 }
 function endSide(text){
  sfxMission();notify(text);
+ addRespect(state.side==='rampage'?4:6);
  state.side=null;state.sideText='';world.waypointMesh.visible=false;
 }

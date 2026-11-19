@@ -1,10 +1,11 @@
 // Wanted level and police AI: patrols, pursuits, on-foot arrests, roadblocks, heat decay.
+// AIR ONE (helicopter.js) joins the hunt at 3+ stars; this module owns ground units.
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,notify} from './state.js';
 import {makeCar,stepCar} from './vehicles.js';
 import {buildHuman,animateHuman,ragdoll} from './peds.js';
-import {dist2,collideCircle} from './physics.js';
+import {dist2,collideCircle,angleDelta} from './physics.js';
 import {roadAt,BLOCKS,LANE,HALF} from './config.js';
 import {rng} from './rng.js';
 import {updateSiren,sfxGun} from './audio.js';
@@ -58,8 +59,7 @@ export function updatePolice(dt){
   const dx=tx-car.x,dz=tz-car.z,d=Math.hypot(dx,dz);
   if(!chase&&d<12){ai.patrolX=rng.range(-HALF+30,HALF-30);ai.patrolZ=roadAt(rng.int(0,BLOCKS));}
   const desired=Math.atan2(dx,-dz);
-  let diff=desired-car.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
-  const steer=Math.max(-1,Math.min(1,diff*2.2));
+  const steer=Math.max(-1,Math.min(1,angleDelta(car.heading,desired)*2.2));
   const targetSpeed=chase?(d>18?car.spec.speed*.95:8):11;
   const throttle=car.speed<targetSpeed?1:-.4;
   stepCar(car,dt,throttle,false,steer);

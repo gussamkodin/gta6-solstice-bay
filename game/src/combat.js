@@ -1,4 +1,5 @@
-// Weapons and combat: hitscan with spread, melee, enemy gang members, ammo and weapon switching.
+// Weapons and combat: hitscan with spread, melee, enemy gang members, ammo, weapon
+// switching and takedown combo toasts (chain kills within 4s for bonus cash).
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,notify} from './state.js';
@@ -87,17 +88,24 @@ function hurtPed(ped,dmg,p){
  ped.health=(ped.health??40)-dmg;ped.panic=8;sfxHit();
  if(ped.health<=0&&!ped.dead){
   ped.dead=true;ragdoll(ped.mesh);
-  if(ped.kind==='cop'){reportCrime('kill-cop',ped.x,ped.z);state.kills++;}
-  else if(ped.kind==='gang'){state.kills++;state.cash+=rng.int(20,80);if(state.side==='rampage')state.sideKills++;}
+  if(ped.kind==='cop'){reportCrime('kill-cop',ped.x,ped.z);state.kills++;takedownCombo('COP DOWN');}
+  else if(ped.kind==='gang'){state.kills++;state.cash+=rng.int(20,80);if(state.side==='rampage')state.sideKills++;takedownCombo('TAKEDOWN');}
   else{reportCrime('kill-ped',ped.x,ped.z);state.kills++;}
  }
+}
+// chain takedowns within 4 seconds: each link pays a growing cash bonus
+function takedownCombo(label){
+ if(state.time-(state.comboT||0)<4)state.combo++;else state.combo=1;
+ state.comboT=state.time;
+ if(state.combo>1){const bonus=state.combo*25;state.cash+=bonus;notify(label+' x'+state.combo+' COMBO +$'+bonus);}
+ else notify(label);
 }
 // gang members for missions/rampages
 export function spawnGang(x,z,count=4){
  const spawned=[];
  for(let i=0;i<count;i++){
   const gx=x+rng.range(-8,8),gz=z+rng.range(-8,8);
-  const mesh=buildHuman({shirt:0x6a2438,pants:0x2a2a30,skin:rng.pick([0xb07848,0x8a5a34,0xd9a066])});
+  const mesh=buildHuman({shirt:0x6a2438,pants:0x2a2a30,skin:rng.pick([0xb07848,0x8a5a34,0xd9a066]),gun:true});
   mesh.position.set(gx,0,gz);world.scene.add(mesh);
   const ped={mesh,x:gx,z:gz,heading:0,speed:0,panic:0,dead:false,kind:'gang',health:70,fireT:rng.range(.5,2)};
   world.peds.push(ped);spawned.push(ped);

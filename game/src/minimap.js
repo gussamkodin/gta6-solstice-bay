@@ -1,4 +1,5 @@
-// Live rotating minimap: static city layer baked once, dynamic blips drawn per frame.
+// Live rotating minimap: static city layer baked once, dynamic blips per frame —
+// traffic, police, gangs, AIR ONE (pulsing ring), the garage and the objective waypoint.
 import {world} from './world.js';
 import {state} from './state.js';
 import {roadAt,BLOCKS,ROAD,HALF,PITCH,BLOCK} from './config.js';
@@ -52,7 +53,23 @@ export function drawMinimap(){
   else if(car.ai)blip(car.x,car.z,'#c8c8c8',2.5);
   else blip(car.x,car.z,'#88e088',2.5);
  }
- for(const ped of world.peds){if(ped.dead)continue;if(ped.kind==='cop')blip(ped.x,ped.z,'#4a90ff',3);if(ped.kind==='gang')blip(ped.x,ped.z,'#ff5040',3.5);}
+ for(const ped of world.peds){if(ped.dead)continue;if(ped.kind==='cop')blip(ped.x,ped.z,'#4a90ff',3);if(ped.kind==='gang')blip(ped.x,ped.z,'#ff5040',3.5);if(ped.kind==='crew')blip(ped.x,ped.z,'#ff8ad0',3.5);}
+ // garage: small house square
+ if(world.garage){
+  const dx=(world.garage.x-p.x)*scale,dz=(world.garage.z-p.z)*scale;
+  if(dx*dx+dz*dz<(SIZE/2)*(SIZE/2)){ctx.fillStyle='#3fe8e0';ctx.fillRect(dx-4,dz-4,8,8);ctx.fillStyle='#10202a';ctx.fillRect(dx-2,dz,4,4);}
+ }
+ // AIR ONE: blue diamond with a pulsing search ring
+ if(world.heli&&!world.heli.leaving){
+  const hx=world.heli.mesh.position.x,hz=world.heli.mesh.position.z;
+  const dx=(hx-p.x)*scale,dz=(hz-p.z)*scale;
+  if(dx*dx+dz*dz<(SIZE/2)*(SIZE/2)){
+   ctx.save();ctx.translate(dx,dz);ctx.rotate(Math.PI/4);
+   ctx.fillStyle='#7ab8ff';ctx.fillRect(-4,-4,8,8);ctx.restore();
+   ctx.strokeStyle='rgba(122,184,255,'+(0.5+0.4*Math.sin(state.time*5))+')';ctx.lineWidth=1.5;
+   ctx.beginPath();ctx.arc(dx,dz,7+Math.sin(state.time*5)*2,0,Math.PI*2);ctx.stroke();
+  }
+ }
  if(world.waypoint){
   const dx=(world.waypoint.x-p.x)*scale,dz=(world.waypoint.z-p.z)*scale;
   const d=Math.hypot(dx,dz),cl=Math.min(d,SIZE/2-10),fx=d?dx/d:0,fz=d?dz/d:0;
