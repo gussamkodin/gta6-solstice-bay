@@ -21,9 +21,16 @@ export function buildVehicle(type){
  addBox(g,0,.35,0,w,.55,l,body);
  addBox(g,0,.35+h*.42,l*.02,w*.98,h*.5,l*(type==='truck'?.42:.52),body);
  const cabinL=l*(type==='truck'?.36:.44),cabinZ=type==='truck'?l*.22:0;
- addBox(g,0,.35+h*.62,cabinZ,w*.86,h*.34,cabinL,glassMat);
+ // v4 glasshouse: wider, taller and longer than the painted cabin so side, front and
+ // rear windows all read outside the body box
+ addBox(g,0,.35+h*.62,cabinZ,w*1.01,h*.36,l*(type==='truck'?.42:.52)*1.02,glassMat);
  if(type==='truck'){addBox(g,0,.9,-l*.22,w*.96,.5,l*.45,body);addBox(g,0,1.42,-l*.22,w*.9,.06,l*.42,paint(0x3a3f45));}
- if(type==='sports'){addBox(g,0,.9,-l*.42,w*.9,.08,.5,body);addBox(g,-w*.32,.6,-l*.42,.1,.35,.1,body);addBox(g,w*.32,.6,-l*.42,.1,.35,.1,body);}
+ if(type==='sports'){addBox(g,0,.9,-l*.42,w*.9,.08,.5,body);addBox(g,-w*.32,.6,-l*.42,.1,.35,.1,body);addBox(g,w*.32,.6,-l*.42,.1,.35,.1,body);
+  // v4 Solara GT sculpt: full-width glowing LED tail bar, twin exhausts, mirrors, carbon roof
+  addBox(g,0,.64,-l/2-.03,w*.84,.1,.06,tailMat);
+  for(const s of [-1,1]){addBox(g,s*w*.28,.3,-l/2-.08,.12,.12,.16,wheelMat);addBox(g,s*(w*.52),.78,l*.12,.14,.1,.18,body);}
+  addBox(g,0,.35+h*.98,-.05,w*.82,.05,cabinL*.82,paint(0x181c24));
+ }
  // bumpers, lights
  addBox(g,0,.32,l/2,w*.94,.22,.15,paint(0x2a2e33));addBox(g,0,.32,-l/2,w*.94,.22,.15,paint(0x2a2e33));
  for(const s of [-1,1]){addBox(g,s*w*.32,.62,l/2+.02,w*.2,.14,.06,headMat);addBox(g,s*w*.32,.62,-l/2-.02,w*.2,.14,.06,tailMat);}
@@ -45,15 +52,22 @@ export function buildVehicle(type){
   const lb=addBox(g,w*.22,.35+h*1.02,l*.02,w*.3,.16,.5,blue);
   lightbar={red:lr.material,blue:lb.material};
   addBox(g,0,.58,l/2+.05,w*.5,.3,.1,whiteMat);
+  // v4 Interceptor sculpt: white doors, front push-bar, additive strobe halos on the bar
+  addBox(g,0,.42,0,w*1.02,.42,l*.42,whiteMat);
+  addBox(g,0,.42,l/2+.1,w*.56,.34,.12,paint(0x141c26));
+  for(const [s,color] of [[-1,0xff3040],[1,0x3080ff]]){
+   const halo=new THREE.Mesh(new THREE.SphereGeometry(.42,8,6),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.38,depthWrite:false,blending:THREE.AdditiveBlending}));
+   halo.position.set(s*w*.22,.35+h*1.05,l*.02);g.add(halo);
+  }
  }
  if(type==='taxi'){addBox(g,0,.35+h*1.02,0,.7,.2,.35,whiteMat);}
  // nitro exhaust flames: twin cones at the rear, shown only while boosting
  const flames=new THREE.Group();
  for(const s of [-1,1]){
   const outer=new THREE.Mesh(new THREE.ConeGeometry(.16,.9,6),flameMat);
-  outer.rotation.x=-Math.PI/2;outer.position.set(s*w*.28,.42,-l/2-.45);flames.add(outer);
+  outer.rotation.x=-Math.PI/2;outer.position.set(s*w*.28,.34,-l/2-.38);flames.add(outer);
   const core=new THREE.Mesh(new THREE.ConeGeometry(.08,.55,6),flameCoreMat);
-  core.rotation.x=-Math.PI/2;core.position.set(s*w*.28,.42,-l/2-.28);flames.add(core);
+  core.rotation.x=-Math.PI/2;core.position.set(s*w*.28,.34,-l/2-.24);flames.add(core);
  }
  flames.visible=false;g.add(flames);
  g.userData={type,spec,color,wheels,lightbar,flames};

@@ -1,7 +1,9 @@
-// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v3 city-life pass).
-// Copies the static v3 browser game (named crew, district standing, photo-mode tableaux,
-// helicopter, radio, garage, weapon wheel, 9-mission arc) and its four captures, then
-// lets the kit's unchanged dossier builder describe exactly those bytes.
+// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v4 visual overhaul).
+// Copies the static v4 browser game — twin-yellow highway markings and white lane lines
+// above the asphalt, wet-neon boulevard reflections on the cover and chase corridors,
+// sculpted Solara GT / Interceptor bodies, and a coastal harbor-ridge skyline — plus the
+// four restaged captures (crew, AIR ONE, docks, firefight), then lets the kit's unchanged
+// dossier builder describe exactly those bytes.
 // The copy is byte-for-byte: no transforms, no timestamps in content, so two runs with
 // the same MAKEFUN_OUTPUT_DIR produce identical trees (verified with diff -r).
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -26,4 +28,4 @@ writeFileSync(join(output, 'dossier.json'), buildDossier(output, {
   game_max_bytes: 50331648,
   game_path_max_bytes: 1000,
 }));
-console.log('Solstice Bay — Last Light: output ready at ' + output);
+console.log('Solstice Bay — Last Light v4 (highway markings, wet neon reflections, sculpted cars, harbor ridges): output ready at ' + output);

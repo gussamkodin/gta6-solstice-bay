@@ -8,14 +8,16 @@ const SHIRT=[0xe8452e,0x2e8fc4,0xf2c12e,0x7a4fc0,0x3da35a,0xf28ab0,0xececec,0x33
 const PANTS=[0x2c3e50,0x4a4440,0x5d6d7e,0x33518a,0x704214];
 const hairMat=new THREE.MeshStandardMaterial({color:0x2a2118,roughness:.9});
 const mats={};
-function m(color){if(!mats[color])mats[color]=new THREE.MeshStandardMaterial({color,roughness:.85});return mats[color];}
+function m(color){if(!mats[color])mats[color]=new THREE.MeshStandardMaterial({color,roughness:.62});return mats[color];}
 function part(parent,w,h,d,color,x,y,z){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof color==='number'?m(color):color);mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;}
 export function buildHuman(opts={}){
  const skin=opts.skin??rng.pick(SKIN),shirt=opts.shirt??rng.pick(SHIRT),pants=opts.pants??rng.pick(PANTS);
  const g=new THREE.Group();
  const torso=part(g,.46,.6,.26,shirt,0,1.05,0);
+ part(g,.16,.56,.27,0xf4ead8,0,1.05,0); // open-jacket chest trim catches the warm dusk key light
  const head=part(g,.26,.28,.26,skin,0,1.52,0);
  part(g,.28,.1,.28,hairMat===undefined?0x2a2118:hairMat,0,1.68,0);
+ part(g,.24,.06,.05,0x141820,0,1.54,.13); // dark sunglasses visor reads from front and 3/4
  const armL=new THREE.Group(),armR=new THREE.Group();
  armL.position.set(-.31,1.3,0);armR.position.set(.31,1.3,0);
  part(armL,.14,.52,.16,shirt,0,-.24,0);part(armR,.14,.52,.16,shirt,0,-.24,0);
@@ -25,6 +27,7 @@ export function buildHuman(opts={}){
  legL.position.set(-.13,.75,0);legR.position.set(.13,.75,0);
  part(legL,.17,.66,.2,pants,0,-.34,0);part(legR,.17,.66,.2,pants,0,-.34,0);
  part(legL,.18,.1,.3,m(0x22262a),0,-.7,.04);part(legR,.18,.1,.3,m(0x22262a),0,-.7,.04);
+ part(legL,.19,.04,.31,0xededed,0,-.74,.04);part(legR,.19,.04,.31,0xededed,0,-.74,.04); // white sneaker soles
  g.add(legL,legR);
  if(opts.cap){part(g,.3,.08,.3,m(opts.cap),0,1.72,0);part(g,.3,.03,.14,m(opts.cap),0,1.68,.18);}
  if(opts.gun){const gun=part(armR,.07,.09,.34,m(0x1a1d22),0,-.56,.14);gun.name='sidearm';}

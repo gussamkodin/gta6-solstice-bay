@@ -34,16 +34,15 @@ export function stagePhoto(name){
  if(name==='street'){
   // golden hour on Marigold Mile: player beside a red Solara GT, dense traffic and
   // pedestrians, neon storefronts, downtown towers ahead, full HUD + objective + dialogue
-  place(316.8,149.8,-Math.PI/2);cam.pitch=.11;cam.dist=8.2;cam.aimY=2.8;cam.baseY=1.8;cam.yaw=Math.PI/2-.26;cam.fovWish=62;cam.aimDX=-1.2;cam.aimDZ=-.3;
-  // Solara waits ahead-left, nose angled back toward the lens for a 3/4 hero read
-  const solara=put('sports',310.2,145.0,-Math.PI/2-.42,null,17);
-  // Keep Remy beside the moving GT for the cover: the avatar silhouette sells the
-  // on-foot half of the open world while the adjacent live car proves driveability.
-  p.mesh.visible=true;p.mesh.position.set(316.8,0,149.8);p.mesh.rotation.y=-Math.PI/2+.25;
-  p.mesh.scale.setScalar(1.3);
+  // v4 cover: the red Solara GT owns the center-right lane above the double-yellow wet
+  // neon boulevard; Remy + crew hold the lit sidewalk edge at foreground-left, angled
+  // 3/4 toward the lens so sunglasses, jacket trim and sidearm all read
+  place(315.4,151.6,-Math.PI/2+.55);cam.pitch=.12;cam.dist=8.4;cam.aimY=2.6;cam.baseY=1.75;cam.yaw=Math.PI/2-.22;cam.fovWish=60;cam.aimDX=-1.4;cam.aimDZ=-.8;
+  const solara=put('sports',310.8,145.6,-Math.PI/2-.28,null,22);
+  p.mesh.visible=true;p.mesh.scale.setScalar(1.22);
   // force the cover car red for a strong focal silhouette (clone so shared paints stay put)
   solara.mesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o.material.metalness===.2){o.material=o.material.clone();o.material.color.setHex(0xe8452e);}});
-  state.inCar=world.cars.length-1;state.carSpeed=17;state.carHeading=-Math.PI/2;
+  state.inCar=world.cars.length-1;state.carSpeed=22;state.carHeading=-Math.PI/2;
   // In the cover tableau Remy walks alongside the staged GT rather than disappearing
   // into its driver seat; the chase frame remains explicitly in-car.
   p.speed=0;
@@ -62,7 +61,7 @@ export function stagePhoto(name){
   photoMission(0);setPhotoObjective('LOW TIDE','Meet Lena at the Breakwater — 262m');
   state.cash=2450;state.foot.health=100;state.foot.armor=65;
   state.respect=34;state.weapon=1;state.nitro=78;
-  crewAt('marisol',315.1,153.2,-Math.PI/2+.2);crewAt('dex',314.0,145.2,-Math.PI/2+.35);
+  crewAt('marisol',313.2,153.4,-Math.PI/2+.45);crewAt('dex',307.8,151.8,-Math.PI/2+.25);
   state.districtRep={...state.districtRep,'Marigold Mile':44};
   state.crewSpeaker='MARISOL';state.crewBark='Neon Mile is listening. Keep the ledger dry.';state.crewBarkT=999;
   state.radioOn=true;state.radioStation=0;state.radioTrack=STATIONS[0].tracks[1];
@@ -77,7 +76,7 @@ export function stagePhoto(name){
   const car=put('sports',108,72,Math.PI/2,null,38);
   car.mesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o.material.metalness===.2){o.material=o.material.clone();o.material.color.setHex(0xe8452e);}});
   nosOn(car);state.nosActive=true;state.nitro=62;
-  const nf=car.mesh.userData.flames;if(nf)nf.scale.setScalar(2.1); // long twin burn trails
+  const nf=car.mesh.userData.flames;if(nf)nf.scale.set(1.15,1.15,1.25); // twin burn stays locked to the exhaust tips
   state.inCar=world.cars.length-1;state.carSpeed=38;state.carHeading=Math.PI/2;p.mesh.visible=false;
   state.heat=82;state.wanted=4;state.lastCrimeT=state.time;state.photoNoDamage=true;state.photoFreeze=true;
   state.heliChatter='AIR ONE: Searchlight on the Solara. Ground units, close the net.';state.heliChatterT=999;

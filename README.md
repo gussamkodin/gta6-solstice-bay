@@ -6,20 +6,20 @@
 
 **Solstice Bay** is an original open-world crime game that runs entirely in a desktop browser from static files — no build step, no network requests, no borrowed assets. You play Remy Cortez, a wheelman pulled back into the life when Silas Crane's syndicate squeezes the city he grew up in.
 
-The city is yours to roam: art-deco pastel towers downtown under a neon-sunset sky, a palm-lined beach and boardwalk, an industrial port of cranes and container stacks, quiet suburbs, and green hills with a lookout over the whole bay. Walk it, steal any car on the street, and drive — traffic, pedestrians, and a five-star police force that escalates from patrols to pursuits to roadblocks all react to what you do. Push the heat to three stars and **AIR ONE**, the police helicopter, takes to the sky with a searchlight and radio chatter; duck under a pier deck or into your garage to shake it.
+The city is yours to roam: art-deco pastel towers downtown under a neon-sunset sky, a palm-lined beach and boardwalk, an industrial port of cranes and container stacks opening onto a shimmering harbor channel backed by soft coastal ridges, and quiet suburbs. Walk it, steal any car on the street, and drive — traffic, pedestrians, and a five-star police force that escalates from patrols to pursuits to roadblocks all react to what you do. Push the heat to three stars and **AIR ONE**, the police helicopter, takes to the sky with a searchlight and radio chatter; duck under a pier deck or into your garage to shake it.
 
 - Nine story missions with dialogue, waypoints, chases, shootouts, a garage heist, a crew rescue and a helicopter-escape finale
 - Two named crew companions, Marisol and Dex: follow on foot, cover Remy in shootouts, and trade neighborhood barks
 - Seven districts remember local respect, announce arrivals with their own color banners, and unlock small neighborhood perks
-- Low-angle photo staging puts Remy, a glossy Solara GT, busy streets and the sunset skyline together in the cover frame
+- Low-angle photo staging puts the sculpted red Solara GT on a twin-yellow wet-neon boulevard with Remy and crew on the lit sidewalk edge, all under the sunset skyline
 - RESPECT ranks from STREET NAME to BAY LEGEND, each unlocking real perks (faster nitro regen, tougher bail deals)
 - Your own garage safehouse: store a ride, repair it, save the game, and hide from AIR ONE
 - Car radio with three original procedural stations — WAVE 101.5 synthwave, FUEGO 99 latin-funk, DRIFT FM lo-fi hop — cycled with R, all synthesized live
 - NOS boost on Shift with a HUD meter and twin exhaust flames; hold Q for the weapon wheel
 - Side work: street races, taxi fares, and rampages, with cash and weapon unlocks
-- Fists, pistol, SMG and shotgun; sedans, sports cars, pickups, taxis and police cruisers
+- Fists, pistol, SMG and shotgun; sculpted sedans, sports cars with full-width LED tail bars, twin exhausts and carbon roofs, pickups, taxis, and Interceptor cruisers with white doors, push-bars and red/blue strobe halos
 - Full HUD: health, armor, cash, wanted stars, weapon/ammo, respect, nitro, radio chip, AIR ONE chatter, speedometer and a live rotating minimap with pursuit blips
-- Neon storefront signage with sidewalk spill, glowing windows and street lamps, wet-look asphalt, long golden-hour shadows, mission banners with cash/respect tallies, damage vignette and bust cinematics
+- Twin-yellow highway center lines and white outer lane markings with crisp crosswalks, wet-neon boulevard reflections, neon storefront signage with sidewalk spill, glowing windows and street lamps, long golden-hour shadows, mission banners with cash/respect tallies, damage vignette and bust cinematics
 - Procedural WebAudio engine notes, sirens, gunfire, rotor wash and three original radio soundtracks — zero audio files
 - Start screen, pause menu, hospital/police respawn, and save/load through localStorage
 

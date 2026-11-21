@@ -47,18 +47,38 @@ export function makeCity(scene){
  // polished-road streaks: narrow, translucent neon catches on the busiest boulevard
  // make wet pavement visible in the contact sheet without obscuring traffic silhouettes
  const roadGlow=[0xff4fa0,0x3fe8e0,0xffb347,0xb46bff];
+ const streakMat=(color)=>new THREE.MeshBasicMaterial({color,transparent:true,opacity:.42,depthWrite:false});
+ // v4: streaks ride at .086, above the .08 asphalt top, so the wet-neon glow is actually visible
  for(let row=0;row<8;row++){
   const z=roadAt(row)+LANE;
   for(let col=0;col<8;col++){
-   const streak=new THREE.Mesh(new THREE.PlaneGeometry(10+col*2,.5),new THREE.MeshBasicMaterial({color:roadGlow[(row+col)%roadGlow.length],transparent:true,opacity:.34,depthWrite:false}));
-   streak.rotation.x=-Math.PI/2;streak.position.set(30+col*42,.075,z+(col%2?1.3:-1.3));streak.userData.cityStatic=true;root.add(streak);
+   const streak=new THREE.Mesh(new THREE.PlaneGeometry(14+col*2,1.1),streakMat(roadGlow[(row+col)%roadGlow.length]));
+   streak.rotation.x=-Math.PI/2;streak.position.set(30+col*42,.086,z+(col%2?1.3:-1.3));streak.userData.cityStatic=true;root.add(streak);
   }
  }
- // distant hills are layered silhouettes made of irregular facets
- for(let i=0;i<13;i++){const h=30+rng()*65;const m=new THREE.Mesh(new THREE.ConeGeometry(25+rng()*30,h,7),mat([0x668365,0x75916a,0x8b986a][i%3]));m.position.set(-390+i*45,h/2-1,-290-rng()*80);m.rotation.z=(rng()-.5)*.15;root.add(m);}
+ // bright wet-neon reflections along the cover (road 5) and chase (road 4) corridors
+ for(const [road,x0,x1] of [[5,220,330],[4,70,145]]){
+  const z=roadAt(road);let k=0;
+  for(let x=x0;x<=x1;x+=11,k++){
+   for(const side of [-2.2,2.2]){
+    const streak=new THREE.Mesh(new THREE.PlaneGeometry(13,1.2),streakMat(roadGlow[(k+(side>0?1:0))%roadGlow.length]));
+    streak.rotation.x=-Math.PI/2;streak.position.set(x,.086,z+side);streak.userData.cityStatic=true;root.add(streak);
+   }
+  }
+ }
+ // v4 horizon: smooth layered coastal ridges in dusk haze instead of sharp pyramid cones
+ for(let i=0;i<13;i++){const r=38+rng()*26;const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),mat([0x5e547a,0x6e6088,0x7e6d8e][i%3]));m.scale.set(1.7,.55,1.1);m.position.set(-390+i*45+(rng()-.5)*8,-2-rng()*3,-310-rng()*70);root.add(m);}
+ // western harbor channel behind the docks: water + sunset shimmer so Shot 3 reads as a
+ // working port on the bay (tops sit above the grass slab so they are never buried)
+ addBox(root,-140,-.5,-275,260,.56,65,mats.water);
+ const harborGlow=new THREE.Mesh(new THREE.PlaneGeometry(220,38),new THREE.MeshBasicMaterial({color:0xffa86a,transparent:true,opacity:.32,depthWrite:false}));
+ harborGlow.rotation.x=-Math.PI/2;harborGlow.position.set(-140,.08,-268);root.add(harborGlow);
  // street and intersections
  for(let i=0;i<=BLOCKS;i++){const c=roadAt(i);addBox(root,c,0,0,ROAD,.08,720,mats.asphalt);addBox(root,0,0,c,720,.08,ROAD,mats.asphalt);
-  for(let offset=-2;offset<=2;offset+=4){addBox(root,c+offset,.06,0,.12,.01,690,mats.line);addBox(root,0,.06,c+offset,690,.01,.12,mats.line);}
+  // v4 highway markings above the asphalt: twin center yellows + white outer lane lines
+  addBox(root,c-.22,.084,0,.14,.015,690,mats.yellow);addBox(root,c+.22,.084,0,.14,.015,690,mats.yellow);
+  addBox(root,0,.084,c-.22,690,.015,.14,mats.yellow);addBox(root,0,.084,c+.22,690,.015,.14,mats.yellow);
+  for(const offset of [-3.8,3.8]){addBox(root,c+offset,.084,0,.12,.015,690,mats.white);addBox(root,0,.084,c+offset,690,.015,.12,mats.white);}
   for(let j=0;j<9;j++){const z=roadAt(j);if(i<8){addBox(root,c,0,z+ROAD/2+1.1,ROAD,.18,2.2,mats.side);addBox(root,c,0,z-ROAD/2-1.1,ROAD,.18,2.2,mats.side);} }
  }
  // blocks: each gets sidewalk pads, varied buildings, rooftop detail, plazas and palms
@@ -98,7 +118,7 @@ export function makeCity(scene){
  // landmarks, street furniture and painted crosswalks
  for(let i=0;i<=BLOCKS;i++)for(let j=0;j<=BLOCKS;j++){
   const x=roadAt(i),z=roadAt(j);
-  if(i<8&&j<8){for(let s=0;s<5;s++){addBox(root,x-6+s*3,.08,z-7,1.3,.04,2.2,mats.white);addBox(root,x-6+s*3,.08,z+7,1.3,.04,2.2,mats.white);}}
+  if(i<8&&j<8){for(let s=0;s<5;s++){addBox(root,x-6+s*3,.086,z-7,1.3,.04,2.2,mats.white);addBox(root,x-6+s*3,.086,z+7,1.3,.04,2.2,mats.white);}}
   for(const side of [-1,1]){const px=x+side*10,pz=z+10;addBox(root,px,.1,pz,.2,4,.2,mats.dark);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.35,6,4),mats.lampGlow);lamp.position.set(px,.4+4,pz);lamp.castShadow=false;lamp.userData.cityStatic=true;root.add(lamp);}
  }
  // Civic landmarks and location signage
@@ -133,7 +153,7 @@ function mergeGeometries(geos){
  out.setAttribute('uv',new THREE.BufferAttribute(uv,2));
  return out;
 }
-function palm(scene,x,y,z,m){addCylinder(scene,x,y,z,.55,9,m.palm,7);const top=new THREE.Vector3(x,y+8.7,z);for(let i=0;i<7;i++){const a=i*Math.PI*2/7;const end=new THREE.Vector3(x+Math.cos(a)*5,y+7.5,z+Math.sin(a)*5);const dir=end.clone().sub(top);const leaf=new THREE.Mesh(new THREE.ConeGeometry(.8,dir.length(),5),m.leaf);leaf.position.copy(top).add(end).multiplyScalar(.5);leaf.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());leaf.castShadow=true;scene.add(leaf);}}
+function palm(scene,x,y,z,m){addCylinder(scene,x,y,z,.55,9,m.palm,7);const top=new THREE.Vector3(x,y+8.7,z);for(let i=0;i<9;i++){const a=i*Math.PI*2/9;const end=new THREE.Vector3(x+Math.cos(a)*5.4,y+7.3,z+Math.sin(a)*5.4);const dir=end.clone().sub(top);const leaf=new THREE.Mesh(new THREE.ConeGeometry(.8,dir.length(),5),m.leaf);leaf.position.copy(top).add(end).multiplyScalar(.5);leaf.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());leaf.castShadow=true;scene.add(leaf);}addBox(scene,x,y+8.2,z,.55,.45,.55,m.palm);}
 function building(scene,x,z,w,h,d,wall,m,isTall){solid(x,z,w,d);addBox(scene,x,.2,z,w,h,d,wall);addBox(scene,x,.2+h,z,w+1,.5,d+1,mat(0xe2ceb0));
  // window grid: mostly lit warm at dusk, a cool share and a dark share for rhythm
  const winMat=()=>{const r=rng();return r<.68?m.windowLit:r<.9?m.windowCool:m.windowDark;};
