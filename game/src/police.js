@@ -66,12 +66,12 @@ export function updatePolice(dt){
   stepCar(car,dt,throttle,false,steer);
   const solved=collideCircle(car.x,car.z,1.4);
   if(solved.hit){car.x=solved.x;car.z=solved.z;car.speed*=.35;car.heading+=rng.range(-.6,.6);car.mesh.position.set(car.x,0,car.z);}
-  // ram the player car: damage scales with closing speed, not contact time
+  // ram the player car: vehicle absorbs the crash damage (gated by crashCd)
   if(state.inCar>=0){const pc=world.cars[state.inCar];
    if(pc&&dist2(car.x,car.z,pc.x,pc.z)<10){
     ai.ramT=(ai.ramT||0)-dt;
     const closing=Math.abs(car.speed-(pc.speed||0));
-    if(ai.ramT<=0&&closing>4){ai.ramT=.8;damageCar(pc,closing*1.2);damageCar(car,closing*.5);state.foot.health-=closing*.25;}
+    if(ai.ramT<=0&&closing>5&&(pc.crashCd||0)<=0){ai.ramT=1.4;pc.crashCd=.5;damageCar(pc,Math.min(10,closing*.38));damageCar(car,Math.min(13,closing*.45));}
    }
   }
   // deploy officers when close and player on foot or slow
@@ -79,9 +79,9 @@ export function updatePolice(dt){
    ai.officers--;spawnCop(car.x+2,car.z);
   }
   // cops shoot from car at 3+ stars
-  if(chase&&state.wanted>=3&&d<40){ai.fireT=(ai.fireT||0)-dt;if(ai.fireT<=0){ai.fireT=1.1;
+  if(chase&&state.wanted>=3&&d<40){ai.fireT=(ai.fireT||0)-dt;if(ai.fireT<=0){ai.fireT=1.35;
    muzzleFlash(car.x,1.3,car.z);tracer(car.x,1.3,car.z,px+rng.range(-1,1),1.2,pz+rng.range(-1,1));sfxGun(1);
-   if(rng()<.35)damagePlayer(rng.range(3,7));}}
+   if(rng()<.28)damagePlayer(rng.range(1.5,3.0));}}
  }
  // on-foot officers
  for(const cop of world.peds){
@@ -91,13 +91,16 @@ export function updatePolice(dt){
   if(state.wanted===0){cop.flee=true;}
   let speed=0;
   if(!cop.flee){
-   if(d>14)speed=5.6;
-   else if(state.inCar<0&&d<2.2){killPlayer(world.player,'busted');return;}
+   if(d>6.5)speed=5.2;
+   else if(state.inCar<0&&d<1.6&&state.foot.health<18){
+    cop.arrestT=(cop.arrestT||0)+dt;
+    if(cop.arrestT>2.5){killPlayer(world.player,'busted');return;}
+   }else cop.arrestT=0;
    cop.fireT=(cop.fireT||0)-dt;
-   if(d<26&&d>3&&cop.fireT<=0&&state.wanted>=2){cop.fireT=1.3;
+   if(d<26&&d>2.2&&cop.fireT<=0&&state.wanted>=1){cop.fireT=1.45;
     muzzleFlash(cop.x+Math.sin(cop.heading)*.5,1.35,cop.z+Math.cos(cop.heading)*.5);
     tracer(cop.x,1.35,cop.z,px+rng.range(-.8,.8),1.2,pz+rng.range(-.8,.8));sfxGun(1);
-    if(rng()<.4)damagePlayer(rng.range(4,9));}
+    if(rng()<.32)damagePlayer(rng.range(1.8,3.4));}
   }
   cop.x+=Math.sin(cop.heading)*speed*dt;cop.z+=Math.cos(cop.heading)*speed*dt;
   const s=collideCircle(cop.x,cop.z,.45);cop.x=s.x;cop.z=s.z;
@@ -120,7 +123,7 @@ function spawnRoadblock(px,pz){
  for(const s of [-1,1]){
   const car=makeCar('police',bx+Math.cos(heading)*s*3.2,bz+Math.sin(heading)*s*3.2,heading+Math.PI/2);
   car.ai={kind:'police',officers:1,blocked:true,patrolX:bx,patrolZ:bz};
-  car.mesh.position.set(car.x,0,car.z);car.mesh.rotation.y=car.heading+Math.PI;
+  car.mesh.position.set(car.x,0,car.z);car.mesh.rotation.y=Math.PI-car.heading;
   world.scene.add(car.mesh);world.cars.push(car);
  }
  notify('ROADBLOCK REPORTED AHEAD');

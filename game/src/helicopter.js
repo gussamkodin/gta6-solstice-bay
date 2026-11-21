@@ -8,7 +8,9 @@ import {state,notify} from './state.js';
 import {PIER,GARAGE,HALF} from './config.js';
 import {dist2,angleDelta} from './physics.js';
 import {startRotor,stopRotor,updateRotor} from './audio.js';
+import {makeRadialTexture} from './city.js';
 const ORBIT_R=26,ALT=30,SPEED=24;
+const heliPoolTex=makeRadialTexture([[0,'rgba(255,252,225,0.95)'],[.36,'rgba(255,238,180,0.58)'],[.72,'rgba(255,215,130,0.18)'],[1,'rgba(255,205,115,0)']]);
 let heli=null;
 export function updateHelicopter(dt){
  const wanted=state.wanted>=3;
@@ -52,8 +54,8 @@ export function updateHelicopter(dt){
   h.searchlight.position.copy(from);
   h.searchlight.scale.set(1,len/30,1);
   h.searchlight.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),dir.normalize());
-  h.spotPool.position.set(px,.12,pz);
-  h.spotPool.material.opacity=.14+Math.sin(state.time*5)*.04;
+  h.spotPool.position.set(px,.095,pz);
+  h.spotPool.material.opacity=.52+Math.sin(state.time*5)*.06;
   if(state.time-h.lastChatter>7){h.lastChatter=state.time;chatter(randomChatter(px,pz));}
  }
  h.mesh.position.y=h.alt+Math.sin(state.time*1.3)*.6;
@@ -95,14 +97,14 @@ function spawnHeli(){
  tailRotor.position.set(.3,1,-6);g.add(tailRotor);
  const beacon=new THREE.Mesh(new THREE.SphereGeometry(.18,6,5),new THREE.MeshStandardMaterial({color:0xff3030,emissive:0xff2020,emissiveIntensity:2}));
  beacon.position.set(0,1.5,-1);g.add(beacon);
- // white livery stripe
+ // white livery stripe + bright belly searchlight halo sprite
  add(2.24,.3,3,new THREE.MeshStandardMaterial({color:0xe8e8e4,roughness:.5}),0,-.2,.4);
- // searchlight cone (apex at the belly) and the lit pool on the ground
- // cone lives in world space: the fuselage yaws constantly, and a parented beam
- // would swing off-target with every orbit step
- const cone=new THREE.Mesh(new THREE.ConeGeometry(2.6,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.04,side:THREE.DoubleSide,depthWrite:false}));
+ const lampSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:heliPoolTex,color:0xfff6d8,transparent:true,opacity:.92,depthWrite:false,blending:THREE.AdditiveBlending}));
+ lampSprite.scale.set(4.6,4.6,1);lampSprite.position.set(0,-.75,1.6);g.add(lampSprite);
+ // searchlight cone (apex at the belly) and the additive radial glow pool on the ground
+ const cone=new THREE.Mesh(new THREE.ConeGeometry(2.6,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfff4c8,transparent:true,opacity:.045,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));
  cone.geometry.translate(0,-15,0);world.scene.add(cone);
- const pool=new THREE.Mesh(new THREE.CircleGeometry(3.8,20),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.12,depthWrite:false}));
+ const pool=new THREE.Mesh(new THREE.PlaneGeometry(13,13),new THREE.MeshBasicMaterial({map:heliPoolTex,transparent:true,opacity:.55,depthWrite:false,blending:THREE.AdditiveBlending}));
  pool.rotation.x=-Math.PI/2;world.scene.add(pool);
  const px=state.foot.x,pz=state.foot.z;
  g.position.set(px-70,ALT,pz-40);

@@ -29,14 +29,14 @@ export function initCrew(){
  }
 }
 function nameTag(text,color){
- const cv=document.createElement('canvas');cv.width=128;cv.height=32;const g=cv.getContext('2d');
- g.fillStyle='rgba(10,18,28,.78)';g.fillRect(4,4,120,24);
- g.strokeStyle=color;g.lineWidth=2;g.strokeRect(4,4,120,24);
- g.font='bold 15px Arial';g.textAlign='center';g.textBaseline='middle';g.fillStyle=color;g.fillText(text,64,17);
+ const cv=document.createElement('canvas');cv.width=144;cv.height=32;const g=cv.getContext('2d');
+ g.fillStyle='rgba(10,18,28,.82)';g.fillRect(6,5,132,22);
+ g.strokeStyle=color;g.lineWidth=1.8;g.strokeRect(6,5,132,22);
+ g.font='bold 13px Arial';g.textAlign='center';g.textBaseline='middle';g.fillStyle=color;g.fillText('▾ '+text,72,16);
  const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
- const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false}));
+ const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true,opacity:.9}));
  sprite.userData.crewLabel=true;
- sprite.scale.set(.95,.24,1);sprite.position.y=2.05;
+ sprite.scale.set(.68,.15,1);sprite.position.y=1.96;
  return sprite;
 }
 export function joinCrew(id){

@@ -3,6 +3,7 @@
 // v3 photo framing can aim off-axis for hero compositions.
 import {THREE} from './three.js';
 import {state} from './state.js';
+import {world} from './world.js';
 import {mouse} from './input.js';
 import {collideCircle} from './physics.js';
 export const cam={yaw:Math.PI,pitch:.32,dist:7.5,shake:0,fov:62,snap:false,fixedPos:null,fixedLook:null};
@@ -21,11 +22,12 @@ export function updateCamera(camera,dt){
  // staged photos can drop the pivot for a low hero angle (cam.baseY)
  const wantHeight=state.photo&&cam.baseY!=null?cam.baseY:(inCar?4.4:3.1);
  cam.dist+=(wantDist-cam.dist)*Math.min(1,dt*3);
- // in car, camera drifts behind travel direction when moving fast (not in staged photo mode)
- if(inCar&&!state.photo&&Math.abs(state.carSpeed||0)>6){
-  let behind=state.carHeading+Math.PI;
+ // in car, camera drifts behind travel direction when moving (not in staged photo mode)
+ // Since car moves along (+sin(carHeading), -cos(carHeading)), the vector behind the car is (-sin(carHeading), +cos(carHeading)), i.e. yaw = -carHeading
+ if(inCar&&!state.photo&&Math.abs(state.carSpeed||0)>2){
+  let behind=(state.carSpeed<0)?-state.carHeading+Math.PI:-state.carHeading;
   let diff=behind-cam.yaw;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
-  cam.yaw+=diff*Math.min(1,dt*1.4)*Math.min(1,Math.abs(state.carSpeed)/20);
+  cam.yaw+=diff*Math.min(1,dt*2.4)*Math.min(1,Math.abs(state.carSpeed)/14);
  }
  const pitch=cam.pitch;
  // sweep from the target outward and stop at the first wall, so the camera never
@@ -36,9 +38,10 @@ export function updateCamera(camera,dt){
   const szp=target.z+Math.cos(cam.yaw)*Math.cos(pitch)*cam.dist*t;
   if(collideCircle(sxp,szp,.5).hit){frac=Math.max(.2,t-.15);break;}
  }
+ const jumpY=(!inCar&&!state.photo&&world.player?.y)?world.player.y*.65:0;
  const cx=target.x+Math.sin(cam.yaw)*Math.cos(pitch)*cam.dist*frac;
  const cz=target.z+Math.cos(cam.yaw)*Math.cos(pitch)*cam.dist*frac;
- const cy=Math.max(1.4,wantHeight+Math.sin(pitch)*cam.dist*frac);
+ const cy=Math.max(1.4,wantHeight+jumpY+Math.sin(pitch)*cam.dist*frac);
  const solved={x:cx,z:cz};
  const cy2=cy;
  // staged photo: aim point rides higher for a skyline view (set by photo.js)
@@ -52,7 +55,7 @@ export function updateCamera(camera,dt){
  const snapping=cam.snap;
  if(snapping){camera.position.set(solved.x,cy2,solved.z);}
  else camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
- camera.lookAt(target.x+aimX,aimY+(inCar&&!state.photo?.6:0),target.z+aimZ);
+ camera.lookAt(target.x+aimX,aimY+jumpY+(inCar&&!state.photo?.6:0),target.z+aimZ);
  const targetFov=state.photo&&cam.fovWish?cam.fovWish:62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0)+(state.nosActive?6:0);
  // v4.1 fix: snap FOV and distance on the same frame as the position, then clear the flag —
  // previously cam.snap was cleared first, so staged shots never reached their intended FOV

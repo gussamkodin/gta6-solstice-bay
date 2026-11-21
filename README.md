@@ -20,7 +20,7 @@ The city is yours to roam: art-deco pastel towers downtown under a neon-sunset s
 - Side work: street races, taxi fares, syndicate rampages and stunt jumps tracked in the 72.5% completion dossier with cash, medal and weapon unlocks
 - Fists, .38 Kestrel pistol, Hornet SMG, 12G Tidebreaker shotgun and AR-9 carbine slot; sculpted sedans, sports cars with full-width LED tail bars, twin exhausts and carbon roofs, pickups, taxis, and Interceptor cruisers with white doors, push-bars and red/blue strobe halos
 - Upgraded tactical HUD: bottom-left rounded-square minimap + district standing progress card (`GLASSHOUSE STRAND · RESPECTED 74/100`) + HP/ARM bars; top-left mission stage card + SBPD tactical dispatch telemetry; top-right clock (`16:45`), mint-green cash (`$24,850`), wanted stars + `AIR ONE DEPLOYED` / `UNITS RESPONDING` tag, Rank 5 Street Legend bar, 5-slot SVG weapon hotbar and 3 crew ability cards (`[Z] SWAP PLATES · Marisol`, `[X] QUICK FIX · Dex`, `[C] EYES OUT · Lena`); bottom-right dual KM/H & MPH speedometer, vehicle condition badge, nitro meter and radio chip
-- Sun-drenched coastal boulevards with twin-yellow center lines, dashed white lane dashes, cantilevered street lamps with warm golden light pools, intersection traffic signal gantries, neon storefront signage, rooftop hotel landmark boards, beach parasols and turquoise shoreline surf
+- Dynamic sunset (`18:40`), twilight (`19:50`) and midnight (`22:15`) city lighting (`setTimeOfDay` in `sky.js`) with illuminated ground-floor glass storefronts, dark architectural mullions, continuous glowing amber cornice fascia, dense 4-sided multi-story lit window grids, cantilevered street lamps with aerial bulb halos and smooth additive radial golden ground pools, road-hugging car headlight fans, and dual red/blue Police Interceptor strobe pools on the asphalt
 - Procedural WebAudio engine notes, sirens, gunfire, rotor wash and three original radio soundtracks — zero audio files
 - Transparent 3D aerial beachfront & hotel skyline start screen with 3 save slot cards, pause menu, full-city map menu, hospital/police respawn, and save/load through localStorage
 
@@ -32,7 +32,7 @@ Everything is original: the city, characters, vehicles, names, story, art and so
 node serve.ts
 ```
 
-Then open http://localhost:8080 in desktop Chrome. WASD to move, mouse to aim, E to enter/exit cars, Shift to sprint (NOS while driving), Space to handbrake, R to cycle the car radio, M or Tab to open the Full-City Tactical Command Map & Save Slots menu, hold Q for the weapon wheel, F to interact at missions and your garage, Esc to pause (and save).
+Then open http://localhost:8080 in desktop Chrome. WASD to move, mouse to aim, E to enter/exit cars, Shift to sprint (NOS while driving), Space to handbrake, R to cycle the car radio, M or Tab to open the Full-City Tactical Command Map & Save Slots menu, N to cycle Sunset / Midnight / Twilight city lighting, hold Q for the weapon wheel, F to interact at missions and your garage, Esc to pause (and save).
 
 The four submission captures are real renders staged by the game's own photo mode — open `index.html?shot=street&seed=7` (also `combat`, `map`, `title`) to reproduce each frame deterministically.
 

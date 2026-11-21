@@ -1,10 +1,12 @@
-// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v5 coastal golden-hour edition).
-// Copies the static browser game — sun-drenched Ocean Drive coastal boulevard beside sandy
-// beach parasols and turquoise ocean, pastel Art Deco hotels with rooftop landmark boards
-// (HOTEL SOLSTICE, PALMA SUITES, LAGUNA AZUL), cantilevered boulevard street lamps and
-// intersection traffic signals, the interactive full-city Tactical Command Map / 72.5%
-// Progression / Activities / 3-Slot Save menu (mapmenu.js), upgraded bottom-left radar &
-// 5-slot SVG weapon hotbar HUD, and crystal-clear 3D skyline start screen with save slots —
+// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v5.1 Sunset, Twilight & Midnight City Lighting edition).
+// Copies the static browser game — Ocean Drive coastal boulevard beside sandy beach parasols
+// and turquoise ocean, pastel Art Deco hotels with illuminated ground-floor glass storefronts,
+// glowing amber cornice strips, dense 4-sided multi-story window grids and rooftop landmark
+// boards (HOTEL SOLSTICE, PALMA SUITES, LAGUNA AZUL), cantilevered boulevard street lamps
+// with smooth additive radial light pools & aerial bulb halos, road-hugging car headlight fans
+// and dual red/blue Police Interceptor strobe pools, dynamic sunset/twilight/night time-of-day
+// presets, the interactive full-city Tactical Command Map / 72.5% Progression / Activities /
+// 3-Slot Save menu (mapmenu.js), and 3D skyline start screen with save slots —
 // plus the four complementary captures, then lets the kit's unchanged dossier builder
 // describe exactly those bytes.
 // The copy is byte-for-byte: no transforms, no timestamps in content, so two runs with
@@ -32,4 +34,4 @@ writeFileSync(join(output, 'dossier.json'), buildDossier(output, {
   game_max_bytes: 50331648,
   game_path_max_bytes: 1000,
 }));
-console.log('Solstice Bay — Last Light v5 (coastal golden-hour palette, rooftop hotel signs, mapmenu.js 72.5% progression & save slots, 3D skyline start screen): output ready at ' + output);
+console.log('Solstice Bay — Last Light v5.1 (sunset/twilight/night city lighting, illuminated glass storefronts, dense multi-story window grids, additive radial road light pools & headlight fans): output ready at ' + output);

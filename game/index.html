@@ -135,7 +135,7 @@
 .st-bottom-left{position:absolute;bottom:26px;left:34px;width:290px}
 .st-menu{display:flex;flex-direction:column;gap:7px}
 .st-btn{display:flex;justify-content:space-between;align-items:center;width:100%;padding:11px 16px;background:rgba(13,24,36,0.86);border:1px solid rgba(255,255,255,0.22);border-left:4px solid #637b8c;color:#eef5f9;font-size:13px;font-weight:bold;letter-spacing:1.8px;cursor:pointer;border-radius:3px;text-align:left}
-.st-btn.primary{background:linear-gradient(90deg,#ff7b4a,#ff9e5e);color:#181022;border-color:#ffd36f;border-left:4px solid #fff3d1;box-shadow:0 4px 18px rgba(255,123,74,0.45)}
+.st-btn.primary,.st-btn.hot{background:linear-gradient(90deg,#ff7b4a,#ff9e5e);color:#181022;border-color:#ffd36f;border-left:4px solid #fff3d1;box-shadow:0 4px 18px rgba(255,123,74,0.45)}
 .st-btn span{font-size:10px;letter-spacing:1px;opacity:.85}
 .st-controls{margin-top:10px;font-size:10px;color:#d6e4ec;line-height:1.45;background:rgba(11,20,30,0.78);padding:7px 10px;border-radius:3px;border:1px solid rgba(255,255,255,0.16)}
 .st-bottom-right{position:absolute;bottom:26px;right:34px;width:366px;display:flex;flex-direction:column;gap:8px}
@@ -250,7 +250,7 @@
  <div id="speed" class="hide">114 <small>KM/H</small><span class="sub-mph">71 MPH</span></div>
  <div id="nos" class="hide"><div class="label">NITRO</div><div class="bars"><div class="bar" id="nosBar"></div></div></div>
  <div id="radio" class="hide"><div id="radioStation">WAVE 101.5</div><div id="radioTrack">♪ Island Synthwave</div></div>
- <div id="prompt">WASD move · E enter vehicle · F interact · M tactical map · Q weapon wheel · Click fire · Esc pause</div>
+ <div id="prompt">WASD move · E enter vehicle · F interact · M tactical map · N day/night · Q weapon wheel · Click fire · Esc pause</div>
  <div id="dialogue"><div class="portrait" id="speakerAvatar">LV</div><div class="d-body"><div class="speaker" id="speaker">LENA VALE</div><div class="line" id="line"></div></div></div>
  <div id="crewBark" class="hide"><b id="crewName">CREW</b><span id="crewLine"></span></div>
  <div id="districtBanner" class="hide"><div class="district-kicker">NEIGHBORHOOD SIGNAL</div><div class="district-name"></div><div class="district-rank"></div><div class="district-perk"></div></div>
@@ -267,17 +267,17 @@
  </div>
  <div class="st-bottom-left">
   <div class="st-menu">
-   <button class="st-btn primary" id="loadGame">CONTINUE <span>SLOT 1 · 72.5%</span></button>
-   <button class="st-btn" id="newGame">NEW GAME <span>ACT I · 16:00</span></button>
+   <button class="st-btn primary hot" id="newGame">NEW GAME <span>ACT I · 18:40</span></button>
+   <button class="st-btn" id="loadGame">CONTINUE <span>SLOT 1 · 72.5%</span></button>
    <button class="st-btn" id="openLoadSlot">LOAD GAME <span>3 SLOTS</span></button>
    <button class="st-btn" id="openMapStart">MAP &amp; STATS <span>7 DISTRICTS</span></button>
    <button class="st-btn" id="openSettings">SETTINGS <span>AUDIO · DISPLAY</span></button>
   </div>
-  <div class="st-controls">WASD move/drive · Mouse aim · Click fire · E enter car · F mission/garage · Shift sprint/NOS · R radio · M map &amp; save · Z/X/C crew · Esc pause</div>
+  <div class="st-controls">WASD / Arrows move &amp; steer · Space jump / handbrake · Mouse aim · Click fire · E enter car · F mission/garage · Shift sprint/NOS · R radio · M map &amp; save · N day/night · Esc pause</div>
  </div>
  <div class="st-bottom-right">
   <div class="st-slots-head"><span>SAVE SLOTS · LOCALSTORAGE</span><span>AUTO-SYNC ON</span></div>
-  <div class="st-slot active">
+  <div class="st-slot active" id="slot1Card" style="cursor:pointer">
    <div class="st-slot-top"><span>SLOT 1 · ACT III — LOW TIDE</span><span class="st-slot-pct">72.5% COMPLETE</span></div>
    <div class="st-slot-mid">Glasshouse Strand · 7/9 Missions</div>
    <div class="st-slot-bot"><span>$24,850 · Rank 5 Street Legend</span><span>16:45</span></div>

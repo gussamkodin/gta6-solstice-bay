@@ -33,7 +33,7 @@ export function sfxExplosion(){if(!ctx)return;noiseBurst(.9,1.2,140);blip(48,.8,
 export function sfxPickup(){if(!ctx)return;const t=ctx.currentTime;blip(660,.1,'sine',.3,t);blip(880,.14,'sine',.3,t+.09);}
 export function sfxMission(){if(!ctx)return;const t=ctx.currentTime;[523,659,784,1046].forEach((f,i)=>blip(f,.3,'triangle',.35,t+i*.12));}
 export function sfxSkid(){noiseBurst(.15,.2,2400);}
-export function sfxHorn(){if(!ctx)return;const t=ctx.currentTime;blip(392,.3,'square',.2,t);blip(494,.3,'square',.2,t);}
+export function sfxHorn(){if(!ctx)return;const t=ctx.currentTime;blip(340,.22,'triangle',.06,t);blip(430,.22,'triangle',.06,t);}
 export function sfxNos(){noiseBurst(.5,.35,3200);if(ctx)blip(180,.4,'sawtooth',.12,ctx.currentTime);}
 export function updateEngine(speed,throttle,inCar){if(!ctx)return;const target=inCar?.05+Math.min(.12,speed*.004):0;engineGain.gain.setTargetAtTime(target,ctx.currentTime,.08);engineOsc.frequency.setTargetAtTime(40+speed*4+throttle*30,ctx.currentTime,.05);engineFilter.frequency.setTargetAtTime(240+speed*30,ctx.currentTime,.1);}
 export function updateSiren(intensity){if(!ctx)return;sirenGain.gain.setTargetAtTime(Math.min(.14,intensity*.14),ctx.currentTime,.3);}
@@ -58,7 +58,7 @@ const SW_BASS=[55,55,65.4,49],SW_ARP=[220,261.6,329.6,392,440,523.3];
 function synthwaveBar(t,bar){
  const root=SW_BASS[Math.floor(bar/2)%4];
  for(let s=0;s<8;s++)blip(root*(s%4===3?2:1),.22,'sawtooth',.16,t+s*.4,radioBus);
- for(let s=0;s<8;s++){const n=SW_ARP[(bar*3+s*2)%6];blip(n,.3,'square',.05,t+s*.4+.2,radioBus);}
+ for(let s=0;s<8;s++){const n=SW_ARP[(bar*3+s*2)%6];blip(n,.3,'triangle',.035,t+s*.4+.2,radioBus);}
  blip(root*4,3,'triangle',.06,t,radioBus);blip(root*6,3,'triangle',.04,t,radioBus);
  if(bar%2===0)blip(root*8,1.2,'sine',.07,t+1.6,radioBus);
 }

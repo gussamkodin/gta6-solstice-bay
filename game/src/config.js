@@ -48,6 +48,7 @@ export const CAR_TYPES = {
   truck:  { name: 'Haulmaster', speed: 20, accel: 6,  grip: 0.78, w: 2.3, l: 5.6, h: 2.0,  colors: [0x6a7f8a, 0x8a6a4a, 0x556052] },
   taxi:   { name: 'Bay Cab',    speed: 25, accel: 9,  grip: 0.86, w: 2.0, l: 4.5, h: 1.4,  colors: [0xf2c12e] },
   police: { name: 'Interceptor',speed: 34, accel: 13, grip: 0.92, w: 2.0, l: 4.7, h: 1.35, colors: [0x1c2733] },
+  bus:    { name: 'Metro Bus',  speed: 18, accel: 6.5, grip: 0.84, w: 2.55, l: 8.6, h: 2.8, colors: [0x1e88a8, 0xd85a3a, 0x2e6bb0] },
 };
 
 export const WEAPONS = [

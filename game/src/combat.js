@@ -9,7 +9,7 @@ import {WEAPONS as W} from './config.js';
 import {key,hit,mouse} from './input.js';
 import {cam,aimDirection} from './camera.js';
 import {dist2,collideCircle} from './physics.js';
-import {muzzleFlash,tracer,impactSparks,bloodPuff} from './effects.js';
+import {muzzleFlash,tracer,impactSparks,bloodPuff,bloodPool} from './effects.js';
 import {sfxGun,sfxPunch,sfxHit,sfxPickup} from './audio.js';
 import {reportCrime} from './police.js';
 import {damagePlayer} from './player.js';
@@ -41,7 +41,7 @@ function fire(p,w){
    if(dist2(p.x,p.z,ped.x,ped.z)<w.range*w.range){
     const facing=Math.atan2(ped.x-p.x,ped.z-p.z);
     let diff=facing-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
-    if(Math.abs(diff)<1.2){hurtPed(ped,w.dmg,p);hitAny=true;}
+    if(Math.abs(diff)<1.2){bloodPuff(ped.x,1.15,ped.z,8);hurtPed(ped,w.dmg,p);hitAny=true;}
    }
   }
   if(hitAny)reportCrime('assault',p.x,p.z);
@@ -68,7 +68,7 @@ function fire(p,w){
    let struck=false;
    for(const ped of world.peds){
     if(ped.dead||ped.inCar)continue;
-    if(dist2(x,z,ped.x,ped.z)<.45&&y<1.9){hurtPed(ped,w.dmg,p);bloodPuff(x,y,z);hitPoint={x,y,z};struck=true;break;}
+    if(dist2(x,z,ped.x,ped.z)<.45&&y<1.9){bloodPuff(x,y,z,10);hurtPed(ped,w.dmg,p);hitPoint={x,y,z};struck=true;break;}
    }
    if(struck)break;
    for(const car of world.cars){
@@ -91,6 +91,7 @@ function hurtPed(ped,dmg,p){
  ped.health=(ped.health??40)-dmg;ped.panic=8;sfxHit();
  if(ped.health<=0&&!ped.dead){
   ped.dead=true;ragdoll(ped.mesh);
+  bloodPuff(ped.x,1.0,ped.z,16);bloodPool(ped.x,ped.z);
   if(ped.kind==='cop'){reportCrime('kill-cop',ped.x,ped.z);state.kills++;takedownCombo('COP DOWN');}
   else if(ped.kind==='gang'){state.kills++;state.cash+=rng.int(20,80);if(state.side==='rampage')state.sideKills++;takedownCombo('TAKEDOWN');}
   else{reportCrime('kill-ped',ped.x,ped.z);state.kills++;}
@@ -126,10 +127,10 @@ function updateGang(dt){
   let speed=d>12?4.4:0;
   g.fireT-=dt;
   if(d<30&&g.fireT<=0){
-   g.fireT=rng.range(.9,1.8);
+   g.fireT=rng.range(1.1,2.0);
    muzzleFlash(g.x+Math.sin(g.heading)*.5,1.35,g.z+Math.cos(g.heading)*.5);
    tracer(g.x,1.35,g.z,px+rng.range(-1,1),1.2,pz+rng.range(-1,1));sfxGun(1);
-   if(rng()<.3)damagePlayer(rng.range(4,8));
+   if(rng()<.26)damagePlayer(rng.range(1.8,3.5));
   }
   g.x+=Math.sin(g.heading)*speed*dt;g.z+=Math.cos(g.heading)*speed*dt;
   const s=collideCircle(g.x,g.z,.45);g.x=s.x;g.z=s.z;

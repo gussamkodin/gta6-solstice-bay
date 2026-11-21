@@ -24,6 +24,7 @@ export function updateHUD(dt){
  if($('armorText'))$('armorText').textContent=arm;
  $('armorBar').style.width=arm+'%';
  $('cash').textContent='$'+state.cash.toLocaleString('en-US');
+ if($('clockText'))$('clockText').textContent=state.clock||'18:40';
  $('stars').textContent='★'.repeat(state.wanted)+'☆'.repeat(5-state.wanted);
  $('stars').style.color=state.wanted>0?'#ffd36f':'#63737c';
  // wanted status tag: helicopter deployment vs ground patrol alert
@@ -137,8 +138,8 @@ export function updateHUD(dt){
   $('speakerAvatar').textContent=state.speaker.split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase();}
  else dlg.classList.remove('on');
  $('prompt').style.display=state.dialogue?'none':'block';
- let prompt='WASD move · E enter vehicle · F interact · M city map · Q weapon wheel · Click fire · Esc pause';
- if(inCar)prompt='WASD drive · Shift NOS · R radio · Space handbrake · M city map · E exit';
+ let prompt='WASD / Arrows move · Space jump · E enter vehicle · F interact · M city map · N day/night · Q weapon wheel · Click fire';
+ if(inCar)prompt='WASD / Arrows drive · Shift NOS · Space handbrake · R radio · M city map · N day/night · E exit';
  else if(state.hubPrompt)prompt=state.hubPrompt;
  else{
   for(const car of world.cars){if(car.dead)continue;const dx=car.x-state.foot.x,dz=car.z-state.foot.z;if(dx*dx+dz*dz<16){prompt='E — '+(car.driver?'jack':'enter')+' the '+car.spec.name;break;}}
