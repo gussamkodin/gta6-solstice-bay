@@ -12,7 +12,6 @@ import {animateHuman,ragdoll} from './peds.js';
 import {crewAt} from './crew.js';
 import {STATIONS} from './radio.js';
 import {makeRng} from './rng.js';
-import {addBox} from './city.js';
 import {openMapMenu} from './mapmenu.js';
 import {setTimeOfDay} from './sky.js';
 
@@ -38,13 +37,14 @@ export function stagePhoto(name){
  };
 
  if(name==='street'){
-  // Shot 1 (COVER): Sunset Coastal Boulevard 4-Star Pursuit on Ocean Drive (x=324, 18:40).
+  // Shot 1 (COVER): Golden Sunset Coastal Boulevard 4-Star Pursuit on Ocean Drive (x=324, 18:10).
   // Camera ahead-left looking back at the 3/4 FRONT & SIDE of the glossy coral-red Solara GT,
-  // 3 Police Interceptors with blazing red/blue lightbars & road strobe pools chasing behind, AIR ONE overhead,
+  // 3 Police Interceptors with blazing red/blue lightbars & road strobe pools chasing behind,
+  // Metro Bus & traffic further down the boulevard, AIR ONE high overhead along the coast,
   // pastel Art Deco hotels with glowing storefronts, dense window grids & rooftop signs on the left,
-  // sandy beach + parasols + turquoise ocean on the right.
+  // bright golden sandy beach + parasols + vivid turquoise ocean on the right.
   setTimeOfDay('sunset');
-  state.clock='18:40';
+  state.clock='18:10';
   clearCarsNear(324,62,18,48);
   place(324.4,48,0);
   cam.fixedPos=new THREE.Vector3(320.2,3.1,37.5);
@@ -64,7 +64,7 @@ export function stagePhoto(name){
   }
   for(let k=0;k<6;k++)skidMark(324.2+rng.range(-.7,.7),49.5+k*1.8,.15);
   traffic('taxi',327.6,82,1,false,8,18);
-  traffic('sedan',321.2,92,-1,false,8,15);
+  put('bus',321.0,96,Math.PI,null,14);
   traffic('sports',327.4,106,1,false,8,20);
   freezePedsNear(324,55,90);
   pedAt(315.2,56.0,0,1.2);
@@ -74,18 +74,18 @@ export function stagePhoto(name){
   pedAt(341.0,49.0,-Math.PI/2,1.1);
   crewAt('marisol',335.2,46.2,-.35);
   crewAt('dex',336.5,43.0,-.45);
-  photoHeli(326,68);
+  photoHeli(329,98);
   if(world.heli){
-   world.heli.mesh.position.set(326,13.5,68);
-   world.heli.mesh.scale.setScalar(1.45);
-   world.heli.mesh.rotation.y=Math.PI+.18;
+   world.heli.mesh.position.set(329,21.5,98);
+   world.heli.mesh.scale.setScalar(0.95);
+   world.heli.mesh.rotation.y=Math.PI+.14;
    const h=world.heli;
-   const from=new THREE.Vector3(326,12.2,68),to=new THREE.Vector3(324.4,1.0,48);
+   const from=new THREE.Vector3(329,20.2,98),to=new THREE.Vector3(324.4,1.0,48);
    const dir=to.clone().sub(from),len=dir.length();
    h.searchlight.position.copy(from);
    h.searchlight.scale.set(1,len/30,1);
    h.searchlight.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),dir.normalize());
-   h.searchlight.material.opacity=.045;
+   h.searchlight.material.opacity=.055;
    h.spotPool.position.set(324.4,.095,48);
    h.spotPool.material.opacity=.55;
   }
@@ -119,20 +119,14 @@ export function stagePhoto(name){
   cam.fovWish=58;
   state.inCar=-1;state.weapon=2;state.unlockedWeapons=[true,true,true,true];state.ammo=[Infinity,60,90,18];
   state.photoNoDamage=true;state.photoFreeze=true;world.photoFx=true;
-  // Marisol right beside Remy aiming her SMG down the midnight avenue
+  // Marisol right beside Remy aiming her SMG down the wide-open midnight avenue
   crewAt('marisol',286.6,92.8,-.18);
   const mar=world.peds.find(q=>q.kind==='crew'&&q.name==='MARISOL');
   if(mar)animateHuman(mar.mesh,0,0,true);
   crewAt('dex',291.2,96.5,-.35);
-  // night-market canopy stalls flanking the avenue sidewalks
-  const stallMatA=new THREE.MeshStandardMaterial({color:0xff5e78,emissive:0x4a1220,emissiveIntensity:.45,roughness:.55});
-  const stallMatB=new THREE.MeshStandardMaterial({color:0x3fe8e0,emissive:0x104a48,emissiveIntensity:.45,roughness:.55});
-  const postMat=new THREE.MeshStandardMaterial({color:0x34424a,roughness:.7});
-  for(const [sx,sz,sm] of [[281.4,100.5,stallMatA],[294.2,101.8,stallMatB]]){
-   addBox(world.scene,sx,2.5,sz,3.6,.22,3.2,sm);
-   addBox(world.scene,sx,.5,sz,3.0,.8,1.4,postMat);
-   for(const dx of [-1.5,1.5])for(const dz of [-1.3,1.3])addBox(world.scene,sx+dx,0,sz+dz,.12,2.5,.12,postMat);
-  }
+  // Dedicated warm fill lights so Remy, Marisol & the burning barricade car read crisply at midnight
+  const heroFill=new THREE.PointLight(0xffbe72,26,22);heroFill.position.set(287,3.0,90);world.scene.add(heroFill);
+  const fireFill=new THREE.PointLight(0xff8a3c,22,24);fireFill.position.set(288,2.5,112);world.scene.add(fireFill);
   // 5 gang gunmen + 1 downed hostile in center foreground
   const gang=spawnGang(288,105,6);
   const gSpots=[[287.4,97.4],[285.8,102.2],[288.6,103.8],[291.2,102.5],[286.8,107.8],[290.0,108.6]];
@@ -189,17 +183,18 @@ export function stagePhoto(name){
  }
 
  if(name==='title'){
-  // Shot 4: Aerial 3D Beach & Hotel Skyline Start Screen at Coastal Twilight (19:50) + 3 Save Slots.
-  setTimeOfDay('twilight');
-  state.clock='19:50';
+  // Shot 4: Aerial 3D Beach & Hotel Skyline Start Screen at Golden Coastal Daylight (17:15) + 3 Save Slots.
+  setTimeOfDay('golden');
+  state.clock='17:15';
   clearCarsNear(324,56,22,44);
   place(324,55,0);
-  cam.fixedPos=new THREE.Vector3(366,18.5,128);
-  cam.fixedLook=new THREE.Vector3(312,12,16);
+  cam.fixedPos=new THREE.Vector3(362,18.0,124);
+  cam.fixedLook=new THREE.Vector3(308,12.2,16);
   cam.fovWish=60;
   state.photoFreeze=true;
-  // populate Ocean Drive (x=324) and Strand Ave (x=288) with vivid coastal traffic & headlight fans below the camera
-  put('sports',324.4,68,0,null,26);
+  // populate Ocean Drive (x=324) and Strand Ave (x=288) with vivid coastal traffic & Metro Bus below the camera
+  put('bus',324.4,58,0,null,18);
+  put('sports',324.4,74,0,null,26);
   put('taxi',327.6,46,Math.PI,null,22);
   put('sedan',321.2,28,0,null,20);
   put('sports',327.4,84,Math.PI,null,28);

@@ -57,7 +57,7 @@ export function muzzleFlash(x,y,z){
  const core=new THREE.Mesh(geo,flashCoreMat.clone());core.position.set(x,y,z);core.scale.setScalar(world.photoFx?.14:.18);spawn(core,.07,4);
  const glow=new THREE.Mesh(geo,flashGlowMat.clone());glow.position.set(x,y,z);glow.scale.setScalar(world.photoFx?.3:.4);spawn(glow,.07,3);
 }
-export function tracer(x1,y1,z1,x2,y2,z2){const len=Math.hypot(x2-x1,y2-y1,z2-z1);if(len<.5)return;const m=new THREE.Mesh(boxGeo,tracerMat.clone());m.scale.set(.05,.05,len);m.position.set((x1+x2)/2,(y1+y2)/2,(z1+z2)/2);m.lookAt(x2,y2,z2);spawn(m,.06);}
+export function tracer(x1,y1,z1,x2,y2,z2){const len=Math.hypot(x2-x1,y2-y1,z2-z1);if(len<.5)return;const m=new THREE.Mesh(boxGeo,tracerMat.clone());m.scale.set(.036,.036,len);m.position.set((x1+x2)/2,(y1+y2)/2,(z1+z2)/2);m.lookAt(x2,y2,z2);spawn(m,.06);}
 export function impactSparks(x,y,z){for(let i=0;i<5;i++){const m=new THREE.Mesh(geo,sparkMat.clone());m.position.set(x,y,z);m.scale.setScalar(.07);spawn(m,.3+Math.random()*.2,0,new THREE.Vector3((Math.random()-.5)*7,Math.random()*6,(Math.random()-.5)*7));}}
 export function bloodPuff(x,y,z,count=12){
  for(let i=0;i<count;i++){

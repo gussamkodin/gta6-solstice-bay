@@ -1,4 +1,4 @@
-// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v5.1 Sunset, Twilight & Midnight City Lighting edition).
+// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v6 Golden Sunset, Coastal Daylight & Midnight Contact-Sheet Polish).
 // Copies the static browser game — Ocean Drive coastal boulevard beside sandy beach parasols
 // and turquoise ocean, pastel Art Deco hotels with illuminated ground-floor glass storefronts,
 // glowing amber cornice strips, dense 4-sided multi-story window grids and rooftop landmark
@@ -34,4 +34,4 @@ writeFileSync(join(output, 'dossier.json'), buildDossier(output, {
   game_max_bytes: 50331648,
   game_path_max_bytes: 1000,
 }));
-console.log('Solstice Bay — Last Light v5.1 (sunset/twilight/night city lighting, illuminated glass storefronts, dense multi-story window grids, additive radial road light pools & headlight fans): output ready at ' + output);
+console.log('Solstice Bay — Last Light v6 (golden sunset, coastal daylight & midnight lighting, de-cluttered firefight, elevated AIR ONE & Metro Bus traffic): output ready at ' + output);

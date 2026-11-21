@@ -20,18 +20,18 @@ function paintDome(geo,topHex,midHex,horHex){
 
 export function makeSky(scene,renderer){
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- const sun=new THREE.DirectionalLight(0xffc68a,1.65);
+ const sun=new THREE.DirectionalLight(0xffcc90,2.65);
  sun.castShadow=true;
  sun.shadow.mapSize.set(2048,2048);
  const sc=sun.shadow.camera;sc.left=-130;sc.right=130;sc.top=130;sc.bottom=-130;sc.near=20;sc.far=700;
  sun.shadow.bias=-0.0006;
  scene.add(sun);scene.add(sun.target);
- const hemi=new THREE.HemisphereLight(0x8cb4f8,0xc88258,.85);scene.add(hemi);
- const ambient=new THREE.AmbientLight(0x6e6888,.48);scene.add(ambient);
- scene.fog=new THREE.Fog(0xc47e78,240,800);
+ const hemi=new THREE.HemisphereLight(0xc8dcff,0xeeb078,1.25);scene.add(hemi);
+ const ambient=new THREE.AmbientLight(0x74708e,.72);scene.add(ambient);
+ scene.fog=new THREE.Fog(0xf0b88e,250,820);
  // gradient dome via vertex colors on a big sphere
  const geo=new THREE.SphereGeometry(850,28,16);
- paintDome(geo,0x243b78,0xc86468,0xffd088);
+ paintDome(geo,0x3458a2,0xe67c6e,0xffd892);
  const dome=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false}));
  scene.add(dome);
  // low sun disc with a soft halo, sitting just above the western hills
@@ -70,21 +70,39 @@ export function setTimeOfDay(mode='sunset'){
  const sky=world.sky,scene=world.scene,mats=world.city?.materials;
  if(!sky||!scene)return;
  if(mode==='night'){
-  paintDome(sky.dome.geometry,0x050a16,0x0b162e,0x15274a);
+  paintDome(sky.dome.geometry,0x060c1c,0x0e1c38,0x16284c);
   scene.fog.color.setHex(0x0c172e);scene.fog.near=175;scene.fog.far=660;
   sky.sun.color.setHex(0x6888c8);sky.sun.intensity=.38;
   sky.hemi.color.setHex(0x2c4270);sky.hemi.groundColor.setHex(0x181c28);sky.hemi.intensity=.36;
-  sky.ambient.color.setHex(0x28324a);sky.ambient.intensity=.28;
+  sky.ambient.color.setHex(0x303c58);sky.ambient.intensity=.42;
   sky.disc.visible=false;sky.halo.visible=false;
   for(const m of sky.cloudMats){m.color.setHex(0x152240);m.opacity=.32;}
   if(mats){
-   mats.asphalt.color.setHex(0x151b29);
+   mats.asphalt.color.setHex(0x182030);
    mats.side.color.setHex(0x3a4254);
    mats.grass.color.setHex(0x1b3024);
    mats.sand.color.setHex(0x524c48);
    mats.water.color.setHex(0x092c44);
   }
   const pts=[[283,7.5,96,0xffc870,3.8,44],[293,7.5,104,0xffb868,3.6,44],[283,7.5,116,0x64d2ff,3.2,46],[293,7.5,126,0xffa858,3.5,48]];
+  sky.corridorLights.forEach((pl,i)=>{const p=pts[i];pl.position.set(p[0],p[1],p[2]);pl.color.setHex(p[3]);pl.intensity=p[4];pl.distance=p[5];});
+ }else if(mode==='golden'){
+  // 'golden' (17:15 — coastal daylight preset for Shot 4 aerial start screen)
+  paintDome(sky.dome.geometry,0x3b6db5,0xe8826b,0xffe09e);
+  scene.fog.color.setHex(0xf4bc94);scene.fog.near=260;scene.fog.far=840;
+  sky.sun.color.setHex(0xffd496);sky.sun.intensity=2.95;
+  sky.hemi.color.setHex(0xd2e4ff);sky.hemi.groundColor.setHex(0xf2ba84);sky.hemi.intensity=1.38;
+  sky.ambient.color.setHex(0x7c7894);sky.ambient.intensity=.85;
+  sky.disc.visible=true;sky.halo.visible=true;
+  for(let i=0;i<sky.cloudMats.length;i++){sky.cloudMats[i].color.setHex(i%3?0xffd8be:0xfff0da);sky.cloudMats[i].opacity=.76;}
+  if(mats){
+   mats.asphalt.color.setHex(0x52586c);
+   mats.side.color.setHex(0xe2d2ba);
+   mats.grass.color.setHex(0x66a05c);
+   mats.sand.color.setHex(0xf7e2b2);
+   mats.water.color.setHex(0x1eb4ca);
+  }
+  const pts=[[324,9,45,0xffcf78,2.4,55],[312,8,65,0xffb468,2.2,55],[324,9,85,0xffcf78,2.4,55],[288,8,50,0x58d4ff,2.0,52]];
   sky.corridorLights.forEach((pl,i)=>{const p=pts[i];pl.position.set(p[0],p[1],p[2]);pl.color.setHex(p[3]);pl.intensity=p[4];pl.distance=p[5];});
  }else if(mode==='twilight'){
   paintDome(sky.dome.geometry,0x182958,0x8e4866,0xf09c70);
@@ -104,20 +122,20 @@ export function setTimeOfDay(mode='sunset'){
   const pts=[[324,9,45,0xffcf78,2.6,55],[312,8,65,0xffb468,2.4,55],[324,9,85,0xffcf78,2.5,55],[288,8,50,0x58d4ff,2.2,52]];
   sky.corridorLights.forEach((pl,i)=>{const p=pts[i];pl.position.set(p[0],p[1],p[2]);pl.color.setHex(p[3]);pl.intensity=p[4];pl.distance=p[5];});
  }else{
-  // 'sunset' (18:40 — used in Shot 1 1-solstice-bay.jpg and default gameplay)
-  paintDome(sky.dome.geometry,0x243b78,0xc86468,0xffd088);
-  scene.fog.color.setHex(0xc47e78);scene.fog.near=240;scene.fog.far=800;
-  sky.sun.color.setHex(0xffc68a);sky.sun.intensity=1.65;
-  sky.hemi.color.setHex(0x8cb4f8);sky.hemi.groundColor.setHex(0xc88258);sky.hemi.intensity=.85;
-  sky.ambient.color.setHex(0x6e6888);sky.ambient.intensity=.48;
+  // 'sunset' (18:10 — sun-drenched golden sunset used in Shot 1 1-solstice-bay.jpg and default gameplay)
+  paintDome(sky.dome.geometry,0x3458a2,0xe67c6e,0xffd892);
+  scene.fog.color.setHex(0xf0b88e);scene.fog.near=250;scene.fog.far=820;
+  sky.sun.color.setHex(0xffcc90);sky.sun.intensity=2.65;
+  sky.hemi.color.setHex(0xc8dcff);sky.hemi.groundColor.setHex(0xeeb078);sky.hemi.intensity=1.25;
+  sky.ambient.color.setHex(0x74708e);sky.ambient.intensity=.72;
   sky.disc.visible=true;sky.halo.visible=true;
-  for(let i=0;i<sky.cloudMats.length;i++){sky.cloudMats[i].color.setHex(i%3?0xffc9b0:0xffe3c8);sky.cloudMats[i].opacity=.72;}
+  for(let i=0;i<sky.cloudMats.length;i++){sky.cloudMats[i].color.setHex(i%3?0xffd2b8:0xffead2);sky.cloudMats[i].opacity=.74;}
   if(mats){
-   mats.asphalt.color.setHex(0x262e42);
-   mats.side.color.setHex(0x948a82);
-   mats.grass.color.setHex(0x5a8e52);
-   mats.sand.color.setHex(0xe8ca98);
-   mats.water.color.setHex(0x1896ac);
+   mats.asphalt.color.setHex(0x424a5e);
+   mats.side.color.setHex(0xdcccb4);
+   mats.grass.color.setHex(0x5e9656);
+   mats.sand.color.setHex(0xf5dda8);
+   mats.water.color.setHex(0x1ca8be);
   }
   const pts=[[324,8.5,46,0xffd488,2.4,48],[324,8.5,64,0x70a8ff,2.2,46],[314,8.0,56,0xffbe68,2.4,48],[324,8.5,84,0xffd488,2.0,46]];
   sky.corridorLights.forEach((pl,i)=>{const p=pts[i];pl.position.set(p[0],p[1],p[2]);pl.color.setHex(p[3]);pl.intensity=p[4];pl.distance=p[5];});
