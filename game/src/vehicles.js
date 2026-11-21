@@ -10,10 +10,10 @@ const wheelMat=new THREE.MeshStandardMaterial({color:0x14181c,roughness:.9});
 const hubMat=new THREE.MeshStandardMaterial({color:0x9aa4ac,roughness:.4,metalness:.6});
 const sportHubMat=new THREE.MeshStandardMaterial({color:0xd8e0e8,roughness:.25,metalness:.8});
 const whiteMat=new THREE.MeshStandardMaterial({color:0xf2f2ee,roughness:.6});
-const tailMat=new THREE.MeshStandardMaterial({color:0xc22a1e,roughness:.5,emissive:0xaa1a0e,emissiveIntensity:.9});
-const headMat=new THREE.MeshStandardMaterial({color:0xfff2c8,roughness:.3,emissive:0xffe9a8,emissiveIntensity:1.1});
-const flameMat=new THREE.MeshBasicMaterial({color:0x66d9ff,transparent:true,opacity:.9});
-const flameCoreMat=new THREE.MeshBasicMaterial({color:0xfff6d8,transparent:true,opacity:.95});
+const tailMat=new THREE.MeshStandardMaterial({color:0xc22a1e,roughness:.45,emissive:0xaa1a0e,emissiveIntensity:.95});
+const headMat=new THREE.MeshStandardMaterial({color:0xfff4d2,roughness:.25,emissive:0xffe49e,emissiveIntensity:.85});
+const flameMat=new THREE.MeshBasicMaterial({color:0x66d9ff,transparent:true,opacity:.72});
+const flameCoreMat=new THREE.MeshBasicMaterial({color:0xfff6d8,transparent:true,opacity:.88});
 function paint(color){const key='c'+color;if(!bodyMats[key])bodyMats[key]=new THREE.MeshStandardMaterial({color,roughness:.32,metalness:.2});return bodyMats[key];}
 export function buildVehicle(type){
  const spec=CAR_TYPES[type],color=rng.pick(spec.colors),g=new THREE.Group(),body=paint(color);

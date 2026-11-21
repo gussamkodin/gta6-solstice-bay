@@ -4,7 +4,7 @@
 import {THREE} from './three.js';
 import {world} from './world.js';
 import {state,saveGame,loadGame,hasSave,notify} from './state.js';
-import {initInput,endFrame} from './input.js';
+import {initInput,hit,endFrame} from './input.js';
 import {makeCity} from './city.js';
 import {makeSky} from './sky.js';
 import {makePlayer,updatePlayer} from './player.js';
@@ -21,9 +21,10 @@ import {initCrew,updateCrew} from './crew.js';
 import {updateDistrict} from './district.js';
 import {initPickups,updatePickups} from './pickups.js';
 import {updateEffects} from './effects.js';
-import {updateCamera} from './camera.js';
+import {cam,updateCamera} from './camera.js';
 import {updateHUD,showHUD} from './hud.js';
 import {initMinimap} from './minimap.js';
+import {initMapMenu,openMapMenu,isMapMenuOpen} from './mapmenu.js';
 import {initAudio} from './audio.js';
 import {stagePhoto} from './photo.js';
 const canvas=document.getElementById('game');
@@ -49,36 +50,40 @@ initPickups();
 initGarage();
 initRadio();
 initMinimap();
+initMapMenu();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 const $=id=>document.getElementById(id);
 function setMode(mode){
  state.mode=mode;
  $('start').classList.toggle('hide',mode!=='title');
  $('pause').classList.toggle('hide',mode!=='pause');
- showHUD(mode==='play'||mode==='pause');
+ showHUD((mode==='play'||mode==='pause')&&state.shot!=='map');
  if(mode==='play'&&!state.shot){const req=canvas.requestPointerLock?.();if(req&&req.catch)req.catch(()=>{});}
  else document.exitPointerLock?.();
 }
 function newGame(){
  initAudio();
+ openMapMenu(false);
  state.mission=0;state.cash=2450;state.foot.health=100;state.foot.armor=65;state.wanted=0;state.heat=0;
  state.respect=0;state.nitro=100;state.storedRide='sports';
  setMode('play');
  notify('WELCOME TO SOLSTICE BAY');
 }
 $('newGame').addEventListener('click',newGame);
-$('loadGame').addEventListener('click',()=>{initAudio();if(loadGame()){world.player.x=state.foot.x;world.player.z=state.foot.z;world.player.mesh.position.set(state.foot.x,0,state.foot.z);setMode('play');}else notify('NO SAVE FOUND');});
+$('loadGame').addEventListener('click',()=>{initAudio();openMapMenu(false);if(loadGame()){world.player.x=state.foot.x;world.player.z=state.foot.z;world.player.mesh.position.set(state.foot.x,0,state.foot.z);setMode('play');}else newGame();});
+$('openMapStart')?.addEventListener('click',()=>openMapMenu(true));
+$('openLoadSlot')?.addEventListener('click',()=>openMapMenu(true));
 $('resume').addEventListener('click',()=>setMode('play'));
 $('save').addEventListener('click',saveGame);
 $('title').addEventListener('click',()=>{saveGame();setMode('title');});
-if(!hasSave())$('loadGame').style.opacity=.45;
 initInput(canvas,()=>{
+ if(isMapMenuOpen()){openMapMenu(false);return;}
  if(state.mode==='play'){setMode('pause');$('pauseInfo').textContent='Mission: '+state.missionTitle+' · $'+state.cash.toLocaleString('en-US');}
  else if(state.mode==='pause')setMode('play');
 });
-// deterministic photo mode: skip menus, stage the scene, keep every real system running
+// deterministic photo mode: stage the scene, keep every real system running
 if(state.shot){
- setMode('play');document.exitPointerLock?.();
+ setMode(state.shot==='title'?'title':'play');document.exitPointerLock?.();
  stagePhoto(state.shot);
 }
 let last=performance.now(),acc=0;
@@ -86,8 +91,9 @@ function frame(now){
  requestAnimationFrame(frame);
  let dt=Math.min(.05,(now-last)/1000);last=now;
  if(state.mode==='play'){
+  if(!state.shot&&(hit('KeyM')||hit('Tab')))openMapMenu();
   state.time+=dt;
-  if(!state.photoFreeze){
+  if(!state.photoFreeze&&!isMapMenuOpen()){
    updatePlayer(dt);
    updateTraffic(dt);
    updatePeds(dt);
@@ -109,12 +115,18 @@ function frame(now){
   updateHUD(dt);
   endFrame();
  }else{
-  // idle orbit over downtown for the title screen
-  state.time+=dt*.4;
-  const t=state.time*.08;
-  camera.position.set(60+Math.sin(t)*150,60+Math.sin(t*.7)*15,20+Math.cos(t)*150);
-  camera.lookAt(60,10,20);
-  world.sky.update(dt,{x:60,z:20});
+  if(hit('KeyM')&&isMapMenuOpen())openMapMenu(false);
+  // aerial beachfront & hotel skyline view for the title screen
+  if(state.photo==='title'&&cam.fixedPos){
+   updateCamera(camera,dt);
+   world.sky.update(dt,{x:300,z:55});
+  }else{
+   state.time+=dt*.4;
+   const t=state.time*.08;
+   camera.position.set(355+Math.sin(t)*22,21+Math.sin(t*.7)*3,108+Math.cos(t)*30);
+   camera.lookAt(285,14,15);
+   world.sky.update(dt,{x:300,z:55});
+  }
   updateEffects(dt);
   endFrame();
  }

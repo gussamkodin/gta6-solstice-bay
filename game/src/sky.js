@@ -6,17 +6,17 @@ import {PALETTE} from './config.js';
 import {makeRng} from './rng.js';
 export function makeSky(scene,renderer){
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- const sun=new THREE.DirectionalLight(0xffb36b,2.6);
+ const sun=new THREE.DirectionalLight(0xffd296,3.1);
  sun.castShadow=true;
  sun.shadow.mapSize.set(2048,2048);
  const sc=sun.shadow.camera;sc.left=-130;sc.right=130;sc.top=130;sc.bottom=-130;sc.near=20;sc.far=700;
  sun.shadow.bias=-0.0006;
  scene.add(sun);scene.add(sun.target);
- // cool violet sky fill against warm ground bounce keeps pastel walls saturated at dusk
- const hemi=new THREE.HemisphereLight(0x9a8ad8,0xd8925e,1.05);scene.add(hemi);
- // gentle ambient floor so shadowed asphalt and car bodies never crush to black
- scene.add(new THREE.AmbientLight(0x7a6a98,.65));
- scene.fog=new THREE.Fog(PALETTE.fog,200,720);
+ // bright coastal sky fill against warm golden sand/asphalt bounce keeps pastel walls vivid
+ const hemi=new THREE.HemisphereLight(0xb8d4ff,0xe8a870,1.35);scene.add(hemi);
+ // elevated ambient floor so shadowed asphalt, palm fronds and car bodies read clearly at thumbnail scale
+ scene.add(new THREE.AmbientLight(0x9a90b0,.85));
+ scene.fog=new THREE.Fog(PALETTE.fog,260,820);
  // gradient dome via vertex colors on a big sphere: horizon amber, mid rose, zenith indigo
  const geo=new THREE.SphereGeometry(850,28,16);
  const colors=[];const pos=geo.attributes.position;

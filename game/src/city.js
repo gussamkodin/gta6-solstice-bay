@@ -7,7 +7,8 @@ import {rng} from './rng.js';
 const mat=(color,roughness=.82,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 // canvas-texture neon signs: original Solstice Bay businesses, no external assets
 const SIGNS=['SOLSTICE','LOW TIDE','PALMA CLUB','BAYSIDE DINER','MARIGOLD','NEON TIDE','HOTEL AZUL','CASINO SOL','COPPER & CO','SURF CITY','LAST LIGHT','EL FARO'];
-const signMats=[];
+const ROOF_SIGNS=['HOTEL SOLSTICE','PALMA SUITES','LAGUNA AZUL','MARIGOLD GRAND','CASINO SOL','BINTU PLAZA','CORAL PALACE'];
+const signMats=[],roofMats=[];
 function signMaterial(text,color){
  const cv=document.createElement('canvas');cv.width=256;cv.height=64;const g=cv.getContext('2d');
  const css='#'+color.toString(16).padStart(6,'0');
@@ -19,6 +20,33 @@ function signMaterial(text,color){
  const m=new THREE.MeshBasicMaterial({map:tex});
  m.userData.glow=color; // sidewalk spill strips reuse the sign's neon hue
  return m;
+}
+function roofSignMaterial(text,color){
+ const cv=document.createElement('canvas');cv.width=320;cv.height=72;const g=cv.getContext('2d');
+ const css='#'+color.toString(16).padStart(6,'0');
+ g.fillStyle='#0f1726';g.fillRect(0,0,320,72);
+ g.strokeStyle=css;g.lineWidth=5;g.strokeRect(4,4,312,64);
+ g.font='bold 31px Arial';g.textAlign='center';g.textBaseline='middle';
+ g.shadowColor=css;g.shadowBlur=14;g.fillStyle='#fff7e2';g.fillText(text,160,37);
+ const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
+ return new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide,fog:false});
+}
+function ensureRoofMats(){
+ if(roofMats.length)return;
+ const cols=[0xff4fa0,0x3fe8e0,0xffb347,0xff6b4a,0xb46bff,0x52e0c4,0xffd166];
+ for(let i=0;i<ROOF_SIGNS.length;i++)roofMats.push(roofSignMaterial(ROOF_SIGNS[i],cols[i%cols.length]));
+}
+function addRoofSign(scene,x,h,z,w,d,m,idx,faceX=false){
+ ensureRoofMats();
+ const rMat=roofMats[idx%roofMats.length];
+ const sw=Math.min((faceX?d:w)*.88,17),sh=3.5,y=.2+h+2.3;
+ const board=new THREE.Mesh(new THREE.PlaneGeometry(sw,sh),rMat);
+ if(faceX){board.position.set(x+w/2-.6,y,z);board.rotation.y=Math.PI/2;}
+ else board.position.set(x,y,z+d/2-.6);
+ board.userData.cityStatic=true;scene.add(board);
+ // steel roof frame struts under the landmark sign
+ addBox(scene,faceX?x+w/2-.7:x-sw*.32,.2+h+.5,faceX?z-sw*.32:z+d/2-.7,.35,1.6,.35,m.dark);
+ addBox(scene,faceX?x+w/2-.7:x+sw*.32,.2+h+.5,faceX?z+sw*.32:z+d/2-.7,.35,1.6,.35,m.dark);
 }
 const boxGeo=new THREE.BoxGeometry(1,1,1),cylGeo=new THREE.CylinderGeometry(.45,.58,1,8),sphereGeo=new THREE.SphereGeometry(1,8,6);
 // solid footprints used by player/car collision and AI avoidance
@@ -37,13 +65,22 @@ export function makeCity(scene){
  // ground and ocean to the eastern edge; warm beach separates city from sea
  addBox(root,-30,-1,0,720,1,680,mats.grass);
  // sand top sits a hair above the grass slab so the beach edge never z-fights green
- addBox(root,352,-.48,0,120,.5,700,mats.sand);
- addBox(root,465,-8,0,150,14,900,mats.water);
+ addBox(root,344,-.48,0,104,.5,700,mats.sand);
+ addBox(root,450,-8,0,170,14,900,mats.water);
+ // shallow turquoise shoreline water + white surf foam line right beside the beach sand
+ addBox(root,392,-.36,0,58,.32,760,mats.water);
+ const foam=new THREE.Mesh(new THREE.PlaneGeometry(3.2,760),new THREE.MeshBasicMaterial({color:0xe8fbff,transparent:true,opacity:.68,depthWrite:false}));
+ foam.rotation.x=-Math.PI/2;foam.position.set(364,-.16,0);root.add(foam);
  // sun-glitter path on the water: a soft emissive band running out from the shore
- const shimmer=new THREE.Mesh(new THREE.PlaneGeometry(120,760),new THREE.MeshBasicMaterial({color:0xff9e6a,transparent:true,opacity:.22,depthWrite:false}));
- shimmer.rotation.x=-Math.PI/2;shimmer.position.set(452,-.9,40);root.add(shimmer);
- const shimmer2=new THREE.Mesh(new THREE.PlaneGeometry(46,760),new THREE.MeshBasicMaterial({color:0xffd9a0,transparent:true,opacity:.28,depthWrite:false}));
- shimmer2.rotation.x=-Math.PI/2;shimmer2.position.set(430,-.88,40);root.add(shimmer2);
+ const shimmer=new THREE.Mesh(new THREE.PlaneGeometry(120,760),new THREE.MeshBasicMaterial({color:0xffbe7a,transparent:true,opacity:.26,depthWrite:false}));
+ shimmer.rotation.x=-Math.PI/2;shimmer.position.set(438,-.15,40);root.add(shimmer);
+ const shimmer2=new THREE.Mesh(new THREE.PlaneGeometry(46,760),new THREE.MeshBasicMaterial({color:0xfff0b8,transparent:true,opacity:.34,depthWrite:false}));
+ shimmer2.rotation.x=-Math.PI/2;shimmer2.position.set(398,-.14,40);root.add(shimmer2);
+ // Ocean Drive coastal boulevard along x=324 right beside the beach & ocean
+ addBox(root,324,0,0,ROAD,.085,720,mats.asphalt);
+ addBox(root,324-.24,.09,0,.14,.015,690,mats.yellow);addBox(root,324+.24,.09,0,.14,.015,690,mats.yellow);
+ for(let seg=-330;seg<=330;seg+=14)for(const offset of [-3.7,3.7])addBox(root,324+offset,.09,seg,.12,.015,6,mats.white);
+ addBox(root,314.5,.03,0,3,.14,700,mats.side);addBox(root,333.5,.03,0,3,.14,700,mats.side);
  // v4.1: the lane itself stays clean sun-lit asphalt — no opaque neon planks mid-road.
  // Only subtle low-opacity curb-side reflection pools near the buildings remain, so
  // markings, car paint and long shadows carry the contrast at contact-sheet size.
@@ -83,11 +120,40 @@ export function makeCity(scene){
   const cx=blockAt(bx),cz=blockAt(bz),isDowntown=bx>=3&&bx<=5&&bz>=2&&bz<=5,isPort=bz===0&&bx<=3,isBeach=bx===7,isSuburb=bz>=6&&bx<=2;
   addBox(root,cx,.03,cz,BLOCK,.12,BLOCK,mats.side);
   if(isBeach){
-   // boardwalk strip along the road edge, sand beyond, palms and parasols near the walk
-   addBox(root,cx,.12,cz,BLOCK,.08,BLOCK,mat(0xdbc895));
-   addBox(root,cx-22,.16,cz,10,.1,BLOCK,mat(0xb29a70));
-   for(let p=0;p<3;p++)palm(root,cx-22+p*4,.17,cz-18+p*17,mats);
-   for(let k=0;k<4;k++)addBox(root,cx-14+k*3,.3,cz-14+k*9,3.4,.3,1.2,mat([0xd84538,0xe7bd45,0x528c95,0xe2ddd1][k]));
+   // Glasshouse Strand beachfront: Art Deco resort hotels on the west side, boardwalk, dense palms & 8 parasols on the sand
+   addBox(root,cx,.12,cz,BLOCK,.08,BLOCK,mat(0xebd6a7));
+   addBox(root,335,.16,cz,4.5,.1,BLOCK,mat(0xc8b082));
+   if(bz!==3&&bz!==7){
+    const h=22+(bz%3)*6,wall=mat(PALETTE.pastel[(bz*2)%PALETTE.pastel.length]);
+    building(root,cx-6,cz,32,h,36,wall,mats,true);
+    neonSign(root,cx-6,cz,32,36,mats);
+    addRoofSign(root,cx-6,h,cz,32,36,mats,bz,false);
+    addRoofSign(root,cx-6,h,cz,32,36,mats,bz+1,true);
+   }
+   // boutique oceanfront Art Deco hotel row at x=303 facing Ocean Drive (x=324) and the sea
+   const bh=16+(bz%4)*4.5,bWall=mat(PALETTE.pastel[(bz+3)%PALETTE.pastel.length]);
+   addBox(root,303,.2,cz,16,bh,42,bWall);addBox(root,303,.2+bh,cz,17,.5,43,mat(0xf4ead8));
+   for(let fl=2.8;fl<bh;fl+=3.4)for(let cl=-1;cl<=1;cl++){
+    addBox(root,311.06,.2+fl,cz+cl*12,.08,1.5,4.2,mats.windowLit).castShadow=false;
+    addBox(root,303+cl*4,.2+fl,cz+21.06,3.2,1.5,.08,mats.windowCool).castShadow=false;
+   }
+   neonSign(root,303,cz,16,42,mats);
+   addRoofSign(root,303,bh,cz,16,42,mats,bz,false);
+   addRoofSign(root,303,bh,cz,16,42,mats,bz+2,true);
+   // dense palm rows flanking the coastal boulevard (x=315 and x=338)
+   for(let p=0;p<4;p++){
+    palm(root,314.5,.17,cz-22+p*15,mats);
+    palm(root,337.5,.17,cz-20+p*15,mats);
+   }
+   // 8 colorful beach umbrellas/parasols with tilted canopy discs + beach towels on the sand
+   const uCols=[0xff4f5e,0xffd23f,0x2de2e6,0xff4fa0,0xff8c42,0x3fe8b0,0x6a8dff,0xff5e7e];
+   for(let k=0;k<8;k++){
+    const ux=343+(k%2)*10,uz=cz-23+k*6.6,uMat=mat(uCols[k],.5);
+    addBox(root,ux+.8,.18,uz,3.4,.08,1.5,uMat); // beach towel
+    addCylinder(root,ux,.18,uz,.1,2.5,mats.white,6); // umbrella pole
+    const canopy=new THREE.Mesh(new THREE.CylinderGeometry(.25,2.35,.55,10),uMat);
+    canopy.position.set(ux,2.65,uz);canopy.rotation.z=(k%2?.14:-.14);canopy.castShadow=true;canopy.userData.cityStatic=true;root.add(canopy);
+   }
    continue;
   }
   if(isPort){
@@ -106,17 +172,48 @@ export function makeCity(scene){
    const floors=isDowntown?7+rng.int(0,13):2+rng.int(0,5),h=floors*(isDowntown?4.2:3.2);
    building(root,x,z,w,h,d,mat(PALETTE.pastel[rng.int(0,PALETTE.pastel.length-1)]),mats,isDowntown);
    neonSign(root,x,z,w,d,mats);
+   if(isDowntown||bx>=5)addRoofSign(root,x,h,z,w,d,mats,bx+bz+b,bx===6);
   }
   for(let p=0;p<2;p++)palm(root,cx+(p?21:-21),.15,cz+22,mats);
  }
  // waterfront promenade and pier
- addBox(root,370,.15,0,8,.3,690,mat(0xb29a70));
+ addBox(root,364,.15,0,6,.3,690,mat(0xb29a70));
  for(let k=0;k<5;k++){addBox(root,385,.08,-170+k*85,42,.2,10,mat(0x967954));for(let p=0;p<4;p++)addBox(root,369+p*10,.5,-174+k*85,.6,.8,.6,mats.dark);}
- // landmarks, street furniture and painted crosswalks
+ // sculpted cantilevered boulevard street lamps along every road block & Ocean Drive + intersection traffic signals
+ const lampPoolMat=new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:.2,depthWrite:false});
+ const sigRed=new THREE.MeshBasicMaterial({color:0xff3b4e}),sigAmber=new THREE.MeshBasicMaterial({color:0xffbe3b}),sigGreen=new THREE.MeshBasicMaterial({color:0x3bf59b});
+ const streetLamp=(lx,lz,armDx,armDz)=>{
+  addBox(root,lx,.1,lz,.26,6.2,.26,mats.dark);
+  addBox(root,lx+armDx*.5,6.15,lz+armDz*.5,Math.abs(armDx)||.22,.18,Math.abs(armDz)||.22,mats.dark);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.48,8,6),mats.lampGlow);
+  head.position.set(lx+armDx,6.0,lz+armDz);head.userData.cityStatic=true;root.add(head);
+  const pool=new THREE.Mesh(new THREE.CircleGeometry(3.4,12),lampPoolMat);
+  pool.rotation.x=-Math.PI/2;pool.position.set(lx+armDx,.092,lz+armDz);pool.userData.cityStatic=true;root.add(pool);
+ };
+ for(let bx=0;bx<BLOCKS;bx++){
+  const bc=blockAt(bx);
+  for(const off of [-18,0,18]){
+   streetLamp(324-8.4,bc+off,1.8,0);streetLamp(324+8.4,bc+off,-1.8,0);
+  }
+ }
  for(let i=0;i<=BLOCKS;i++)for(let j=0;j<=BLOCKS;j++){
   const x=roadAt(i),z=roadAt(j);
   if(i<8&&j<8){for(let s=0;s<5;s++){addBox(root,x-6+s*3,.086,z-7,1.3,.04,2.2,mats.white);addBox(root,x-6+s*3,.086,z+7,1.3,.04,2.2,mats.white);}}
-  for(const side of [-1,1]){const px=x+side*10,pz=z+10;addBox(root,px,.1,pz,.2,4,.2,mats.dark);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.35,6,4),mats.lampGlow);lamp.position.set(px,.4+4,pz);lamp.castShadow=false;lamp.userData.cityStatic=true;root.add(lamp);}
+  if(j<BLOCKS){
+   const cz=blockAt(j);
+   for(const off of [-18,0,18]){
+    streetLamp(x-8.4,cz+off,1.8,0);streetLamp(x+8.4,cz+off,-1.8,0);
+   }
+  }
+  // intersection traffic light signal gantry with glowing red/amber/green bulbs
+  const gx=x+9.2,gz=z+9.2;
+  addBox(root,gx,.1,gz,.3,6.6,.3,mats.dark);
+  addBox(root,gx-3.2,6.2,gz,6.4,.24,.24,mats.dark);
+  addBox(root,gx-4.4,5.4,gz,.55,1.4,.45,mats.dark);
+  for(const [dy,mSig] of [[.38,sigRed],[0,sigAmber],[-.38,sigGreen]]){
+   const b=new THREE.Mesh(new THREE.SphereGeometry(.17,6,6),mSig);
+   b.position.set(gx-4.4,5.9+dy,gz+.26);b.userData.cityStatic=true;root.add(b);
+  }
  }
  // Civic landmarks and location signage
  addBox(root,blockAt(4),.2,blockAt(4),24,.3,28,mat(0x7e9d73));

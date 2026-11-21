@@ -1,161 +1,189 @@
-// Deterministic photo/demo mode (?shot=street|chase|mission|combat&seed=N):
-// stages real game systems into dense, readable scenes for the entry's screenshots.
-// Every prop here is a live game object — traffic AI, police AI, AIR ONE, effects, HUD.
+// Deterministic photo/demo mode (?shot=street|combat|map|title&seed=N):
+// stages real game systems into dense, readable scenes for the entry's 4 screenshots.
 import {world} from './world.js';
-import {state,say,notify} from './state.js';
+import {state,say} from './state.js';
 import {cam} from './camera.js';
-import {spawnCop} from './police.js';
 import {spawnGang} from './combat.js';
 import {photoHeli} from './helicopter.js';
 import {muzzleFlash,tracer,explosion,skidMark,impactSparks} from './effects.js';
 import {photoMission,setPhotoObjective} from './missions.js';
 import {makeCar} from './vehicles.js';
-import {animateHuman} from './peds.js';
+import {animateHuman,ragdoll} from './peds.js';
 import {crewAt} from './crew.js';
 import {STATIONS} from './radio.js';
 import {makeRng} from './rng.js';
+import {addBox} from './city.js';
+import {openMapMenu} from './mapmenu.js';
+
 export function stagePhoto(name){
+ const THREE=window.THREE;
  const rng=makeRng(state.seed);
  const p=world.player;
- // v4.1: clear any off-axis aim / lens wishes so framing never leaks between shots
- cam.aimDX=0;cam.aimDZ=0;cam.fovWish=0;cam.baseY=null;cam.aimY=0;
+ cam.aimDX=0;cam.aimDZ=0;cam.fovWish=0;cam.baseY=null;cam.aimY=0;cam.fixedPos=null;cam.fixedLook=null;
+ openMapMenu(false);
  const place=(x,z,heading)=>{p.x=x;p.z=z;p.heading=heading;state.foot.x=x;state.foot.z=z;p.mesh.position.set(x,0,z);p.mesh.rotation.y=heading;cam.yaw=heading+Math.PI;};
  const put=(type,x,z,heading,ai=null,speed=0)=>{const car=makeCar(type,x,z,heading);car.speed=speed;if(ai)car.ai=ai;car.mesh.position.set(x,0,z);car.mesh.rotation.y=heading+Math.PI;world.scene.add(car.mesh);world.cars.push(car);return car;};
- // stepCar normally lights the exhaust cones; under photoFreeze it never runs, so
- // staged NOS cars switch their flames on here
  const nosOn=car=>{car.nos=true;const f=car.mesh.userData.flames;if(f){f.visible=true;f.scale.setScalar(1.15);}};
  const traffic=(type,x,z,dir,horizontal,road,speed)=>put(type,x,z,horizontal?(dir>0?Math.PI/2:-Math.PI/2):(dir>0?Math.PI:0),{kind:'traffic',dir,horizontal,road,cruise:speed,panic:0,turnCooldown:99},speed);
  const freezePedsNear=(x,z,r)=>{for(const ped of world.peds){if(ped.dead||ped.kind==='driver')continue;const dx=ped.x-x,dz=ped.z-z;if(dx*dx+dz*dz<r*r){ped.photoHold=99;ped.heading=Math.atan2(-dx,-dz)+rng.range(-.4,.4);ped.mesh.rotation.y=ped.heading;}}};
- // stage sidewalk strollers where the shot needs them (real peds, held mid-stride)
- const pedAt=(x,z,heading,pose=1)=>{
+ const pedAt=(x,z,heading,pose=1,aiming=false)=>{
   const src=world.peds.find(q=>q.kind==='ped'&&!q.dead&&!q.photoHold);
-  if(!src)return;
+  if(!src)return null;
   src.x=x;src.z=z;src.heading=heading;src.photoHold=99;
   src.mesh.position.set(x,0,z);src.mesh.rotation.y=heading;src.mesh.userData.phase=pose;
-  animateHuman(src.mesh,3,0);};
+  animateHuman(src.mesh,3,0,aiming);
+  return src;
+ };
+
  if(name==='street'){
-  // v4.1 cover — Marigold Mile Sunset Pursuit: Remy at the wheel of the glossy red
-  // Solara GT in the right-center lane, an Interceptor on the tail with blazing
-  // red/blue lightbar, Bay Cab + traffic ahead, Marisol and Dex on the palm-lined
-  // sidewalk, AIR ONE banking through the sunset sky, full tactical HUD + dialogue
-  place(306,146.2,-Math.PI/2);cam.pitch=.17;cam.dist=14;cam.baseY=3.2;cam.aimY=2.5;cam.yaw=Math.PI/2-.22;cam.fovWish=64;cam.aimDX=-1.0;cam.aimDZ=-.6;
-  const solara=put('sports',306,146.2,-Math.PI/2-.14,null,32);
+  // Shot 1 (COVER): Sun-Drenched Coastal Boulevard 4-Star Pursuit on Ocean Drive (x=324).
+  // Camera ahead-left looking back at the 3/4 FRONT & SIDE of the glossy coral-red Solara GT,
+  // 3 Police Interceptors with blazing red/blue lightbars chasing behind, AIR ONE overhead,
+  // pastel Art Deco hotels with rooftop signs on the left, sandy beach + parasols + turquoise ocean on the right.
+  place(324.4,48,0);
+  cam.fixedPos=new THREE.Vector3(320.2,3.1,37.5);
+  cam.fixedLook=new THREE.Vector3(325.5,2.2,54);
+  cam.fovWish=60;
+  const solara=put('sports',324.4,48,.22,null,31.8);
   p.mesh.visible=false;
-  // force the cover car red for a strong focal silhouette (clone so shared paints stay put)
   solara.mesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o.material.metalness===.2){o.material=o.material.clone();o.material.color.setHex(0xe8452e);}});
-  solara.health=94;
-  state.inCar=world.cars.length-1;state.carSpeed=32;state.carHeading=-Math.PI/2-.14;
-  state.photoFreeze=true;
-  const cop=put('police',310.5,147.6,-Math.PI/2-.05,{kind:'police',officers:0,patrolX:0,patrolZ:144,photoHold:99},30);
-  const lb=cop.mesh.userData.lightbar;if(lb){lb.red.emissiveIntensity=2.6;lb.blue.emissiveIntensity=2.6;}
-  traffic('taxi',292,140.4,1,true,5,18);
-  traffic('sedan',262,140.4,1,true,5,12);
-  traffic('sedan',280,147.6,-1,true,5,14);
-  traffic('truck',240,147.6,-1,true,5,9);
-  traffic('sedan',284.4,120,1,false,8,10);
-  traffic('sports',291.6,176,-1,false,8,13);
-  freezePedsNear(300,144,80);
-  pedAt(310,134.5,-Math.PI/2,.8);pedAt(288,134.5,-Math.PI/2,2.1);
-  pedAt(278,153.5,Math.PI/2,1.7);pedAt(268,134.5,-Math.PI/2,3.1);
-  crewAt('marisol',301,153.2,-Math.PI/2+.4);crewAt('dex',295,153.5,-Math.PI/2+.3);
-  photoHeli(265,144);world.heli.mesh.position.set(252,24,136);world.heli.mesh.scale.setScalar(1.45);world.heli.mesh.rotation.y=Math.PI/2+.5;
-  state.wanted=3;state.heat=70;state.lastCrimeT=state.time;state.photoNoDamage=true;
-  photoMission(0);setPhotoObjective('LOW TIDE','Outrun the Harbor Sweep to Breakwater Pier — 262m');
-  state.cash=18450;state.foot.health=100;state.foot.armor=65;
-  state.respect=1420;state.weapon=1;state.nitro=78;
-  state.districtRep={...state.districtRep,'Marigold Mile':68};
-  state.crewSpeaker='MARISOL';state.crewBark='Interceptor on our tail — keep the ledger dry, Remy.';state.crewBarkT=999;
-  state.radioOn=true;state.radioStation=0;state.radioTrack=STATIONS[0].tracks[1];
-  say('LENA VALE','Crane\'s sweep is on the Mile. Bring the ledger to Breakwater Pier — do not let them box you in.',9);
+  solara.health=86;
+  state.inCar=world.cars.length-1;state.carSpeed=31.8;state.carHeading=.22;
+  state.photoFreeze=true;state.nosActive=true;state.nitro=78;
+  const cop1=put('police',322.2,58.5,.08,{kind:'police',officers:0,patrolX:324,patrolZ:58,photoHold:99},30);
+  const cop2=put('police',326.8,64.2,-.06,{kind:'police',officers:0,patrolX:324,patrolZ:64,photoHold:99},29);
+  const cop3=put('police',323.6,73.5,.04,{kind:'police',officers:0,patrolX:324,patrolZ:73,photoHold:99},28);
+  for(const c of [cop1,cop2,cop3]){
+   const lb=c.mesh.userData.lightbar;if(lb){lb.red.emissiveIntensity=3.0;lb.blue.emissiveIntensity=3.0;}
+  }
+  for(let k=0;k<6;k++)skidMark(324.2+rng.range(-.7,.7),49.5+k*1.8,.15);
+  traffic('taxi',327.6,82,1,false,8,18);
+  traffic('sedan',321.2,92,-1,false,8,15);
+  traffic('sports',327.4,106,1,false,8,20);
+  freezePedsNear(324,55,90);
+  pedAt(315.2,56.0,0,1.2);
+  pedAt(315.2,64.0,Math.PI,2.4);
+  pedAt(333.4,44.2,0,1.9);
+  pedAt(333.8,52.5,Math.PI,2.8);
+  pedAt(341.0,49.0,-Math.PI/2,1.1);
+  crewAt('marisol',335.2,46.2,-.35);
+  crewAt('dex',336.5,43.0,-.45);
+  photoHeli(326,68);
+  if(world.heli){
+   world.heli.mesh.position.set(326,13.5,68);
+   world.heli.mesh.scale.setScalar(1.45);
+   world.heli.mesh.rotation.y=Math.PI+.18;
+   const h=world.heli;
+   const from=new THREE.Vector3(326,12.2,68),to=new THREE.Vector3(324.4,1.0,48);
+   const dir=to.clone().sub(from),len=dir.length();
+   h.searchlight.position.copy(from);
+   h.searchlight.scale.set(1,len/30,1);
+   h.searchlight.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),dir.normalize());
+   h.searchlight.material.opacity=.04;
+   h.spotPool.position.set(324.4,.12,48);
+   h.spotPool.material.opacity=.1;
+  }
+  state.wanted=4;state.heat=84;state.lastCrimeT=state.time;state.photoNoDamage=true;
+  photoMission(0);setPhotoObjective('ACT III · LOW TIDE','Outrun the Harbor Sweep along Coastal Blvd to Breakwater Pier — 240m');
+  state.cash=24850;state.foot.health=88;state.foot.armor=65;
+  state.respect=4250;state.weapon=2;
+  state.districtRep={...state.districtRep,'Glasshouse Strand':74};
+  state.crewSpeaker='';state.crewBark='';state.crewBarkT=0;
+  state.radioOn=true;state.radioStation=0;state.radioTrack='Island Synthwave';
+  say('LENA VALE','AIR ONE has visual on the coast road! Cut past Hotel Solstice and hit Breakwater Pier!',9);
   world.waypoint={x:385,z:-85,label:'Breakwater Pier'};
   world.waypointMesh.position.set(385,0,-85);world.waypointMesh.visible=true;
  }
- if(name==='chase'){
-  // full-speed pursuit under AIR ONE: 4 stars, three cruisers on the tail, searchlight
-  // cone, skid marks, NOS burn, radio playing, escape objective + chatter on the HUD
-  // camera rides behind ALL three cruisers (x<96) so the whole pursuit net fits the frame
-  place(108,72,Math.PI/2);cam.pitch=.13;cam.dist=21;cam.yaw=-Math.PI/2-.06;cam.aimY=3.8;cam.baseY=3.4;cam.fovWish=72;
-  const car=put('sports',108,72,Math.PI/2,null,38);
-  car.mesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o.material.metalness===.2){o.material=o.material.clone();o.material.color.setHex(0xe8452e);}});
-  nosOn(car);state.nosActive=true;state.nitro=62;
-  const nf=car.mesh.userData.flames;if(nf)nf.scale.set(1.15,1.15,1.25); // twin burn stays locked to the exhaust tips
-  state.inCar=world.cars.length-1;state.carSpeed=38;state.carHeading=Math.PI/2;p.mesh.visible=false;
-  state.heat=82;state.wanted=4;state.lastCrimeT=state.time;state.photoNoDamage=true;state.photoFreeze=true;
-  state.heliChatter='AIR ONE: Searchlight on the Solara. Ground units, close the net.';state.heliChatterT=999;
-  const copA=put('police',101.5,74.8,Math.PI/2,{kind:'police',officers:0,patrolX:0,patrolZ:72,photoHold:99},36);
-  const copB=put('police',99.2,69.4,Math.PI/2-.06,{kind:'police',officers:0,patrolX:0,patrolZ:72,photoHold:99},36);
-  const copC=put('police',96.0,72.2,Math.PI/2+.05,{kind:'police',officers:0,patrolX:0,patrolZ:72,photoHold:99},35);
-  for(const c of [copA,copB,copC]){const lb=c.mesh.userData.lightbar;if(lb){lb.red.emissiveIntensity=2.4;lb.blue.emissiveIntensity=2.4;}}
-  for(let k=0;k<8;k++)skidMark(104-k*2.6,72+rng.range(-2,2),Math.PI/2+rng.range(-.1,.1));
-  photoHeli(108,72);
-  // AIR ONE reads big: scale the bird up and lay a bright rotor-blur disc over the blades
-  if(world.heli){world.heli.mesh.scale.setScalar(1.7);world.heli.mesh.position.set(136,15,66);world.heli.mesh.rotation.y=Math.PI/2+1.1;}
-  const blur=new (window.THREE.Mesh)(new window.THREE.CircleGeometry(9.8,28),new window.THREE.MeshBasicMaterial({color:0x4a5560,transparent:true,opacity:.38,depthWrite:false,side:window.THREE.DoubleSide}));blur.rotation.x=-Math.PI/2;blur.position.set(136,17,66);world.scene.add(blur);
-  // re-aim the cone from the new bird position onto the player's roof
-  if(world.heli){const h=world.heli;const from=new window.THREE.Vector3(136,13.3,66),to=new window.THREE.Vector3(108,1,72);const dir=to.clone().sub(from),len=dir.length();h.searchlight.position.copy(from.clone().add(to).multiplyScalar(.5));h.searchlight.scale.set(1,len/30,1);h.searchlight.quaternion.setFromUnitVectors(new window.THREE.Vector3(0,-1,0),dir.normalize());h.spotPool.position.set(108,.12,72);}
-  for(const c of [copA,copB,copC])c.speed=38;
-  state.weapon=1;
-  photoMission(4);setPhotoObjective('THE LONG WAY','Lose the police (4 stars) — 61s');
-  state.dialogue='';state.dialogueT=0;state.crewBarkT=0;
-  state.heliChatter='AIR ONE: suspect vehicle heading west on Marigold. All units converge.';state.heliChatterT=999;
-  state.radioOn=true;state.radioStation=0;state.radioToast=true;state.radioTrack=STATIONS[0].tracks[0];
-  state.respect=88;state.cash=18450;car.health=91;
-  world.waypoint={x:-216,z:180,label:'Heights Overlook'};
-  world.waypointMesh.position.set(-216,0,180);world.waypointMesh.visible=true;
- }
- if(name==='mission'){
-  // UNDERTOW at Copperworks Docks: crane silhouettes against the sunset, container yard,
-  // waypoint beam at the gate, Marisol dialogue, delivery truck — the rescue job briefing
-  // stand on the dock road facing north into the container yard: stacks and crane
-  // against the sunset, gang at the gate ahead-right, camera safely over the road
-  place(-148,-213,Math.PI);cam.pitch=.12;cam.dist=11;cam.aimY=4;cam.baseY=2.8;cam.yaw=.06;cam.aimDX=0;cam.fovWish=68;
-  put('truck',-156,-240,Math.PI*.1);
-  put('sedan',-140.5,-236,-Math.PI*.1);
-  const gang=spawnGang(-148,-227,3);
-  // tight triangle at the gate: every gang member stays on the open road in view
-  const spots=[[-151.5,-225.5],[-144.5,-226],[-148,-222.5]];
-  gang.forEach((g,i)=>{g.x=spots[i][0];g.z=spots[i][1];g.mesh.position.set(g.x,0,g.z);g.photoHold=99;g.heading=Math.atan2(p.x-g.x,p.z-g.z);g.mesh.rotation.y=g.heading;});
-  photoMission(6);setPhotoObjective('UNDERTOW','Free Marisol from Crane\'s dock crew — 29m');
-  state.speaker='MARISOL';state.dialogue='Remy! Crane\'s crew keeps me at the container gate until the ledger copies surface. Get me out!';state.dialogueT=999;
-  state.crewSpeaker='DEX';state.crewBark='Gate crew is three deep. I\'ll watch the flank.';state.crewBarkT=999;
-  state.cash=18450;state.respect=102;state.weapon=2;state.unlockedWeapons[2]=true;state.ammo[2]=120;
-  crewAt('marisol',-146,-216.5,Math.PI);crewAt('dex',-151,-216.2,Math.PI+.2);
-  state.districtRep={...state.districtRep,'Copperworks Docks':54};
-  state.missionBannerT=99;
-  world.waypoint={x:-146,z:-241,label:'Container Gate'};
-  world.waypointMesh.position.set(-146,0,-241);world.waypointMesh.visible=true;
- }
+
  if(name==='combat'){
-  // BURN NOTICE on Glasshouse Strand: SMG firefight, crossing tracers, burning wreck with
-  // a smoke column, NOS flames on the getaway car, ocean vista, two-star wanted level
-  place(288,140,-Math.PI/2);cam.pitch=.16;cam.dist=7.5;cam.yaw=Math.PI/2-.55;cam.aimY=2.4;cam.baseY=1.6;cam.fovWish=62;state.dialogue='';state.dialogueT=0;
-  state.weapon=2;state.unlockedWeapons[2]=true;state.ammo[2]=96;
+  // Shot 2: On-Foot Night-Market / Strand Plaza Crew Shootout.
+  // Tight over-the-shoulder frame: Remy & Marisol side-by-side in left-foreground aiming SMGs,
+  // white-gold tracer beams & muzzle flashes into a busy plaza with market canopy stalls,
+  // downed hostile center-foreground, 5 gang gunmen & fleeing pedestrians, burning car glow & hotel skyline.
+  place(286.0,136.0,0);
+  p.mesh.visible=true;
+  p.mesh.position.set(285.2,0,136.4);
+  p.mesh.rotation.y=-.15;
+  animateHuman(p.mesh,0,0,true);
+  cam.fixedPos=new THREE.Vector3(283.6,2.25,133.2);
+  cam.fixedLook=new THREE.Vector3(288.2,1.85,149.0);
+  cam.fovWish=56;
+  state.inCar=-1;state.weapon=2;state.unlockedWeapons=[true,true,true,true];state.ammo=[Infinity,60,90,18];
   state.photoNoDamage=true;state.photoFreeze=true;world.photoFx=true;
-  const gang=spawnGang(272,133,3);
-  const gSpots=[[277,130],[281,131.5],[284,129.5]];
-  gang.forEach((g,i)=>{g.x=gSpots[i][0];g.z=gSpots[i][1];g.mesh.position.set(g.x,0,g.z);g.heading=Math.atan2(p.x-g.x,p.z-g.z);g.mesh.rotation.y=g.heading;g.photoHold=99;});
-  crewAt('dex',291.2,137.6,-Math.PI/2-.3);
-  muzzleFlash(p.x-.7,1.35,p.z);tracer(p.x-.7,1.35,p.z,277,1.3,130);
-  muzzleFlash(277,1.35,130);tracer(277,1.35,130,p.x+.5,1.2,p.z+.5);
-  muzzleFlash(281,1.35,131.5);tracer(281,1.35,131.5,p.x+.8,1.1,p.z-.4);
-  muzzleFlash(284,1.35,129.5);tracer(284,1.35,129.5,p.x-.2,1.4,p.z-.6);
-  const burning=makeCar('sedan',279,132,1.2);burning.dead=true;burning.mesh.position.set(279,0,132);burning.mesh.rotation.y=1.2+Math.PI;world.scene.add(burning.mesh);world.cars.push(burning);
-  burning.mesh.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.color.setHex(0x1c1c1e);}});
-  explosion(279,0,132);
-  // sparks flying off the wreck add motion to the frozen frame
-  impactSparks(279,1.6,132);impactSparks(277.5,1.1,131);
-  // getaway Solara rolling west on the strand road ahead-left, NOS flames toward camera
-  const getaway=put('sports',280,146.5,-Math.PI/2,null,26);nosOn(getaway);
-  getaway.mesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o.material.metalness===.2){o.material=o.material.clone();o.material.color.setHex(0x2ea8a0);}});
-  state.heat=65;state.wanted=3;state.lastCrimeT=state.time;state.gunfireT=.5;state.crewBarkT=0;
-  photoMission(3);setPhotoObjective('BURN NOTICE','Hold the beach road — 3 hostiles left');
-  state.speaker='DEX';state.dialogue='Covering fire! Get to the Solara before the backup arrives.';state.dialogueT=999;
-  state.crewSpeaker='DEX';state.crewBark='Two behind the wreck — I have them.';state.crewBarkT=999;
-  state.missionBannerT=999;
-  state.cash=18450;state.foot.health=76;state.foot.armor=30;state.respect=58;
-  world.waypoint={x:268,z:132,label:'Crane crew'};
+  // Marisol right beside Remy aiming her SMG into the plaza
+  crewAt('marisol',286.6,136.8,-.18);
+  const mar=world.peds.find(q=>q.kind==='crew'&&q.name==='MARISOL');
+  if(mar)animateHuman(mar.mesh,0,0,true);
+  crewAt('dex',291.2,140.5,-.35);
+  // night-market canopy stalls in the plaza
+  const stallMatA=new THREE.MeshStandardMaterial({color:0xff5e78,roughness:.6});
+  const stallMatB=new THREE.MeshStandardMaterial({color:0x3fe8e0,roughness:.6});
+  const postMat=new THREE.MeshStandardMaterial({color:0x34424a,roughness:.7});
+  for(const [sx,sz,sm] of [[283.2,144.5,stallMatA],[293.0,145.5,stallMatB]]){
+   addBox(world.scene,sx,2.5,sz,3.8,.22,3.2,sm);
+   addBox(world.scene,sx,.5,sz,3.2,.8,1.4,postMat);
+   for(const dx of [-1.6,1.6])for(const dz of [-1.3,1.3])addBox(world.scene,sx+dx,0,sz+dz,.12,2.5,.12,postMat);
+  }
+  // 5 gang gunmen + 1 downed hostile in center foreground
+  const gang=spawnGang(288,148,6);
+  const gSpots=[[287.4,141.4],[285.8,146.2],[288.6,147.8],[291.2,146.5],[286.8,151.5],[290.0,152.2]];
+  gang.forEach((g,i)=>{
+   g.x=gSpots[i][0];g.z=gSpots[i][1];
+   g.mesh.position.set(g.x,0,g.z);
+   g.heading=Math.atan2(285.5-g.x,136.4-g.z);
+   g.mesh.rotation.y=g.heading;
+   g.photoHold=99;
+   if(i===0){ragdoll(g.mesh);g.mesh.position.set(g.x,.22,g.z);}
+   else animateHuman(g.mesh,0,0,true);
+  });
+  // fleeing pedestrians in the plaza
+  pedAt(282.8,148.5,-Math.PI/2,1.5);
+  pedAt(293.8,149.2,Math.PI/2,2.3);
+  // intense white-gold tracer beams & muzzle flashes
+  muzzleFlash(285.4,1.38,137.1);tracer(285.4,1.38,137.1,288.6,1.32,147.8);
+  muzzleFlash(286.7,1.36,137.5);tracer(286.7,1.36,137.5,285.8,1.3,146.2);
+  muzzleFlash(288.6,1.35,147.8);tracer(288.6,1.35,147.8,284.8,1.25,137.0);
+  muzzleFlash(291.2,1.35,146.5);tracer(291.2,1.35,146.5,286.2,1.4,137.2);
+  // burning syndicate car + explosion glow & sparks in midground
+  const burning=put('sedan',289.8,150.2,1.15,null,0);burning.dead=true;
+  burning.mesh.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.color.setHex(0x23252a);}});
+  explosion(289.8,0,150.2);
+  impactSparks(288.5,1.4,147.8);impactSparks(289.8,1.6,150.2);
+  // coral getaway Solara GT parked angled at the plaza curb
+  const getaway=put('sports',293.6,141.2,-.55,null,0);nosOn(getaway);
+  getaway.mesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o.material.metalness===.2){o.material=o.material.clone();o.material.color.setHex(0x2ec4e8);}});
+  state.heat=52;state.wanted=2;state.lastCrimeT=state.time;state.gunfireT=.5;
+  photoMission(3);setPhotoObjective('MISSION 4 · BURN NOTICE','CLEAR THE STRAND PLAZA — Take out Crane\'s Enforcers 2/6');
+  state.speaker='MARISOL';state.dialogue='Enforcers pinned by the market stalls — push through and grab the ledger case, Remy!';state.dialogueT=999;
+  state.crewSpeaker='';state.crewBark='';state.crewBarkT=0;
+  state.cash=24850;state.foot.health=88;state.foot.armor=65;state.respect=4250;
+  state.districtRep={...state.districtRep,'Glasshouse Strand':74};
+  world.waypoint={x:288,z:152,label:'Crane Enforcers'};
  }
- // snap the camera to the staged framing on the first rendered frame
+
+ if(name==='map'){
+  // Shot 3: Full-Screen Interactive City Map, 72.5% Progression, Activities Checklist & Save Slots Menu.
+  place(180,72,0);
+  state.cash=24850;state.respect=4250;state.wanted=0;
+  openMapMenu(true);
+ }
+
+ if(name==='title'){
+  // Shot 4: Aerial 3D Beach & Hotel Skyline Start Screen + 3 Save Slots.
+  place(324,55,0);
+  cam.fixedPos=new THREE.Vector3(366,18.5,128);
+  cam.fixedLook=new THREE.Vector3(312,12,16);
+  cam.fovWish=60;
+  state.photoFreeze=true;
+  // populate Ocean Drive (x=324) and Strand Ave (x=288) with vivid coastal traffic below the camera
+  put('sports',324.4,68,0,null,26);
+  put('taxi',327.6,46,Math.PI,null,22);
+  put('sedan',321.2,28,0,null,20);
+  put('sports',327.4,84,Math.PI,null,28);
+  put('police',288.4,52,0,null,24);
+  put('sedan',285.2,34,Math.PI,null,20);
+ }
+
  cam.snap=true;
  state.photo=name;state.photoT=0;
 }

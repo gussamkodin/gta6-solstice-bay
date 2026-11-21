@@ -35,7 +35,7 @@ export function drawMinimap(){
  const p=state.foot;
  ctx.clearRect(0,0,SIZE,SIZE);
  ctx.save();
- ctx.beginPath();ctx.arc(SIZE/2,SIZE/2,SIZE/2,0,Math.PI*2);ctx.clip();
+ ctx.beginPath();ctx.rect(0,0,SIZE,SIZE);ctx.clip();
  const heading=state.inCar>=0?state.carHeading:p.heading;
  ctx.translate(SIZE/2,SIZE/2);ctx.rotate(heading);
  const scale=SIZE/(RANGE*2);

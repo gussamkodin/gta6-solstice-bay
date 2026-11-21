@@ -5,8 +5,15 @@ import {THREE} from './three.js';
 import {state} from './state.js';
 import {mouse} from './input.js';
 import {collideCircle} from './physics.js';
-export const cam={yaw:Math.PI,pitch:.32,dist:7.5,shake:0,fov:62,snap:false};
+export const cam={yaw:Math.PI,pitch:.32,dist:7.5,shake:0,fov:62,snap:false,fixedPos:null,fixedLook:null};
 export function updateCamera(camera,dt){
+ if(state.photo&&cam.fixedPos){
+  camera.position.copy(cam.fixedPos);
+  camera.lookAt(cam.fixedLook);
+  camera.fov=cam.fovWish||60;
+  camera.updateProjectionMatrix();
+  return;
+ }
  cam.yaw-=mouse.dx*.0026;cam.pitch=Math.max(-.15,Math.min(1.15,cam.pitch+mouse.dy*.0022));
  const inCar=state.inCar>=0;
  const target=state.foot;

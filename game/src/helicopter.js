@@ -49,11 +49,11 @@ export function updateHelicopter(dt){
   const from=new THREE.Vector3(h.mesh.position.x,h.alt-1,h.mesh.position.z);
   const to=new THREE.Vector3(px,.2,pz);
   const dir=to.clone().sub(from),len=dir.length();
-  h.searchlight.position.copy(from.clone().add(to).multiplyScalar(.5));
+  h.searchlight.position.copy(from);
   h.searchlight.scale.set(1,len/30,1);
   h.searchlight.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),dir.normalize());
   h.spotPool.position.set(px,.12,pz);
-  h.spotPool.material.opacity=.28+Math.sin(state.time*5)*.06;
+  h.spotPool.material.opacity=.14+Math.sin(state.time*5)*.04;
   if(state.time-h.lastChatter>7){h.lastChatter=state.time;chatter(randomChatter(px,pz));}
  }
  h.mesh.position.y=h.alt+Math.sin(state.time*1.3)*.6;
@@ -100,9 +100,9 @@ function spawnHeli(){
  // searchlight cone (apex at the belly) and the lit pool on the ground
  // cone lives in world space: the fuselage yaws constantly, and a parented beam
  // would swing off-target with every orbit step
- const cone=new THREE.Mesh(new THREE.ConeGeometry(5,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false}));
+ const cone=new THREE.Mesh(new THREE.ConeGeometry(2.6,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.04,side:THREE.DoubleSide,depthWrite:false}));
  cone.geometry.translate(0,-15,0);world.scene.add(cone);
- const pool=new THREE.Mesh(new THREE.CircleGeometry(4.4,20),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.3,depthWrite:false}));
+ const pool=new THREE.Mesh(new THREE.CircleGeometry(3.8,20),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:.12,depthWrite:false}));
  pool.rotation.x=-Math.PI/2;world.scene.add(pool);
  const px=state.foot.x,pz=state.foot.z;
  g.position.set(px-70,ALT,pz-40);

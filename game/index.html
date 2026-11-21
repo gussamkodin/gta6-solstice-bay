@@ -5,69 +5,296 @@
 <meta name="theme-color" content="#1a1430"><title>Solstice Bay — Last Light · a living city after sundown</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231a1430'/%3E%3Ccircle cx='8' cy='9' r='5' fill='%23ff9e5e'/%3E%3C/svg%3E">
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#141024;color:#fff;font-family:Arial,Helvetica,sans-serif}canvas{display:block;width:100%;height:100%;outline:none}#overlay{position:fixed;inset:0;pointer-events:none;text-shadow:0 2px 5px #07131dcc}#top{position:absolute;top:20px;left:24px;display:flex;gap:12px;align-items:flex-start}.brand{font-size:11px;letter-spacing:3px;color:#ffcf8f;font-weight:bold}.stat{background:#101b24c9;border:1px solid #ffffff2a;padding:9px 13px;border-radius:3px;min-width:110px}.label{font-size:9px;letter-spacing:2px;color:#a9c2c8}.value{font-size:17px;font-weight:bold;margin-top:3px}.bars{width:145px;height:5px;background:#343c3d;margin-top:5px}.bar{height:100%;width:100%;background:#ef6858}.bar.armor{background:#69c3d6}.stars{color:#ffd36f;letter-spacing:3px;font-size:18px}.dim{color:#63737c}#respect{margin-top:6px;font-size:9px;letter-spacing:1.5px;color:#ffb0d8;background:#101b24c9;border:1px solid #ffffff22;padding:5px 9px;display:inline-block}#districtChip{margin-top:4px;font-size:9px;letter-spacing:1.3px;font-weight:bold;color:#c0b8d0;text-shadow:0 1px 4px #000;background:#101b24bc;padding:4px 8px;max-width:235px}#top:has(+ #mission){z-index:2}#districtChip{position:relative;z-index:2}#mission{position:absolute;top:128px;left:24px;width:340px;background:linear-gradient(90deg,#10212ad9,transparent);padding:9px 12px;border-left:3px solid #f1bd65}.m-title{font-weight:bold;color:#f3ce8c;font-size:10px;letter-spacing:2px}.m-objective{font-size:14px;margin-top:5px;line-height:1.3}#chatter{position:absolute;top:196px;left:24px;width:360px;font-size:11px;letter-spacing:.5px;color:#9fd0ff;background:#0c1a2ad0;border-left:3px solid #4a90ff;padding:7px 10px}#dialogue{position:absolute;bottom:82px;left:50%;transform:translateX(-50%);width:min(660px,80vw);background:linear-gradient(90deg,#142732eF,#142732eF);border-top:2px solid #e0a95d;padding:14px 18px;display:none}.speaker{font-size:10px;letter-spacing:2px;color:#e9b96d;margin-bottom:5px}.line{font-size:15px}#prompt{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:9px 16px;background:#0c1820c9;border:1px solid #ffffff30;font-size:12px;letter-spacing:.5px}#right{position:absolute;right:22px;top:20px;text-align:right}.money{font-size:22px;font-weight:bold;color:#a9e3a2}.weapon{font-size:11px;letter-spacing:2px;color:#f1d8a2;margin-top:5px}.ammo{font-size:13px;margin-top:3px}#radio{margin-top:9px;background:#101b24d9;border:1px solid #ff4fa066;padding:7px 11px;text-align:right;border-radius:3px}#radio.fresh{border-color:#ff4fa0;box-shadow:0 0 14px #ff4fa055}#radioStation{font-size:11px;font-weight:bold;letter-spacing:1.5px;color:#ff8ac2}#radioTrack{font-size:10px;color:#c8d8e0;margin-top:3px}#mapbox{position:absolute;right:22px;bottom:22px;width:170px;height:170px;border-radius:50%;overflow:hidden;border:2px solid #e4d5ad;box-shadow:0 5px 22px #0009;background:#172930}#map{width:100%;height:100%}#speed{position:absolute;bottom:64px;right:218px;text-align:right;font-size:27px;font-weight:bold;color:#fff}#speed small{font-size:9px;letter-spacing:2px;color:#bdd0d2}#nos{position:absolute;bottom:38px;right:218px;width:120px;text-align:right}#nos .label{color:#7ad8ff}#nos .bars{width:120px;background:#1c3038}#nosBar{background:linear-gradient(90deg,#2ec4e8,#7af0ff)}#nos.burn #nosBar{background:linear-gradient(90deg,#7af0ff,#ffffff);box-shadow:0 0 10px #7af0ff}#toast{position:absolute;top:25%;left:50%;transform:translateX(-50%);font-size:14px;letter-spacing:2px;color:#ffdf99;opacity:0;transition:opacity .2s;background:#10212bd9;padding:10px 16px}#banner{position:absolute;top:33%;left:50%;transform:translateX(-50%);text-align:center;background:linear-gradient(90deg,transparent,#142732ee 18%,#142732ee 82%,transparent);padding:18px 60px;border-top:2px solid #ffd36f;border-bottom:2px solid #ffd36f}#bannerTitle{font-size:19px;font-weight:bold;letter-spacing:3px;color:#ffe9b0}#bannerLines{margin-top:8px;font-size:14px;color:#a9e3a2}#bannerLines span{margin:0 12px}#damage{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 55%,#c0181888 100%)}#bust{position:fixed;inset:0;pointer-events:none;opacity:0;background:#05070cdd}#wheel{position:fixed;top:50%;left:50%;width:260px;height:260px;margin:-130px 0 0 -130px;display:none;z-index:8}#wheel.open{display:block}#wheel .w-center{position:absolute;top:112px;left:0;width:260px;text-align:center;font-size:10px;letter-spacing:3px;color:#ffd9a0}.w-slot{position:absolute;width:96px;margin:-34px 0 0 -48px;text-align:center;background:#101b24e8;border:1px solid #ffffff33;border-radius:6px;padding:7px 4px}.w-slot.hover{border-color:#ffd36f;background:#2a3548f0;box-shadow:0 0 16px #ffd36f66}.w-slot.active .w-name{color:#ffd36f}.w-slot.locked{opacity:.4}.w-icon{font-size:20px}.w-name{font-size:9px;letter-spacing:1px;margin-top:3px;color:#e8f0f2}.w-ammo{font-size:9px;color:#9ab0b8;margin-top:2px}.screen{pointer-events:auto;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#14102adc,#14102a66),linear-gradient(0deg,#2a143066,#2a143011);z-index:5}.panel{width:min(680px,90vw);padding:40px;background:#161a30ef;border:1px solid #ecd19b66;box-shadow:0 22px 80px #0008}.eyebrow{color:#ff8ac2;letter-spacing:5px;font-size:11px}.logo{font-size:clamp(42px,8vw,82px);line-height:.9;margin:12px 0;color:#ffe6c0;letter-spacing:-4px}.subtitle{font-size:15px;color:#c0b8d0;max-width:480px;line-height:1.6}.menu{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}button{border:1px solid #ff9e5e;background:#ff9e5e;color:#241430;font-weight:bold;padding:12px 20px;cursor:pointer;letter-spacing:1px}button.secondary{background:transparent;color:#f1dfb8;border-color:#f1dfb877}button:hover{filter:brightness(1.12)}.controls{margin-top:25px;color:#9aa0b8;font-size:11px;line-height:1.9}.hide{display:none!important}#pause .panel{width:430px}.chapter{color:#e5b768}#reticle{position:fixed;top:50%;left:50%;width:8px;height:8px;border:1px solid #fff9;border-radius:50%;transform:translate(-50%,-50%);display:none}#reticle:before,#reticle:after{content:'';position:absolute;background:#fff9}#reticle:before{width:18px;height:1px;left:-6px;top:3px}#reticle:after{height:18px;width:1px;top:-6px;left:3px}#crewBark{position:absolute;left:24px;bottom:28px;max-width:360px;padding:8px 11px;background:#10212be8;border-left:3px solid #ff8ad0;font-size:12px;line-height:1.35}#crewName{display:block;color:#ff8ad0;font-size:9px;letter-spacing:2px;margin-bottom:3px}#districtBanner{--district-color:#ff4fa0;position:fixed;top:31%;left:50%;transform:translate(-50%,-50%);min-width:380px;text-align:center;padding:18px 34px;background:linear-gradient(90deg,transparent,#101b24ed 15%,#101b24ed 85%,transparent);border-top:2px solid var(--district-color);border-bottom:2px solid var(--district-color);text-shadow:0 2px 6px #000;z-index:3;pointer-events:none}#districtBanner .district-kicker{font-size:9px;letter-spacing:4px;color:#c5ccd4}#districtBanner .district-name{font-size:22px;font-weight:bold;letter-spacing:3px;color:var(--district-color);margin:5px 0}#districtBanner .district-rank{font-size:11px;letter-spacing:2px;color:#ffe4ae}#districtBanner .district-perk{font-size:10px;color:#b9c9d3;margin-top:6px}#mission{width:390px;padding:11px 14px}#mission .m-title{font-size:12px}#mission .m-objective{font-size:16px}#top .label,.label{font-size:10px}#respect{font-size:10px}#radioStation{font-size:12px}#radioTrack{font-size:11px}
-/* v4.1 high-density tactical crime HUD */
-#mission{background:linear-gradient(90deg,#0e1c26e8,#0e1c2666 80%,transparent);border:1px solid #ffffff1c;border-left:3px solid #f1bd65;padding:10px 13px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#141024;color:#fff;font-family:Arial,Helvetica,sans-serif}canvas{display:block;width:100%;height:100%;outline:none}#overlay{position:fixed;inset:0;pointer-events:none;text-shadow:0 2px 5px #07131dcc}
+/* Top-left: Mission stage card & SBPD Tactical Dispatch */
+#mission{position:absolute;top:18px;left:22px;width:388px;background:linear-gradient(90deg,#0d1b26ee,#0d1b26bb 84%,transparent);border:1px solid #ffffff24;border-left:4px solid #f5b952;padding:10px 14px;border-radius:3px}
 .m-row{display:flex;align-items:center;gap:8px}
 .m-stage{font-size:9px;letter-spacing:1.5px;font-weight:bold;color:#1a1430;background:#ffd36f;padding:3px 7px;border-radius:2px;white-space:nowrap}
-.m-bar{height:4px;background:#2a3644;margin-top:7px;border-radius:2px;overflow:hidden}
-.m-fill{height:100%;background:linear-gradient(90deg,#f1bd65,#ffd36f);box-shadow:0 0 8px #ffd36f88}
-.m-next{font-size:9px;letter-spacing:1.2px;color:#8fb8c8;margin-top:6px}
-#dispatch{position:absolute;top:268px;left:24px;width:302px;background:#0c161fd9;border:1px solid #ffffff1e;border-left:3px solid #ff5470;padding:8px 11px}
-.d-head{display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.8px;color:#9fb8c4}
+.m-title{font-weight:bold;color:#ffe29e;font-size:12px;letter-spacing:1.8px}
+.m-bar{height:4px;background:#263442;margin-top:7px;border-radius:2px;overflow:hidden}
+.m-fill{height:100%;background:linear-gradient(90deg,#ff9e5e,#ffd36f);box-shadow:0 0 8px #ffd36f88}
+.m-objective{font-size:15px;font-weight:bold;margin-top:6px;line-height:1.25;color:#fff}
+.m-next{font-size:9px;letter-spacing:1.2px;color:#98c4d4;margin-top:5px}
+#dispatch{position:absolute;top:132px;left:22px;width:320px;background:#0b1620e6;border:1px solid #ffffff22;border-left:4px solid #ff5470;padding:8px 12px;border-radius:3px}
+.d-head{display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.8px;color:#a9c4d0}
 .d-head b{color:#ff8fa0}
 #dispatchList{margin-top:5px}
 .d-row{display:flex;justify-content:space-between;font-size:10px;margin-top:4px;letter-spacing:.6px}
 .d-unit{color:#ffd9a0;font-weight:bold}
-.d-act{color:#8fb8c8}
-.d-dist{color:#c8d8e0}
+.d-act{color:#96c2d4}
+.d-dist{color:#d8e6ec;font-weight:bold}
 #dispatch.calm{border-left-color:#4a90ff}
 #dispatch.calm .d-head b{color:#9fd0ff}
-#chatter{top:376px;width:302px;font-size:10px}
-#wantedTag{font-size:9px;letter-spacing:1.6px;font-weight:bold;color:#ff8fa0;background:#2a1220d9;border:1px solid #ff547066;padding:4px 8px;margin-top:5px;display:inline-block}
-#wantedTag.alert{color:#ffd9a0;border-color:#ffb34766;background:#241a10d9}
-#right .money{font-size:30px}
-#right .stars{font-size:24px;margin-top:2px;text-shadow:0 0 12px #ffd36f88}
-#rankCard{margin-top:8px;background:#101b24d9;border:1px solid #ffffff22;padding:7px 10px;min-width:214px;text-align:left}
-#rankLabel{font-size:9px;letter-spacing:1.4px;color:#ffb0d8;font-weight:bold}
-#rankCard .m-bar{margin-top:5px}
-#rankFill{height:100%;background:linear-gradient(90deg,#ff4fa0,#ffb0d8)}
-#loadout{display:flex;gap:6px;margin-top:9px;justify-content:flex-end}
-.l-slot{width:66px;background:#101b24d9;border:1px solid #ffffff2e;border-radius:4px;padding:6px 4px;text-align:center}
-.l-slot.equipped{border-color:#ffd36f;background:#263346ee;box-shadow:0 0 12px #ffd36f44}
-.l-slot.locked{opacity:.42}
-.l-key{font-size:8px;color:#8fb8c8;letter-spacing:1px}
-.l-name{font-size:8px;letter-spacing:.4px;color:#e8f0f2;margin-top:2px;font-weight:bold}
-.l-ammo{font-size:10px;color:#ffd36f;margin-top:2px}
-#crewCards{margin-top:9px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
-.c-card{display:flex;align-items:center;gap:7px;background:#101b24d9;border:1px solid #ffffff22;padding:5px 9px;border-radius:3px}
-.c-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#1a1430}
-.c-avatar.marisol{background:#ff8ad0}
-.c-avatar.dex{background:#7ad8ff}
-.c-text{text-align:left}
-.c-name{font-size:9px;font-weight:bold;letter-spacing:1px;color:#e8f0f2}
-.c-role{font-size:8px;color:#8fb8c8;letter-spacing:.4px}
-#carBadge{position:absolute;bottom:176px;right:218px;font-size:9px;letter-spacing:1.4px;font-weight:bold;color:#ffd9a0;background:#101b24d9;border:1px solid #ffb34755;padding:5px 9px}
+#chatter{position:absolute;top:228px;left:22px;width:320px;font-size:10px;letter-spacing:.5px;color:#a8d8ff;background:#0c1a2ae0;border-left:3px solid #4a90ff;padding:6px 10px}
+/* Bottom-left: Minimap + District Standing header + Health & Armor bars */
+#bottomLeft{position:absolute;left:22px;bottom:18px;width:184px;display:flex;flex-direction:column;gap:5px}
+#districtCard{background:#0d1a24ea;border:1px solid #ffffff26;border-left:3px solid #3fe8e0;padding:5px 8px;border-radius:3px}
+#districtChip{font-size:9px;letter-spacing:1.1px;font-weight:bold;color:#3fe8e0}
+#districtSub{font-size:8px;letter-spacing:.8px;color:#d6e4ec;margin-top:2px;display:flex;justify-content:space-between}
+#districtBarWrap{height:3px;background:#233240;margin-top:4px;border-radius:2px;overflow:hidden}
+#districtBarFill{height:100%;width:74%;background:linear-gradient(90deg,#3fe8e0,#ffd36f)}
+#mapbox{width:184px;height:184px;border-radius:10px;overflow:hidden;border:2px solid #f1bd65;box-shadow:0 6px 24px #000b;background:#15262e;position:relative}
+#map{width:100%;height:100%;display:block}
+#vitals{background:#0d1a24ea;border:1px solid #ffffff26;padding:6px 8px;border-radius:3px;display:flex;flex-direction:column;gap:4px}
+.v-row{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:bold;letter-spacing:1px}
+.v-lbl{width:28px;color:#b8ccd4}
+.v-track{flex:1;height:6px;background:#26323c;border-radius:2px;overflow:hidden}
+.bar{height:100%;width:100%;background:linear-gradient(90deg,#ef5848,#ff8a66)}
+.bar.armor{background:linear-gradient(90deg,#3fb8e8,#7af0ff)}
+.v-val{width:24px;text-align:right;color:#fff;font-size:10px}
+#respect{display:none}
+/* Top-right: Clock, Cash, Wanted Stars, AIR ONE tag, Rank 5 card, 5-Slot SVG Weapon Hotbar, 3 Crew Cards */
+#right{position:absolute;right:22px;top:16px;text-align:right;display:flex;flex-direction:column;align-items:flex-end}
+.top-telemetry{display:flex;align-items:baseline;gap:12px}
+#clockText{font-size:12px;font-weight:bold;letter-spacing:2px;color:#ffe2a8;background:#0d1a24dc;border:1px solid #ffffff24;padding:3px 8px;border-radius:3px}
+.money{font-size:31px;font-weight:bold;color:#98f5a8;letter-spacing:.5px;text-shadow:0 2px 10px #000c}
+.stars{color:#ffd36f;letter-spacing:4px;font-size:24px;margin-top:1px;text-shadow:0 0 12px #ffd36f88}
+#wantedTag{font-size:9px;letter-spacing:1.6px;font-weight:bold;color:#ff9aa8;background:#2c1220ea;border:1px solid #ff547088;padding:3px 8px;margin-top:3px;display:inline-block;border-radius:2px}
+#wantedTag.alert{color:#ffd9a0;border-color:#ffb34788;background:#241a10ea}
+#rankCard{margin-top:6px;background:#0e1b24e6;border:1px solid #ffffff26;padding:6px 10px;width:254px;text-align:left;border-radius:3px}
+#rankLabel{font-size:9px;letter-spacing:1.3px;color:#ffb8de;font-weight:bold;display:flex;justify-content:space-between}
+#rankCard .m-bar{margin-top:4px;height:4px}
+#rankFill{height:100%;background:linear-gradient(90deg,#ff4fa0,#ffd36f)}
+.weapon,.ammo{display:none}
+#loadout{display:flex;gap:5px;margin-top:7px;justify-content:flex-end}
+.l-slot{width:64px;background:#0e1b24e6;border:1px solid #ffffff2e;border-radius:4px;padding:5px 3px;text-align:center;position:relative}
+.l-slot.equipped{border-color:#ffd36f;background:#233246f2;box-shadow:0 0 14px #ffd36f55}
+.l-slot.locked{opacity:.48}
+.l-top{display:flex;justify-content:space-between;align-items:center;padding:0 3px}
+.l-key{font-size:8px;color:#9abfd0;font-weight:bold}
+.l-ammo{font-size:8px;color:#ffd36f;font-weight:bold}
+.l-svg{height:15px;margin:3px auto 1px;display:block}
+.l-name{font-size:7.5px;letter-spacing:.3px;color:#eef4f7;font-weight:bold;white-space:nowrap;overflow:hidden}
+#crewCards{margin-top:7px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.c-card{display:flex;align-items:center;gap:7px;background:#0e1b24e6;border:1px solid #ffffff24;padding:4px 8px;border-radius:3px;width:222px}
+.c-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#1a1430;flex-shrink:0;border:1.5px solid #fff8}
+.c-avatar.marisol{background:linear-gradient(135deg,#ff7eb6,#ffb3d9)}
+.c-avatar.dex{background:linear-gradient(135deg,#5ce1e6,#a3f7ff)}
+.c-avatar.lena{background:linear-gradient(135deg,#ffd166,#ffe8a3)}
+.c-text{text-align:left;flex:1;line-height:1.2}
+.c-name{font-size:8.5px;font-weight:bold;letter-spacing:.8px;color:#f0f6fa}
+.c-name b{color:#ffd36f}
+.c-role{font-size:8px;color:#94bac8;letter-spacing:.3px}
+/* Bottom-right: Vehicle Condition, Big Speedometer, Nitro Bar, Radio Chip */
+#carBadge{position:absolute;bottom:136px;right:22px;font-size:9.5px;letter-spacing:1.4px;font-weight:bold;color:#ffe0a6;background:#0e1b24ea;border:1px solid #ffb34777;padding:5px 10px;border-radius:3px}
+#speed{position:absolute;bottom:84px;right:22px;text-align:right;font-size:32px;font-weight:bold;color:#fff;letter-spacing:.5px;background:#0e1b24d8;border:1px solid #ffffff24;padding:4px 12px;border-radius:4px}
+#speed small{font-size:10px;letter-spacing:2px;color:#ffd36f;margin-left:3px}
+#speed .sub-mph{font-size:12px;color:#98c4d4;font-weight:bold;margin-left:6px}
+#nos{position:absolute;bottom:52px;right:22px;width:210px;background:#0e1b24dc;border:1px solid #ffffff22;padding:4px 9px;border-radius:3px;display:flex;align-items:center;gap:8px}
+#nos .label{color:#7ad8ff;font-size:9px;font-weight:bold;letter-spacing:1.5px}
+#nos .bars{flex:1;height:6px;background:#1c3038;margin:0;border-radius:2px;overflow:hidden}
+#nosBar{background:linear-gradient(90deg,#2ec4e8,#7af0ff)}
+#nos.burn #nosBar{background:linear-gradient(90deg,#7af0ff,#ffffff);box-shadow:0 0 10px #7af0ff}
+#radio{position:absolute;bottom:18px;right:22px;background:#0e1b24ea;border:1px solid #ff4fa077;padding:5px 11px;text-align:right;border-radius:3px;display:flex;align-items:center;gap:8px}
+#radio.fresh{border-color:#ff4fa0;box-shadow:0 0 14px #ff4fa055}
+#radioStation{font-size:10px;font-weight:bold;letter-spacing:1.2px;color:#ff8ac2}
+#radioTrack{font-size:10px;color:#e0eef4}
+/* Center Bottom: Portrait Dialogue, Crew Bark, Prompt */
+#dialogue{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);width:min(560px,54vw);background:linear-gradient(90deg,#0f202bf2,#142834f2);border:1px solid #ffffff26;border-top:2px solid #f1bd65;padding:10px 15px;display:none;border-radius:4px;box-shadow:0 8px 28px #000a}
 #dialogue.on{display:flex;gap:12px;align-items:center}
-.portrait{flex:0 0 40px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f1bd65,#e08a4a);color:#1a1430;font-weight:bold;font-size:14px;display:flex;align-items:center;justify-content:center;border:2px solid #ffe6c0}
+.portrait{flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f1bd65,#e06a4a);color:#1a1430;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;border:2px solid #ffe6c0}
 .d-body{flex:1}
+.speaker{font-size:9.5px;letter-spacing:2px;color:#ffd36f;font-weight:bold;margin-bottom:3px}
+.line{font-size:13.5px;line-height:1.3;color:#f4f8fa}
+#crewBark{position:absolute;left:224px;bottom:18px;max-width:290px;padding:7px 11px;background:#0e1e28ee;border:1px solid #ffffff22;border-left:3px solid #ff8ad0;font-size:11.5px;line-height:1.3;border-radius:3px}
+#crewName{display:block;color:#ff8ad0;font-size:9px;letter-spacing:1.8px;margin-bottom:2px}
+#prompt{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);padding:6px 14px;background:#0c1820d9;border:1px solid #ffffff2e;font-size:11px;letter-spacing:.5px;border-radius:3px;white-space:nowrap}
+#toast{position:absolute;top:24%;left:50%;transform:translateX(-50%);font-size:14px;letter-spacing:2px;color:#ffdf99;opacity:0;transition:opacity .2s;background:#10212bd9;padding:10px 16px}
+#banner{position:absolute;top:33%;left:50%;transform:translateX(-50%);text-align:center;background:linear-gradient(90deg,transparent,#142732ee 18%,#142732ee 82%,transparent);padding:18px 60px;border-top:2px solid #ffd36f;border-bottom:2px solid #ffd36f}
+#bannerTitle{font-size:19px;font-weight:bold;letter-spacing:3px;color:#ffe9b0}
+#bannerLines{margin-top:8px;font-size:14px;color:#a9e3a2}
+#bannerLines span{margin:0 12px}
+#damage{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 55%,#c0181888 100%)}
+#bust{position:fixed;inset:0;pointer-events:none;opacity:0;background:#05070cdd}
+#wheel{position:fixed;top:50%;left:50%;width:260px;height:260px;margin:-130px 0 0 -130px;display:none;z-index:8}
+#wheel.open{display:block}
+#wheel .w-center{position:absolute;top:112px;left:0;width:260px;text-align:center;font-size:10px;letter-spacing:3px;color:#ffd9a0}
+.w-slot{position:absolute;width:96px;margin:-34px 0 0 -48px;text-align:center;background:#101b24e8;border:1px solid #ffffff33;border-radius:6px;padding:7px 4px}
+.w-slot.hover{border-color:#ffd36f;background:#2a3548f0;box-shadow:0 0 16px #ffd36f66}
+.w-slot.active .w-name{color:#ffd36f}
+.w-slot.locked{opacity:.4}
+.w-icon{font-size:20px}.w-name{font-size:9px;letter-spacing:1px;margin-top:3px;color:#e8f0f2}.w-ammo{font-size:9px;color:#9ab0b8;margin-top:2px}
+#districtBanner{--district-color:#ff4fa0;position:fixed;top:31%;left:50%;transform:translate(-50%,-50%);min-width:380px;text-align:center;padding:18px 34px;background:linear-gradient(90deg,transparent,#101b24ed 15%,#101b24ed 85%,transparent);border-top:2px solid var(--district-color);border-bottom:2px solid var(--district-color);text-shadow:0 2px 6px #000;z-index:3;pointer-events:none}
+#districtBanner .district-kicker{font-size:9px;letter-spacing:4px;color:#c5ccd4}
+#districtBanner .district-name{font-size:22px;font-weight:bold;letter-spacing:3px;color:var(--district-color);margin:5px 0}
+#districtBanner .district-rank{font-size:11px;letter-spacing:2px;color:#ffe4ae}
+#districtBanner .district-perk{font-size:10px;color:#b9c9d3;margin-top:6px}
+#reticle{position:fixed;top:50%;left:50%;width:8px;height:8px;border:1px solid #fff9;border-radius:50%;transform:translate(-50%,-50%);display:none}
+#reticle:before,#reticle:after{content:'';position:absolute;background:#fff9}
+#reticle:before{width:18px;height:1px;left:-6px;top:3px}
+#reticle:after{height:18px;width:1px;top:-6px;left:3px}
+.hide{display:none!important}
+/* Crystal-clear 3D Skyline Start Screen (#start) with Save Slots */
+.screen{pointer-events:auto;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#14102adc,#14102a66);z-index:5}
+#start.screen{background:linear-gradient(90deg,rgba(11,20,32,0.72) 0%,rgba(11,20,32,0.12) 34%,rgba(11,20,32,0.08) 64%,rgba(11,20,32,0.68) 100%);display:block;padding:28px 34px}
+.st-top-left{position:absolute;top:26px;left:34px;max-width:470px}
+.st-eyebrow{font-size:11px;letter-spacing:4px;color:#ffd36f;font-weight:bold;text-shadow:0 2px 8px #000}
+.st-title{font-size:66px;font-weight:900;line-height:.88;letter-spacing:-2px;margin:6px 0 4px;background:linear-gradient(180deg,#fff7df 0%,#ffb56b 55%,#ff5e7e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(0,0,0,0.65))}
+.st-sub{font-size:21px;font-weight:bold;letter-spacing:7px;color:#3fe8e0;text-shadow:0 2px 10px #000}
+.st-tagline{font-size:12.5px;color:#eef4f8;margin-top:8px;line-height:1.45;text-shadow:0 2px 6px #000d;background:rgba(12,22,34,0.62);padding:7px 11px;border-left:3px solid #ff9e5e;border-radius:3px}
+.st-bottom-left{position:absolute;bottom:26px;left:34px;width:290px}
+.st-menu{display:flex;flex-direction:column;gap:7px}
+.st-btn{display:flex;justify-content:space-between;align-items:center;width:100%;padding:11px 16px;background:rgba(13,24,36,0.86);border:1px solid rgba(255,255,255,0.22);border-left:4px solid #637b8c;color:#eef5f9;font-size:13px;font-weight:bold;letter-spacing:1.8px;cursor:pointer;border-radius:3px;text-align:left}
+.st-btn.primary{background:linear-gradient(90deg,#ff7b4a,#ff9e5e);color:#181022;border-color:#ffd36f;border-left:4px solid #fff3d1;box-shadow:0 4px 18px rgba(255,123,74,0.45)}
+.st-btn span{font-size:10px;letter-spacing:1px;opacity:.85}
+.st-controls{margin-top:10px;font-size:10px;color:#d6e4ec;line-height:1.45;background:rgba(11,20,30,0.78);padding:7px 10px;border-radius:3px;border:1px solid rgba(255,255,255,0.16)}
+.st-bottom-right{position:absolute;bottom:26px;right:34px;width:366px;display:flex;flex-direction:column;gap:8px}
+.st-slots-head{font-size:10px;letter-spacing:2.5px;color:#ffd36f;font-weight:bold;background:rgba(12,22,34,0.84);padding:6px 11px;border-radius:3px;border:1px solid rgba(255,211,111,0.35);display:flex;justify-content:space-between}
+.st-slot{background:rgba(12,23,35,0.88);border:1px solid rgba(255,255,255,0.22);border-left:4px solid #3fe8e0;padding:10px 13px;border-radius:4px;box-shadow:0 6px 20px rgba(0,0,0,0.45)}
+.st-slot.active{border-left-color:#ff9e5e;border-color:rgba(255,211,111,0.55)}
+.st-slot.empty{border-left-color:#687a86;opacity:.88}
+.st-slot-top{display:flex;justify-content:space-between;font-size:11px;font-weight:bold;letter-spacing:1px;color:#fff2cc}
+.st-slot-pct{color:#3fe8e0}
+.st-slot.active .st-slot-pct{color:#ffd36f}
+.st-slot-mid{font-size:12px;font-weight:bold;color:#ffffff;margin-top:3px}
+.st-slot-bot{font-size:10.5px;color:#9fc4d4;margin-top:3px;display:flex;justify-content:space-between}
+.st-slot-bar{height:4px;background:#223442;margin-top:6px;border-radius:2px;overflow:hidden}
+.st-slot-fill{height:100%;background:linear-gradient(90deg,#ff8e53,#ffd36f)}
+/* Pause panel */
+.panel{width:min(680px,90vw);padding:40px;background:#161a30ef;border:1px solid #ecd19b66;box-shadow:0 22px 80px #0008}
+.eyebrow{color:#ff8ac2;letter-spacing:5px;font-size:11px}.logo{font-size:54px;line-height:.9;margin:12px 0;color:#ffe6c0;letter-spacing:-2px}.subtitle{font-size:15px;color:#c0b8d0;max-width:480px;line-height:1.6}.menu{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}button{border:1px solid #ff9e5e;background:#ff9e5e;color:#241430;font-weight:bold;padding:12px 20px;cursor:pointer;letter-spacing:1px}button.secondary{background:transparent;color:#f1dfb8;border-color:#f1dfb877}button:hover{filter:brightness(1.12)}.controls{margin-top:25px;color:#9aa0b8;font-size:11px;line-height:1.9}#pause .panel{width:430px}
+/* Full-Screen Tactical Map, 72.5% Progression, Activities & Save Menu (#mapMenu) */
+#mapMenu{position:fixed;inset:0;z-index:9;background:rgba(10,18,28,0.94);pointer-events:auto;display:flex;align-items:center;justify-content:center;padding:16px 22px}
+.mm-shell{width:100%;max-width:1240px;height:100%;max-height:768px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.mm-header{display:flex;justify-content:space-between;align-items:center;background:#101f2d;border:1px solid #ffffff26;border-bottom:2px solid #f5b952;padding:9px 16px;border-radius:4px}
+.mm-brand{display:flex;align-items:baseline;gap:10px}
+.mm-logo{font-size:20px;font-weight:900;letter-spacing:1.5px;color:#ffe4a8}
+.mm-sub{font-size:9.5px;letter-spacing:2px;color:#3fe8e0;font-weight:bold}
+.mm-tabs{display:flex;gap:6px}
+.mm-tab{font-size:10px;font-weight:bold;letter-spacing:1.5px;padding:6px 11px;border-radius:3px;color:#9ab8c8;background:#162838;border:1px solid #ffffff18}
+.mm-tab.active{background:linear-gradient(90deg,#ff834f,#f5b952);color:#181224;border-color:#ffe4a8;box-shadow:0 0 12px rgba(245,185,82,0.4)}
+.mm-meta{display:flex;align-items:center;gap:12px}
+.mm-clock{font-size:12px;font-weight:bold;letter-spacing:1.5px;color:#ffd36f;background:#172a3a;padding:4px 9px;border-radius:3px}
+.mm-cash{font-size:21px;font-weight:bold;color:#98f5a8}
+.mm-grid{flex:1;display:grid;grid-template-columns:305px 1fr 310px;gap:12px;min-height:0}
+.mm-col{display:flex;flex-direction:column;gap:10px;min-height:0}
+.mm-card{background:#101e2b;border:1px solid #ffffff22;border-radius:5px;padding:11px 13px}
+.mm-prog-card{flex:1;display:flex;flex-direction:column;justify-content:flex-start;gap:10px}
+.mm-ring-row{display:flex;align-items:center;gap:12px;padding-bottom:8px;border-bottom:1px solid #ffffff18}
+.mm-ring{width:76px;height:76px;flex-shrink:0}
+.mm-kicker{font-size:8.5px;letter-spacing:2px;color:#3fe8e0;font-weight:bold}
+.mm-big-pct{font-size:19px;font-weight:900;color:#fff4d2;margin-top:2px}
+.mm-act-sub{font-size:9.5px;color:#9fc0d0;margin-top:3px;letter-spacing:.6px}
+.mm-checklist{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.mm-chk-top{display:flex;justify-content:space-between;font-size:10.5px;color:#e6f0f5}
+.mm-chk-name b{color:#3fe8e0;margin-right:3px}
+.mm-chk-val{font-weight:bold;color:#ffd36f}
+.mm-chk-bar{height:5px;background:#1e3040;border-radius:3px;margin-top:3px;overflow:hidden}
+.mm-chk-fill{height:100%;border-radius:3px}
+.mm-medals-head{font-size:9px;letter-spacing:1.8px;color:#9ab8c8;font-weight:bold;margin-top:6px;padding-top:8px;border-top:1px solid #ffffff18}
+.mm-medals{display:flex;gap:6px;margin-top:2px}
+.mm-medal{flex:1;background:#172938;border:1px solid #ffd36f88;border-radius:4px;padding:5px 0;text-align:center;font-size:10px;display:flex;flex-direction:column;align-items:center}
+.mm-medal.gold{background:linear-gradient(180deg,#332a18,#1c2430);border-color:#ffd36f;color:#ffd36f}
+.mm-medal.silver{border-color:#98b8c8;color:#d0e4ee}
+.mm-medal span{font-size:9px;font-weight:bold}
+.mm-map-card{flex:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+.mm-map-top{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mm-map-title{font-size:10px;font-weight:bold;letter-spacing:1.5px;color:#ffe2a0}
+.mm-wp-pill{font-size:9.5px;font-weight:bold;color:#181224;background:#ffd36f;padding:3px 9px;border-radius:3px}
+.mm-canvas-wrap{border:2px solid #f5b952;border-radius:6px;overflow:hidden;box-shadow:0 6px 22px #000a;background:#137a8c;display:flex}
+#fullCityMap{width:456px;height:456px;display:block;cursor:crosshair}
+.mm-legend{width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;font-size:9.5px;color:#d0e2ec;margin-top:6px}
+.mm-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.mm-rank-title{font-size:17px;font-weight:900;color:#ffe2a0;margin-top:3px;letter-spacing:.8px}
+.mm-rank-sub{font-size:10px;color:#b8d4e0;margin-top:3px}
+.mm-section-head{font-size:9.5px;font-weight:bold;letter-spacing:1.8px;color:#ffd36f;margin-bottom:7px}
+.mm-career-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mm-stat-box{background:#162838;border:1px solid #ffffff1a;border-radius:4px;padding:7px 9px}
+.mm-stat-val{font-size:15px;font-weight:900;color:#3fe8e0}
+.mm-stat-lbl{font-size:8.5px;letter-spacing:1px;color:#a8c4d2;margin-top:2px;font-weight:bold}
+.mm-save-card{flex:1;display:flex;flex-direction:column;justify-content:flex-start;gap:8px}
+.mm-autosave-banner{display:flex;justify-content:space-between;align-items:center;background:#162b38;border:1px solid #3fe8e055;padding:6px 9px;border-radius:4px;font-size:8.5px;letter-spacing:1px;color:#bfe6f0}
+.mm-autosave-banner b{color:#3fe8e0}
+.mm-slots{display:flex;flex-direction:column;gap:8px}
+.mm-slot-row{display:flex;justify-content:space-between;align-items:center;background:#162838;border:1px solid #ffffff22;border-left:3px solid #3fe8e0;padding:9px 10px;border-radius:4px}
+.mm-slot-row.active{border-left-color:#ff9e5e;border-color:#ffd36f66;background:#1d2f42}
+.mm-slot-main{font-size:11px;font-weight:bold;color:#fff4d2}
+.mm-slot-sub{font-size:9.5px;color:#98bed0;margin-top:2px}
+.mm-save-btn{padding:6px 10px;font-size:10px;font-weight:bold;background:#ff9e5e;color:#181224;border:1px solid #ffd36f;border-radius:3px;cursor:pointer}
+.mm-safehouse-note{font-size:8.5px;letter-spacing:1px;color:#ffd36f;background:#172634;border:1px solid #ffd36f33;padding:6px 9px;border-radius:4px;text-align:center}
+.mm-footer{text-align:center;font-size:10.5px;letter-spacing:1.2px;color:#b8d2e0;background:#101f2d;border:1px solid #ffffff1f;padding:6px;border-radius:4px}
 </style>
 </head><body>
 <canvas id="game" aria-label="Solstice Bay open-world game"></canvas>
 <div id="overlay" class="hide">
- <div id="top"><div><div class="brand">SOLSTICE BAY / COUNTY LINE</div><div class="stat"><div class="label">CONDITION</div><div class="value" id="healthText">100</div><div class="bars"><div class="bar" id="healthBar"></div></div><div class="bars"><div class="bar armor" id="armorBar" style="width:65%"></div></div></div><div id="respect">OUTSIDER · 0 RP</div><div id="districtChip">MIDTOWN — NEW FACE</div></div></div>
- <div id="mission"><div class="m-row"><span class="m-stage" id="missionStage">STAGE 2/4</span><span class="m-title" id="missionTitle">OPEN CITY</span></div><div class="m-bar"><div class="m-fill" id="missionFill" style="width:62%"></div></div><div class="m-objective" id="objective">Meet Lena at the Breakwater</div><div class="m-next" id="missionNext">NEXT · Secure the pier ledger</div></div>
+ <div id="mission"><div class="m-row"><span class="m-stage" id="missionStage">STAGE 2/4</span><span class="m-title" id="missionTitle">LOW TIDE</span></div><div class="m-bar"><div class="m-fill" id="missionFill" style="width:62%"></div></div><div class="m-objective" id="objective">Meet Lena at the Breakwater</div><div class="m-next" id="missionNext">NEXT · Secure the pier ledger</div></div>
  <div id="dispatch" class="hide"><div class="d-head"><span>SBPD TACTICAL DISPATCH</span><b id="dispatchCount">4 UNITS</b></div><div id="dispatchList"></div></div>
  <div id="chatter" class="hide"></div>
- <div id="right"><div class="money" id="cash">$2,450</div><div class="stars" id="stars">☆☆☆☆☆</div><div><span id="wantedTag" class="hide">PATROL ALERT</span></div><div id="rankCard"><div id="rankLabel">RANK 1 · OUTSIDER · 0 RP</div><div class="m-bar"><div id="rankFill" style="width:0%"></div></div></div><div class="weapon" id="weapon">BARE HANDS</div><div class="ammo" id="ammo">∞</div><div id="loadout"></div><div id="crewCards"><div class="c-card"><div class="c-avatar marisol">MA</div><div class="c-text"><div class="c-name">[Z] MARISOL</div><div class="c-role">Driver &amp; Overwatch</div></div></div><div class="c-card"><div class="c-avatar dex">DX</div><div class="c-text"><div class="c-name">[X] DEX</div><div class="c-role">Flank &amp; Heavy Cover</div></div></div></div><div id="radio" class="hide"><div id="radioStation"></div><div id="radioTrack"></div></div></div>
- <div id="carBadge" class="hide">SOLARA GT · 94% INTACT</div>
- <div id="speed" class="hide">0 <small>MPH</small></div>
+ <div id="bottomLeft">
+  <div id="districtCard">
+   <div id="districtChip">GLASSHOUSE STRAND · COASTAL BLVD</div>
+   <div id="districtSub"><span id="districtRankText">RESPECTED · 74/100</span><span>PERK ACTIVE</span></div>
+   <div id="districtBarWrap"><div id="districtBarFill"></div></div>
+  </div>
+  <div id="mapbox"><canvas id="map" width="240" height="240"></canvas></div>
+  <div id="vitals">
+   <div class="v-row"><span class="v-lbl">HP</span><div class="v-track"><div class="bar" id="healthBar" style="width:88%"></div></div><span class="v-val" id="healthText">88</span></div>
+   <div class="v-row"><span class="v-lbl">ARM</span><div class="v-track"><div class="bar armor" id="armorBar" style="width:65%"></div></div><span class="v-val" id="armorText">65</span></div>
+  </div>
+  <div id="respect">STREET LEGEND · 4250 RP</div>
+ </div>
+ <div id="right">
+  <div class="top-telemetry"><span id="clockText">16:45</span><div class="money" id="cash">$24,850</div></div>
+  <div class="stars" id="stars">★★★★☆</div>
+  <div><span id="wantedTag" class="hide">AIR ONE DEPLOYED</span></div>
+  <div id="rankCard"><div id="rankLabel"><span>RANK 5 · STREET LEGEND</span><span id="rankRp">4,250 / 5,000 RP</span></div><div class="m-bar"><div id="rankFill" style="width:85%"></div></div></div>
+  <div class="weapon" id="weapon">HORNET SMG</div><div class="ammo" id="ammo">120</div>
+  <div id="loadout"></div>
+  <div id="crewCards">
+   <div class="c-card"><div class="c-avatar marisol">MA</div><div class="c-text"><div class="c-name"><b>[Z]</b> SWAP PLATES · Marisol</div><div class="c-role">Driver &amp; Heat Decoy</div></div></div>
+   <div class="c-card"><div class="c-avatar dex">DX</div><div class="c-text"><div class="c-name"><b>[X]</b> QUICK FIX · Dex</div><div class="c-role">Mechanic &amp; Heavy Cover</div></div></div>
+   <div class="c-card"><div class="c-avatar lena">LV</div><div class="c-text"><div class="c-name"><b>[C]</b> EYES OUT · Lena</div><div class="c-role">Lookout &amp; Scanner Recon</div></div></div>
+  </div>
+ </div>
+ <div id="carBadge" class="hide">SOLARA GT · 86% INTACT</div>
+ <div id="speed" class="hide">114 <small>KM/H</small><span class="sub-mph">71 MPH</span></div>
  <div id="nos" class="hide"><div class="label">NITRO</div><div class="bars"><div class="bar" id="nosBar"></div></div></div>
- <div id="mapbox"><canvas id="map" width="240" height="240"></canvas></div>
- <div id="prompt">WASD move · E enter vehicle · F interact · Q weapon wheel · Click fire · Esc pause</div>
- <div id="dialogue"><div class="portrait" id="speakerAvatar">LV</div><div class="d-body"><div class="speaker" id="speaker">LENA VALE</div><div class="line" id="line"></div></div></div><div id="crewBark" class="hide"><b id="crewName">CREW</b><span id="crewLine"></span></div><div id="districtBanner" class="hide"><div class="district-kicker">NEIGHBORHOOD SIGNAL</div><div class="district-name"></div><div class="district-rank"></div><div class="district-perk"></div></div><div id="toast"></div>
+ <div id="radio" class="hide"><div id="radioStation">WAVE 101.5</div><div id="radioTrack">♪ Island Synthwave</div></div>
+ <div id="prompt">WASD move · E enter vehicle · F interact · M tactical map · Q weapon wheel · Click fire · Esc pause</div>
+ <div id="dialogue"><div class="portrait" id="speakerAvatar">LV</div><div class="d-body"><div class="speaker" id="speaker">LENA VALE</div><div class="line" id="line"></div></div></div>
+ <div id="crewBark" class="hide"><b id="crewName">CREW</b><span id="crewLine"></span></div>
+ <div id="districtBanner" class="hide"><div class="district-kicker">NEIGHBORHOOD SIGNAL</div><div class="district-name"></div><div class="district-rank"></div><div class="district-perk"></div></div>
+ <div id="toast"></div>
  <div id="banner" class="hide"><div id="bannerTitle"></div><div id="bannerLines"></div></div>
-</div><div id="reticle"></div><div id="damage"></div><div id="bust"></div>
-<div class="screen" id="start"><div class="panel"><div class="eyebrow">A SOLSTICE BAY STORY</div><div class="logo">LAST<br>LIGHT</div><div class="subtitle">The tide is turning. The city is for sale. Remy Cortez has one night to find out who is buying — and what they plan to bury beneath the bay.</div><div class="menu"><button id="newGame">BEGIN YOUR NIGHT</button><button id="loadGame" class="secondary">CONTINUE</button></div><div class="controls">WASD move / drive · Mouse aim · Click fire · E enter/exit · F mission / activity / garage · Shift sprint / NOS · R car radio · Q weapon wheel · Space handbrake · 1–4 weapons · Esc pause<br>Nine missions, a police helicopter, three radio stations, nitro, respect ranks and your own garage — across Marigold Mile · Glasshouse · Breakwater · Copperworks · Palmetto Row · Sunward Heights</div></div></div>
-<div class="screen hide" id="pause"><div class="panel"><div class="eyebrow">TAKE A BREATH</div><div class="logo" style="font-size:54px;letter-spacing:-2px">PAUSED</div><div class="subtitle" id="pauseInfo">The city keeps moving outside.</div><div class="menu"><button id="resume">BACK TO THE BAY</button><button id="save" class="secondary">SAVE NIGHT</button><button id="title" class="secondary">RETURN TO TITLE</button></div><div class="controls">Your progress is kept in this browser. Esc to resume.</div></div></div>
+</div>
+<div id="reticle"></div><div id="damage"></div><div id="bust"></div>
+<div class="screen" id="start">
+ <div class="st-top-left">
+  <div class="st-eyebrow">AN OPEN-WORLD COASTAL CRIME STORY</div>
+  <div class="st-title">SOLSTICE BAY</div>
+  <div class="st-sub">LAST LIGHT</div>
+  <div class="st-tagline">The tide is turning. Silas Crane's syndicate is buying the waterfront before sundown — steal any ride, run with your crew, and take back the bay.</div>
+ </div>
+ <div class="st-bottom-left">
+  <div class="st-menu">
+   <button class="st-btn primary" id="loadGame">CONTINUE <span>SLOT 1 · 72.5%</span></button>
+   <button class="st-btn" id="newGame">NEW GAME <span>ACT I · 16:00</span></button>
+   <button class="st-btn" id="openLoadSlot">LOAD GAME <span>3 SLOTS</span></button>
+   <button class="st-btn" id="openMapStart">MAP &amp; STATS <span>7 DISTRICTS</span></button>
+   <button class="st-btn" id="openSettings">SETTINGS <span>AUDIO · DISPLAY</span></button>
+  </div>
+  <div class="st-controls">WASD move/drive · Mouse aim · Click fire · E enter car · F mission/garage · Shift sprint/NOS · R radio · M map &amp; save · Z/X/C crew · Esc pause</div>
+ </div>
+ <div class="st-bottom-right">
+  <div class="st-slots-head"><span>SAVE SLOTS · LOCALSTORAGE</span><span>AUTO-SYNC ON</span></div>
+  <div class="st-slot active">
+   <div class="st-slot-top"><span>SLOT 1 · ACT III — LOW TIDE</span><span class="st-slot-pct">72.5% COMPLETE</span></div>
+   <div class="st-slot-mid">Glasshouse Strand · 7/9 Missions</div>
+   <div class="st-slot-bot"><span>$24,850 · Rank 5 Street Legend</span><span>16:45</span></div>
+   <div class="st-slot-bar"><div class="st-slot-fill" style="width:72.5%"></div></div>
+  </div>
+  <div class="st-slot">
+   <div class="st-slot-top"><span>SLOT 2 · ACT II — UNDERTOW</span><span class="st-slot-pct">48.0% COMPLETE</span></div>
+   <div class="st-slot-mid">Copperworks Docks · 5/9 Missions</div>
+   <div class="st-slot-bot"><span>$12,400 · Rank 3 Connected</span><span>15:20</span></div>
+   <div class="st-slot-bar"><div class="st-slot-fill" style="width:48%"></div></div>
+  </div>
+  <div class="st-slot empty">
+   <div class="st-slot-top"><span>SLOT 3 · EMPTY SLOT</span><span class="st-slot-pct">0.0%</span></div>
+   <div class="st-slot-mid">Save at Cortez Garage or from the pause menu</div>
+   <div class="st-slot-bot"><span>Palmetto Row Safehouse</span><span>—</span></div>
+  </div>
+ </div>
+</div>
+<div class="screen hide" id="pause"><div class="panel"><div class="eyebrow">TAKE A BREATH</div><div class="logo">PAUSED</div><div class="subtitle" id="pauseInfo">The city keeps moving outside.</div><div class="menu"><button id="resume">BACK TO THE BAY</button><button id="save" class="secondary">SAVE NIGHT</button><button id="title" class="secondary">RETURN TO TITLE</button></div><div class="controls">Your progress is kept in this browser. Esc to resume · M for full city map.</div></div></div>
 <script src="./vendor/three.min.js"></script><script type="module" src="./src/main.js"></script></body></html>

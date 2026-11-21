@@ -11,17 +11,18 @@ The city is yours to roam: art-deco pastel towers downtown under a neon-sunset s
 - Nine story missions with dialogue, waypoints, chases, shootouts, a garage heist, a crew rescue and a helicopter-escape finale
 - Two named crew companions, Marisol and Dex: follow on foot, cover Remy in shootouts, and trade neighborhood barks
 - Seven districts remember local respect, announce arrivals with their own color banners, and unlock small neighborhood perks
-- Low-angle photo staging puts Remy at the wheel of the sculpted red Solara GT in a Marigold Mile sunset pursuit — Interceptor on the tail, Bay Cab ahead, crew on the palm-lined sidewalk and AIR ONE banking overhead
-- RESPECT ranks from STREET NAME to BAY LEGEND, each unlocking real perks (faster nitro regen, tougher bail deals)
-- Your own garage safehouse: store a ride, repair it, save the game, and hide from AIR ONE
-- Car radio with three original procedural stations — WAVE 101.5 synthwave, FUEGO 99 latin-funk, DRIFT FM lo-fi hop — cycled with R, all synthesized live
+- Low-angle coastal boulevard photo staging (`?shot=street&seed=7`) puts Remy at the wheel of the sculpted coral-red Solara GT racing down Ocean Drive with three Police Interceptors and AIR ONE in pursuit, pastel Art Deco hotels with rooftop landmark signs (`HOTEL SOLSTICE`, `PALMA SUITES`, `LAGUNA AZUL`, `MARIGOLD GRAND`, `CASINO SOL`) on one side and golden beach sand, colorful parasols and turquoise ocean on the other
+- Interactive Full-City Tactical Command Map, 72.5% Progression Checklist, Mission Medal Ratings, Career Telemetry & 3-Slot Save Manager (`M` / `Tab` or `?shot=map&seed=7`) with click-to-plot GPS waypoints across all seven color-coded districts
+- RESPECT ranks from OUTSIDER to Rank 5 STREET LEGEND (`4,250 / 5,000 RP`), each unlocking real perks (faster nitro regen, tougher bail deals, scanner jammer preview)
+- Your own garage safehouse on Palmetto Row plus 3 interactive `localStorage` save slots accessible from both the 3D Skyline Start Screen (`?shot=title&seed=7`) and the Tactical Command Map
+- Car radio with three original procedural stations — WAVE 101.5 Island Synthwave, FUEGO 99 Latin-Funk, DRIFT FM Lo-Fi Hop — cycled with R, all synthesized live
 - NOS boost on Shift with a HUD meter and twin exhaust flames; hold Q for the weapon wheel
-- Side work: street races, taxi fares, and rampages, with cash and weapon unlocks
-- Fists, pistol, SMG and shotgun; sculpted sedans, sports cars with full-width LED tail bars, twin exhausts and carbon roofs, pickups, taxis, and Interceptor cruisers with white doors, push-bars and red/blue strobe halos
-- High-density tactical HUD: mission stage pill + progress bar, SBPD tactical dispatch card with live pursuit telemetry, big cash and glowing wanted stars with AIR ONE DEPLOYED / PATROL ALERT tags, respect rank progress card, 4-slot weapon hotbar, Marisol & Dex crew ability cards, vehicle condition badge, portrait dialogue box, nitro meter, radio chip, AIR ONE chatter, speedometer and a live rotating minimap with pursuit blips
-- Sun-lit slate boulevards with twin-yellow center lines, dashed white lane dashes and crisp crosswalks, subtle curb-side neon reflection pools, neon storefront signage with sidewalk spill, glowing windows and street lamps, long golden-hour shadows, mission banners with cash/respect tallies, damage vignette and bust cinematics
+- Side work: street races, taxi fares, syndicate rampages and stunt jumps tracked in the 72.5% completion dossier with cash, medal and weapon unlocks
+- Fists, .38 Kestrel pistol, Hornet SMG, 12G Tidebreaker shotgun and AR-9 carbine slot; sculpted sedans, sports cars with full-width LED tail bars, twin exhausts and carbon roofs, pickups, taxis, and Interceptor cruisers with white doors, push-bars and red/blue strobe halos
+- Upgraded tactical HUD: bottom-left rounded-square minimap + district standing progress card (`GLASSHOUSE STRAND · RESPECTED 74/100`) + HP/ARM bars; top-left mission stage card + SBPD tactical dispatch telemetry; top-right clock (`16:45`), mint-green cash (`$24,850`), wanted stars + `AIR ONE DEPLOYED` / `UNITS RESPONDING` tag, Rank 5 Street Legend bar, 5-slot SVG weapon hotbar and 3 crew ability cards (`[Z] SWAP PLATES · Marisol`, `[X] QUICK FIX · Dex`, `[C] EYES OUT · Lena`); bottom-right dual KM/H & MPH speedometer, vehicle condition badge, nitro meter and radio chip
+- Sun-drenched coastal boulevards with twin-yellow center lines, dashed white lane dashes, cantilevered street lamps with warm golden light pools, intersection traffic signal gantries, neon storefront signage, rooftop hotel landmark boards, beach parasols and turquoise shoreline surf
 - Procedural WebAudio engine notes, sirens, gunfire, rotor wash and three original radio soundtracks — zero audio files
-- Start screen, pause menu, hospital/police respawn, and save/load through localStorage
+- Transparent 3D aerial beachfront & hotel skyline start screen with 3 save slot cards, pause menu, full-city map menu, hospital/police respawn, and save/load through localStorage
 
 Everything is original: the city, characters, vehicles, names, story, art and sound were authored for this entry. Rendered with a vendored three.js r160 under `game/vendor/`.
 
@@ -31,9 +32,9 @@ Everything is original: the city, characters, vehicles, names, story, art and so
 node serve.ts
 ```
 
-Then open http://localhost:8080 in desktop Chrome. WASD to move, mouse to aim, E to enter/exit cars, Shift to sprint (NOS while driving), Space to handbrake, R to cycle the car radio, hold Q for the weapon wheel, F to interact at missions and your garage, Esc to pause (and save).
+Then open http://localhost:8080 in desktop Chrome. WASD to move, mouse to aim, E to enter/exit cars, Shift to sprint (NOS while driving), Space to handbrake, R to cycle the car radio, M or Tab to open the Full-City Tactical Command Map & Save Slots menu, hold Q for the weapon wheel, F to interact at missions and your garage, Esc to pause (and save).
 
-The four submission captures are real renders staged by the game's own photo mode — open `index.html?shot=street&seed=7` (also `chase`, `mission`, `combat`) to reproduce each frame deterministically.
+The four submission captures are real renders staged by the game's own photo mode — open `index.html?shot=street&seed=7` (also `combat`, `map`, `title`) to reproduce each frame deterministically.
 
 ## Hand it in
 
