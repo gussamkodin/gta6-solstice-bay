@@ -1,9 +1,10 @@
-// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v4 visual overhaul).
-// Copies the static v4 browser game — twin-yellow highway markings and white lane lines
-// above the asphalt, wet-neon boulevard reflections on the cover and chase corridors,
-// sculpted Solara GT / Interceptor bodies, and a coastal harbor-ridge skyline — plus the
-// four restaged captures (crew, AIR ONE, docks, firefight), then lets the kit's unchanged
-// dossier builder describe exactly those bytes.
+// Deterministic make.fun entrypoint for Solstice Bay — Last Light (v4.1 top-10 polish).
+// Copies the static browser game — sun-lit slate boulevards with twin-yellow center
+// lines and dashed white lane dashes, subtle curb-side neon pools, a camera-snap fix
+// so staged FOV is exact, a sculpted Solara GT, the high-density tactical HUD (mission
+// stage card, SBPD dispatch telemetry, weapon hotbar, crew cards, rank progress) —
+// plus the four restaged captures, then lets the kit's unchanged dossier builder
+// describe exactly those bytes.
 // The copy is byte-for-byte: no transforms, no timestamps in content, so two runs with
 // the same MAKEFUN_OUTPUT_DIR produce identical trees (verified with diff -r).
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -28,4 +29,4 @@ writeFileSync(join(output, 'dossier.json'), buildDossier(output, {
   game_max_bytes: 50331648,
   game_path_max_bytes: 1000,
 }));
-console.log('Solstice Bay — Last Light v4 (highway markings, wet neon reflections, sculpted cars, harbor ridges): output ready at ' + output);
+console.log('Solstice Bay — Last Light v4.1 (tactical dispatch HUD, weapon loadout bar, camera snap fix, boulevard pursuit cover): output ready at ' + output);

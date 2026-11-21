@@ -11,15 +11,15 @@ The city is yours to roam: art-deco pastel towers downtown under a neon-sunset s
 - Nine story missions with dialogue, waypoints, chases, shootouts, a garage heist, a crew rescue and a helicopter-escape finale
 - Two named crew companions, Marisol and Dex: follow on foot, cover Remy in shootouts, and trade neighborhood barks
 - Seven districts remember local respect, announce arrivals with their own color banners, and unlock small neighborhood perks
-- Low-angle photo staging puts the sculpted red Solara GT on a twin-yellow wet-neon boulevard with Remy and crew on the lit sidewalk edge, all under the sunset skyline
+- Low-angle photo staging puts Remy at the wheel of the sculpted red Solara GT in a Marigold Mile sunset pursuit — Interceptor on the tail, Bay Cab ahead, crew on the palm-lined sidewalk and AIR ONE banking overhead
 - RESPECT ranks from STREET NAME to BAY LEGEND, each unlocking real perks (faster nitro regen, tougher bail deals)
 - Your own garage safehouse: store a ride, repair it, save the game, and hide from AIR ONE
 - Car radio with three original procedural stations — WAVE 101.5 synthwave, FUEGO 99 latin-funk, DRIFT FM lo-fi hop — cycled with R, all synthesized live
 - NOS boost on Shift with a HUD meter and twin exhaust flames; hold Q for the weapon wheel
 - Side work: street races, taxi fares, and rampages, with cash and weapon unlocks
 - Fists, pistol, SMG and shotgun; sculpted sedans, sports cars with full-width LED tail bars, twin exhausts and carbon roofs, pickups, taxis, and Interceptor cruisers with white doors, push-bars and red/blue strobe halos
-- Full HUD: health, armor, cash, wanted stars, weapon/ammo, respect, nitro, radio chip, AIR ONE chatter, speedometer and a live rotating minimap with pursuit blips
-- Twin-yellow highway center lines and white outer lane markings with crisp crosswalks, wet-neon boulevard reflections, neon storefront signage with sidewalk spill, glowing windows and street lamps, long golden-hour shadows, mission banners with cash/respect tallies, damage vignette and bust cinematics
+- High-density tactical HUD: mission stage pill + progress bar, SBPD tactical dispatch card with live pursuit telemetry, big cash and glowing wanted stars with AIR ONE DEPLOYED / PATROL ALERT tags, respect rank progress card, 4-slot weapon hotbar, Marisol & Dex crew ability cards, vehicle condition badge, portrait dialogue box, nitro meter, radio chip, AIR ONE chatter, speedometer and a live rotating minimap with pursuit blips
+- Sun-lit slate boulevards with twin-yellow center lines, dashed white lane dashes and crisp crosswalks, subtle curb-side neon reflection pools, neon storefront signage with sidewalk spill, glowing windows and street lamps, long golden-hour shadows, mission banners with cash/respect tallies, damage vignette and bust cinematics
 - Procedural WebAudio engine notes, sirens, gunfire, rotor wash and three original radio soundtracks — zero audio files
 - Start screen, pause menu, hospital/police respawn, and save/load through localStorage
 

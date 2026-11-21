@@ -42,11 +42,14 @@ export function updateCamera(camera,dt){
  // deterministic photos carry no shake jitter; NOS adds a low rumble while boosting
  const shakeAmt=state.photo?0:cam.shake+(state.nosActive?.045:0);
  const sx=(Math.random()-.5)*shakeAmt,sy=(Math.random()-.5)*shakeAmt;
- if(cam.snap){camera.position.set(solved.x,cy2,solved.z);cam.snap=false;}
+ const snapping=cam.snap;
+ if(snapping){camera.position.set(solved.x,cy2,solved.z);}
  else camera.position.lerp(new THREE.Vector3(solved.x+sx,cy2+sy,solved.z+sx),Math.min(1,dt*9));
  camera.lookAt(target.x+aimX,aimY+(inCar&&!state.photo?.6:0),target.z+aimZ);
  const targetFov=state.photo&&cam.fovWish?cam.fovWish:62+(inCar?Math.min(14,Math.abs(state.carSpeed||0)*.4):0)+(state.nosActive?6:0);
- if(cam.snap)cam.fov=targetFov; // staged framing is exact on the first frame
+ // v4.1 fix: snap FOV and distance on the same frame as the position, then clear the flag —
+ // previously cam.snap was cleared first, so staged shots never reached their intended FOV
+ if(snapping){cam.fov=targetFov;cam.dist=wantDist;cam.snap=false;}
  cam.fov+=(targetFov-cam.fov)*Math.min(1,dt*4);
  camera.fov=cam.fov;camera.updateProjectionMatrix();
 }

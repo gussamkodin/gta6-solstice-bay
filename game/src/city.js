@@ -44,25 +44,20 @@ export function makeCity(scene){
  shimmer.rotation.x=-Math.PI/2;shimmer.position.set(452,-.9,40);root.add(shimmer);
  const shimmer2=new THREE.Mesh(new THREE.PlaneGeometry(46,760),new THREE.MeshBasicMaterial({color:0xffd9a0,transparent:true,opacity:.28,depthWrite:false}));
  shimmer2.rotation.x=-Math.PI/2;shimmer2.position.set(430,-.88,40);root.add(shimmer2);
- // polished-road streaks: narrow, translucent neon catches on the busiest boulevard
- // make wet pavement visible in the contact sheet without obscuring traffic silhouettes
+ // v4.1: the lane itself stays clean sun-lit asphalt — no opaque neon planks mid-road.
+ // Only subtle low-opacity curb-side reflection pools near the buildings remain, so
+ // markings, car paint and long shadows carry the contrast at contact-sheet size.
  const roadGlow=[0xff4fa0,0x3fe8e0,0xffb347,0xb46bff];
- const streakMat=(color)=>new THREE.MeshBasicMaterial({color,transparent:true,opacity:.42,depthWrite:false});
- // v4: streaks ride at .086, above the .08 asphalt top, so the wet-neon glow is actually visible
- for(let row=0;row<8;row++){
-  const z=roadAt(row)+LANE;
-  for(let col=0;col<8;col++){
-   const streak=new THREE.Mesh(new THREE.PlaneGeometry(14+col*2,1.1),streakMat(roadGlow[(row+col)%roadGlow.length]));
-   streak.rotation.x=-Math.PI/2;streak.position.set(30+col*42,.086,z+(col%2?1.3:-1.3));streak.userData.cityStatic=true;root.add(streak);
-  }
- }
- // bright wet-neon reflections along the cover (road 5) and chase (road 4) corridors
- for(const [road,x0,x1] of [[5,220,330],[4,70,145]]){
-  const z=roadAt(road);let k=0;
-  for(let x=x0;x<=x1;x+=11,k++){
-   for(const side of [-2.2,2.2]){
-    const streak=new THREE.Mesh(new THREE.PlaneGeometry(13,1.2),streakMat(roadGlow[(k+(side>0?1:0))%roadGlow.length]));
-    streak.rotation.x=-Math.PI/2;streak.position.set(x,.086,z+side);streak.userData.cityStatic=true;root.add(streak);
+ const poolMat=(color)=>new THREE.MeshBasicMaterial({color,transparent:true,opacity:.16,depthWrite:false});
+ for(let row=0;row<=BLOCKS;row++){
+  const c=roadAt(row);
+  for(let k=0;k<10;k++){
+   const along=-300+k*64;
+   for(const side of [-6.6,6.6]){
+    const pool=new THREE.Mesh(new THREE.PlaneGeometry(9,1.6),poolMat(roadGlow[(row+k+(side>0?1:0))%roadGlow.length]));
+    pool.rotation.x=-Math.PI/2;pool.position.set(along,.085,c+side);pool.userData.cityStatic=true;root.add(pool);
+    const pool2=new THREE.Mesh(new THREE.PlaneGeometry(1.6,9),poolMat(roadGlow[(row+k+(side>0?2:0))%roadGlow.length]));
+    pool2.rotation.x=-Math.PI/2;pool2.position.set(c+side,.085,along);pool2.userData.cityStatic=true;root.add(pool2);
    }
   }
  }
@@ -75,10 +70,12 @@ export function makeCity(scene){
  harborGlow.rotation.x=-Math.PI/2;harborGlow.position.set(-140,.08,-268);root.add(harborGlow);
  // street and intersections
  for(let i=0;i<=BLOCKS;i++){const c=roadAt(i);addBox(root,c,0,0,ROAD,.08,720,mats.asphalt);addBox(root,0,0,c,720,.08,ROAD,mats.asphalt);
-  // v4 highway markings above the asphalt: twin center yellows + white outer lane lines
-  addBox(root,c-.22,.084,0,.14,.015,690,mats.yellow);addBox(root,c+.22,.084,0,.14,.015,690,mats.yellow);
-  addBox(root,0,.084,c-.22,690,.015,.14,mats.yellow);addBox(root,0,.084,c+.22,690,.015,.14,mats.yellow);
-  for(const offset of [-3.8,3.8]){addBox(root,c+offset,.084,0,.12,.015,690,mats.white);addBox(root,0,.084,c+offset,690,.015,.12,mats.white);}
+  // v4.1 boulevard markings: crisp twin center yellows + dashed white outer lane lines
+  addBox(root,c-.24,.084,0,.14,.015,690,mats.yellow);addBox(root,c+.24,.084,0,.14,.015,690,mats.yellow);
+  addBox(root,0,.084,c-.24,690,.015,.14,mats.yellow);addBox(root,0,.084,c+.24,690,.015,.14,mats.yellow);
+  for(let seg=-330;seg<=330;seg+=14)for(const offset of [-3.7,3.7]){
+   addBox(root,c+offset,.084,seg,.12,.015,6,mats.white);addBox(root,seg,.084,c+offset,6,.015,.12,mats.white);
+  }
   for(let j=0;j<9;j++){const z=roadAt(j);if(i<8){addBox(root,c,0,z+ROAD/2+1.1,ROAD,.18,2.2,mats.side);addBox(root,c,0,z-ROAD/2-1.1,ROAD,.18,2.2,mats.side);} }
  }
  // blocks: each gets sidewalk pads, varied buildings, rooftop detail, plazas and palms

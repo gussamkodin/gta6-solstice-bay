@@ -8,6 +8,7 @@ import {rng} from './rng.js';
 const bodyMats={},glassMat=new THREE.MeshStandardMaterial({color:0x1c2c3a,roughness:.12,metalness:.55});
 const wheelMat=new THREE.MeshStandardMaterial({color:0x14181c,roughness:.9});
 const hubMat=new THREE.MeshStandardMaterial({color:0x9aa4ac,roughness:.4,metalness:.6});
+const sportHubMat=new THREE.MeshStandardMaterial({color:0xd8e0e8,roughness:.25,metalness:.8});
 const whiteMat=new THREE.MeshStandardMaterial({color:0xf2f2ee,roughness:.6});
 const tailMat=new THREE.MeshStandardMaterial({color:0xc22a1e,roughness:.5,emissive:0xaa1a0e,emissiveIntensity:.9});
 const headMat=new THREE.MeshStandardMaterial({color:0xfff2c8,roughness:.3,emissive:0xffe9a8,emissiveIntensity:1.1});
@@ -30,6 +31,17 @@ export function buildVehicle(type){
   addBox(g,0,.64,-l/2-.03,w*.84,.1,.06,tailMat);
   for(const s of [-1,1]){addBox(g,s*w*.28,.3,-l/2-.08,.12,.12,.16,wheelMat);addBox(g,s*(w*.52),.78,l*.12,.14,.1,.18,body);}
   addBox(g,0,.35+h*.98,-.05,w*.82,.05,cabinL*.82,paint(0x181c24));
+  // v4.1 sculpt: pronounced wheel-arch fender haunches over all four corners
+  for(const s of [-1,1])for(const sz of [-1,1])addBox(g,s*(w*.48),.44,sz*l*.32,.16,.34,.82,body);
+  // hood scoop + carbon front splitter
+  addBox(g,0,.9,l*.3,w*.3,.1,.7,paint(0x181c24));
+  addBox(g,0,.26,l/2+.06,w*.98,.08,.3,paint(0x181c24));
+  // sloped cabin glass: raked windshield and fastback rear pane
+  const shield=addBox(g,0,.82,l*.2,w*.9,.36,.06,glassMat);shield.rotation.x=-.5;
+  const rearPane=addBox(g,0,.8,-l*.22,w*.88,.32,.06,glassMat);rearPane.rotation.x=.55;
+  // carbon rear wing on twin stalks above the LED tail bar
+  addBox(g,0,1.02,-l*.46,w*.94,.06,.3,paint(0x181c24));
+  addBox(g,-w*.3,.86,-l*.44,.08,.18,.12,body);addBox(g,w*.3,.86,-l*.44,.08,.18,.12,body);
  }
  // bumpers, lights
  addBox(g,0,.32,l/2,w*.94,.22,.15,paint(0x2a2e33));addBox(g,0,.32,-l/2,w*.94,.22,.15,paint(0x2a2e33));
@@ -39,7 +51,7 @@ export function buildVehicle(type){
  for(const [sx,sz] of [[-1,1],[1,1],[-1,-1],[1,-1]]){
   const wheel=new THREE.Mesh(new THREE.CylinderGeometry(wr,wr,.3,10),wheelMat);
   wheel.rotation.z=Math.PI/2;wheel.position.set(sx*(w/2-.05),wr,sz*l*.32);wheel.castShadow=true;g.add(wheel);
-  const hub=new THREE.Mesh(new THREE.CylinderGeometry(wr*.45,wr*.45,.32,8),hubMat);hub.rotation.z=Math.PI/2;hub.position.copy(wheel.position);g.add(hub);
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(wr*.45,wr*.45,.32,8),type==='sports'?sportHubMat:hubMat);hub.rotation.z=Math.PI/2;hub.position.copy(wheel.position);g.add(hub);
   if(sz===1)wheels.push(wheel);
  }
  let lightbar=null;

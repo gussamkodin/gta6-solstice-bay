@@ -7,7 +7,7 @@ import {WEAPONS,districtAt,DISTRICT_META} from './config.js';
 import {STATIONS} from './radio.js';
 import {drawMinimap} from './minimap.js';
 const $=id=>document.getElementById(id);
-let lastDistrict='',districtT=0;
+let lastDistrict='',districtT=0,loadKey='';
 export function updateHUD(dt){
  $('healthText').textContent=Math.ceil(state.foot.health);
  $('healthBar').style.width=Math.max(0,state.foot.health)+'%';
@@ -15,6 +15,11 @@ export function updateHUD(dt){
  $('cash').textContent='$'+state.cash.toLocaleString('en-US');
  $('stars').textContent='★'.repeat(state.wanted)+'☆'.repeat(5-state.wanted);
  $('stars').style.color=state.wanted>0?'#ffd36f':'#63737c';
+ // wanted status tag: helicopter deployment vs ground patrol alert
+ const tag=$('wantedTag');
+ tag.classList.toggle('hide',state.wanted===0);
+ tag.textContent=state.wanted>=3?'AIR ONE DEPLOYED':'PATROL ALERT';
+ tag.classList.toggle('alert',state.wanted<3);
  $('weapon').textContent=WEAPONS[state.weapon].name;
  const a=state.ammo[state.weapon];
  $('ammo').textContent=a===Infinity?'∞':a+' ROUNDS';
@@ -32,7 +37,22 @@ export function updateHUD(dt){
  const rank=rankOf(state.respect);
  const next=RANKS[rank+1];
  $('respect').textContent=RANKS[rank].name+' · '+state.respect+' RP'+(next?' · NEXT '+next.at:'');
+ // v4.1 respect rank card with progress toward the next rank
+ $('rankLabel').textContent='RANK '+(rank+1)+' · '+RANKS[rank].name+' · '+state.respect.toLocaleString('en-US')+(next?' / '+next.at.toLocaleString('en-US'):'')+' RP';
+ $('rankFill').style.width=(next?Math.max(0,Math.min(100,Math.round((state.respect-RANKS[rank].at)/(next.at-RANKS[rank].at)*100))):100)+'%';
+ // 4-slot weapon hotbar: rebuilt only when weapon, ammo or unlocks change
+ const key=state.weapon+'|'+state.ammo.join(',')+'|'+state.unlockedWeapons.join(',');
+ if(key!==loadKey){loadKey=key;
+  $('loadout').innerHTML=WEAPONS.map((wp,i)=>{const am=state.ammo[i],locked=!state.unlockedWeapons[i];
+   return '<div class="l-slot'+(i===state.weapon?' equipped':'')+(locked?' locked':'')+'"><div class="l-key">'+(i+1)+'</div><div class="l-name">'+wp.name+'</div><div class="l-ammo">'+(locked?'LOCKED':am===Infinity?'∞':am)+'</div></div>';}).join('');
+ }
  $('missionTitle').textContent=state.missionTitle+(state.side?' · '+state.side.toUpperCase():'');
+ // mission stage pill, progress bar and next-step teaser
+ const photoStage={street:['STAGE 2/4',62,'NEXT · Secure the pier ledger'],chase:['STAGE 3/4',78,'NEXT · Reach the Heights Overlook'],mission:['STAGE 2/3',55,'NEXT · Escort Marisol to the truck'],combat:['STAGE 2/3',60,'NEXT · Board the getaway Solara']}[state.photo];
+ const stepN=Math.max(1,Math.min(4,(state.missionStep||0)+1));
+ $('missionStage').textContent=photoStage?photoStage[0]:'STAGE '+stepN+'/4';
+ $('missionFill').style.width=(photoStage?photoStage[1]:Math.round(stepN/4*100))+'%';
+ $('missionNext').textContent=photoStage?photoStage[2]:'NEXT · Follow the waypoint';
  // in photo mode the district toast competes with the staged scene: keep it quiet
  if(state.photo){districtT=0;$('toast').style.opacity=0;}
  if(!state.side&&!state.photo)$('objective').textContent=state.objective;
@@ -45,6 +65,12 @@ export function updateHUD(dt){
  nos.classList.toggle('hide',!inCar);
  $('nosBar').style.width=Math.max(0,state.nitro)+'%';
  nos.classList.toggle('burn',!!state.nosActive);
+ // vehicle name + condition badge above the speedometer (also on staged driving shots)
+ const badge=$('carBadge');
+ const showCar=inCar||state.photo==='street'||state.photo==='chase';
+ badge.classList.toggle('hide',!showCar);
+ if(showCar){const car=inCar?world.cars[state.inCar]:world.cars.find(c=>c.type==='sports'&&!c.dead);
+  badge.textContent=(car?car.spec.name:'SOLARA GT').toUpperCase()+' · '+(car?Math.max(0,Math.round(car.health)):100)+'% INTACT';}
  // radio chip: station + track while driving, toast styling right after a switch
  const radio=$('radio');
  const showRadio=(inCar||state.photo)&&state.radioOn;
@@ -55,6 +81,18 @@ export function updateHUD(dt){
   $('radioTrack').textContent='♪ '+(state.radioTrack||'');
   radio.classList.toggle('fresh',!!state.radioToast);
  }
+ // SBPD tactical dispatch card: live pursuit/patrol telemetry driven by the wanted level
+ const disp=$('dispatch');
+ if(state.wanted>0||state.photo){
+  disp.classList.remove('hide');disp.classList.toggle('calm',state.wanted===0);
+  let rows=state.wanted>=3?[['AIR ONE','HELI SPOTLIGHT','22m'],['INTERCEPTOR-4','RAMMING','11m'],['INTERCEPTOR-7','FLANKING','16m'],['UNIT-12','ROADBLOCK AHEAD','38m']]
+   :state.wanted>=1?[['INTERCEPTOR-2','PURSUIT','24m'],['UNIT-9','CONVERGING','41m']]
+   :[['UNIT-3','PATROL','62m'],['UNIT-8','PATROL','88m']];
+  if(state.photo==='combat')rows=[['INTERCEPTOR-2','GUNFIRE RESPONSE','54m'],['UNIT-9','CONVERGING','77m'],['AIR ONE','EN ROUTE','—']];
+  if(state.photo==='street')rows=[['AIR ONE','HELI SPOTLIGHT','34m'],['INTERCEPTOR-4','PURSUIT','12m'],['UNIT-12','ROADBLOCK AHEAD','62m']];
+  $('dispatchCount').textContent=rows.length+' UNITS';
+  $('dispatchList').innerHTML=rows.map(r=>'<div class="d-row"><span class="d-unit">'+r[0]+'</span><span class="d-act">'+r[1]+'</span><span class="d-dist">'+r[2]+'</span></div>').join('');
+ }else disp.classList.add('hide');
  // AIR ONE chatter line under the objective
  const chatter=$('chatter');
  if(state.heliChatterT>0){state.heliChatterT-=dt;chatter.textContent=state.heliChatter;chatter.classList.remove('hide');}
@@ -78,8 +116,9 @@ export function updateHUD(dt){
  else $('crewBark').classList.add('hide');
  // dialogue box
  const dlg=$('dialogue');
- if(state.dialogue){dlg.style.display='block';$('speaker').textContent=state.speaker;$('line').textContent=state.dialogue;}
- else dlg.style.display='none';
+ if(state.dialogue){dlg.classList.add('on');$('speaker').textContent=state.speaker;$('line').textContent=state.dialogue;
+  $('speakerAvatar').textContent=state.speaker.split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase();}
+ else dlg.classList.remove('on');
  // hide the generic controls strip while a line plays so the two never overlap
  $('prompt').style.display=state.dialogue?'none':'block';
  // contextual prompt
